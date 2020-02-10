@@ -1,0 +1,29 @@
+{
+    "name": "Data Entry Trigger Builder",
+    "namespace": "BCCHR\\DataEntryTriggerBuilder",
+    "description": "An External Module that provides an interface to create a DET between a source and destination project.",
+    "authors": [
+        {
+            "name": "Ashley Lee",
+            "email": "alee2@bcchr.ca",
+            "institution": "BC Children's Hospital Research Institute"
+        }
+    ],
+    "links": {
+        "project": [
+            {
+                "name": "Data Entry Trigger Builder",
+                "url": "index.php",
+                "icon": "link"
+            }
+        ]
+    },
+    "system-settings": [
+        {
+            "key": "dets-folder",
+            "name": "Folder to store DETs",
+            "required": true,
+            "type": "text"
+        }
+    ]
+}
