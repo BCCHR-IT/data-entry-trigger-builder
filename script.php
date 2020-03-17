@@ -12,7 +12,7 @@
         var triggers = $(".trigger-and-data-wrapper");
         if (triggers.length < 10)
         {
-            triggers.first().before(
+            triggers.last().after(
                 "<div class='form-group trigger-and-data-wrapper new-wrapper'>" +
                     "<div class='det-trigger'>" +
                         "<div class='row'>" + 
@@ -21,11 +21,11 @@
                             "</div>" +
                             "<div class='col-sm-9'></div>" +
                             "<div class='col-sm-1'>" +
-                                "<span class='fa fa-minus delete-trigger-btn' style='margin-right: 5px'></span>" +
-                                "<span class='fa fa-plus add-trigger-btn'></span>" +
+                                "<span class='fa fa-plus add-trigger-btn' style='margin-right: 5px'></span>" +
+                                "<span class='fa fa-minus delete-trigger-btn'></span>" +
                             "</div>" +
                         "</div>" +
-                        "<input name='triggers[]' type='text' class='form-control det-trigger-input'>" +
+                        "<input name='triggers[]' type='text' class='form-control det-trigger-input' required>" +
                     "</div>" +
                     "<p>Copy the following instruments/fields from source project to linked project when the above condition is true:</p>" +
                     "<div class='row' style='margin-top:20px'>" +
@@ -34,7 +34,6 @@
                     "</div>" + 
                 "</div>"
             );
-            $(".trigger-and-data-wrapper").last().find('.selectpicker').selectpicker('render')
         }
         else
         {
@@ -53,12 +52,14 @@
             instrOptions.forEach(function(item) {
                 options += "<option " + "value='" + item + "'>" + item + "</option>";
             });
+            
+            var index = $(".trigger-and-data-wrapper").index($(this).closest('.trigger-and-data-wrapper'));
 
             var elem = $(
                 "<div class='row det-instrument' style='margin-top:20px;'>" +
                     "<div class='col-sm-2'><p>Copy instrument</p></div>" +
                     "<div class='col-sm-3'>" +
-                        "<select name='sourceInstr[]' class='form-control selectpicker select-source-instr' data-live-search='true' required>" +
+                        "<select name='sourceInstr[" + index + "][]' class='form-control selectpicker select-source-instr' data-live-search='true' required>" +
                         "<option value='' disabled selected>Select an instrument</option>" + 
                         <?php
                             $instruments = REDCap::getInstrumentNames();
@@ -71,7 +72,7 @@
                     "</div>" +
                     "<div class='col-sm-1'><p>to</p></div>" +
                     "<div class='col-sm-3'>" +
-                        "<select name='destInstr[]' class='form-control selectpicker select-dest-instr' data-live-search='true' required>" +
+                        "<select name='destInstr[" + index + "][]' class='form-control selectpicker select-dest-instr' data-live-search='true' required>" +
                         "<option value='' disabled selected>Select an instrument</option>" + 
                         options + 
                         "</select>" +
@@ -102,11 +103,13 @@
                 options += "<option " + "value='" + item + "'>" + item + "</option>";
             });
 
+            var index = $(".trigger-and-data-wrapper").index($(this).closest('.trigger-and-data-wrapper'));
+
             var elem = $(
                 "<div class='row det-field' style='margin-top:20px'>" +
                     "<div class='col-sm-2'><p>Copy field</p></div>" +
                     "<div class='col-sm-3'>" +
-                        "<select name='sourceFields[]' class='form-control selectpicker' data-live-search='true' required>" +
+                        "<select name='sourceFields[" + index + "][]' class='form-control selectpicker' data-live-search='true' required>" +
                         "<option value='' disabled selected>Select a field</option>" + 
                         <?php
                             $fields = REDCap::getFieldNames();
@@ -119,7 +122,7 @@
                     "</div>" +
                     "<div class='col-sm-1'><p>to</p></div>" +
                     "<div class='col-sm-3'>" +
-                        "<select name='destFields[]' class='form-control selectpicker select-dest-field' data-live-search='true' required>" +
+                        "<select name='destFields[" + index + "][]' class='form-control selectpicker select-dest-field' data-live-search='true' required>" +
                         "<option value='' disabled selected>Select a field</option>" + 
                         options + 
                         "</select>" +
@@ -160,8 +163,40 @@
     });
 
     /**
-     * Ajax call to retrieve destination project's fields and instruments
+     * Ajax calls to retrieve destination project's fields and instruments
      */
+
+    /**
+        Call to retrieve destination project's fields and instruments when page loads.
+        Only relevent when DET aleady exists.
+    */
+    $(document).ready(function() {
+        if ($("#destination-project-select").val() != "")
+        {
+            fieldOptions = [];
+            instrOptions = [];
+            $.ajax({
+                url: "<?php print $module->getUrl("getDestinationFields.php") ?>",
+                type: "POST",
+                data: {
+                    pid: $("#destination-project-select").val()
+                },
+                success: function (data) {
+                    var metadata = JSON.parse(data);
+                    fieldOptions = metadata.fields;
+                    instrOptions = metadata.instruments;
+                },
+                error: function (data, status, error) {
+                    console.log("Returned with status " + status + " - " + error);
+                }
+            });
+        }
+    });
+
+    /**
+        Call to retrieve destination project's fields and instruments when 
+        destination project changes.
+    */
     $("#destination-project-select").change(function () {
         fieldOptions = [];
         instrOptions = [];
@@ -177,6 +212,7 @@
                 fieldOptions = metadata.fields;
                 instrOptions = metadata.instruments;
 
+                // Refreshes the link-dest-select right away.
                 var options = "<option value='' disabled selected>Select a field</option>";
                 fieldOptions.forEach(function(item) {
                     options += "<option " + "value='" + item + "'>" + item + "</option>";
@@ -195,7 +231,8 @@
     /**
      * Ajax call to submit form, and validate
      */
-    $("#create-det-btn").click(function () {
+    $("form").submit(function (event) {
+        event.preventDefault();
         $.ajax({
             url: "<?php print $module->getUrl("SubmitForm.php") ?>",
             type: "POST",
@@ -211,7 +248,7 @@
 
                 if (errors.success != true)
                 {
-                    if (errors.create_subject_errors.length > 0)
+                    if (errors.create_subject_errors)
                     {
                         var msg = "<b>ERROR! Syntax errors exist in the logic:</b><br>"
                         errors.create_subject_errors.forEach(function(item) {
@@ -221,7 +258,7 @@
                         $("#create-record-input").after("<p class='error'><i style='color:red'>" + msg + "</i></p>")
                     }
                     
-                    if (errors.trigger_errors != undefined)
+                    if (errors.trigger_errors)
                     {
                         for (var index in errors.trigger_errors)
                         {
@@ -234,6 +271,10 @@
                             $(triggers[index]).after("<p class='error'><i style='color:red'>" + msg + "</i></p>")
                         }
                     }
+                }
+                else
+                {
+                    alert("Your DET has successfully been created");
                 }
             },
             error: function (data, status, error) {

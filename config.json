@@ -25,5 +25,8 @@
             "required": true,
             "type": "text"
         }
+    ],
+    "permissions": [
+        "redcap_save_record"
     ]
 }

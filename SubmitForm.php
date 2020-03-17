@@ -36,5 +36,6 @@ if (!empty($errors))
 }
 else
 {
-    print json_encode(array("success" => true));
+    $data_entry_trigger_builder->setProjectSetting("det_settings", json_encode($_POST));
+    print json_encode(array("success" => true, "data" => json_encode($_POST)));
 }
