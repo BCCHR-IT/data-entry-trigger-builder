@@ -57,7 +57,7 @@
 
             var elem = $(
                 "<div class='row det-instrument' style='margin-top:20px;'>" +
-                    "<div class='col-sm-2'><p>Copy instrument</p></div>" +
+                    "<div class='col-sm-6'><p>Copy instrument (must have a one-to-one relationship in the destination project)</p></div>" +
                     "<div class='col-sm-3'>" +
                         "<select name='sourceInstr[" + index + "][]' class='form-control selectpicker select-source-instr' data-live-search='true' required>" +
                         "<option value='' disabled selected>Select an instrument</option>" + 
@@ -68,13 +68,6 @@
                                 print "\"<option value='$unique_name'>$unique_name</option>\" +";
                             }
                         ?>
-                        "</select>" +
-                    "</div>" +
-                    "<div class='col-sm-1'><p>to</p></div>" +
-                    "<div class='col-sm-3'>" +
-                        "<select name='destInstr[" + index + "][]' class='form-control selectpicker select-dest-instr' data-live-search='true' required>" +
-                        "<option value='' disabled selected>Select an instrument</option>" + 
-                        options + 
                         "</select>" +
                     "</div>" +
                     "<div class='col-sm-1' style='text-align: center; padding-top: 1%; padding-bottom: 1%;'>" +

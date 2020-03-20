@@ -30,7 +30,7 @@ $settings = json_decode($data_entry_trigger_builder->getProjectSetting("det_sett
                 This module allows the user to customize data entry transfers between two projects in REDCap. If your requirements are more complicated than what's allowed here, please contact
                 the <b>BCCHR REDCap</b> team.
             </p>
-            <?php if (empty($settings)) { $data_entry_trigger_builder->newForm(); } else { $data_entry_trigger_builder->existingForm($settings); } ?>
+            <?php if (empty($settings)) { $data_entry_trigger_builder->getForm(); } else { $data_entry_trigger_builder->getForm($settings); } ?>
         </div>
     </body>
 </html>

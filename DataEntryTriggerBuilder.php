@@ -111,7 +111,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
      * @param String $text      The line of text to validate.
      * @return Array            An array of errors, with the line number appended to indicate where it occured.
      */
-    private function isValidFieldOrEvent($var)
+    public function isValidFieldOrEvent($var)
     {
         $var = trim($var, "'");
 
@@ -154,10 +154,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
     {
         $errors = array();
 
-        $logic_operator_alt = array("==", "<>", "!=", "!=", ">", "<", ">=", ">=", "<=", "<=", "||", "&&", "=");
-        $logical_operators = array("eq", "ne", "ne", "neq", "gt", "lt", "ge", "gte", "lte", "le", "or", "and", "eq");
-
-        $syntax = str_replace($logic_operator_alt, $logical_operators, $syntax);
+        $logical_operators =  array("==", "<>", "!=", ">", "<", ">=", ">=", "<=", "<=", "||", "&&", "=");
         
         $parts = $this->getSyntaxParts($syntax);
 
@@ -204,15 +201,18 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                         }
                     }
                     break;
-                case "eq":
-                case "ne":
-                case "neq":
-                case "gt":
-                case "ge":
-                case "gte":
-                case "lt":
-                case "le":
-                case "lte":
+                case "==":
+                case "<>": 
+                case "!=":
+                case ">":
+                case "<":
+                case ">=":
+                case ">=":
+                case "<=":
+                case "<=":
+                case "||":
+                case "&&":
+                case "=":
                     if ($index == 0)
                     {
                         $errors[] = "Cannot have a comparison operator <strong>$part</strong> as the first part in syntax.";
@@ -228,8 +228,6 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                         }
 
                         if (!empty($next_part) 
-                            && $next_part !== "(" 
-                            && $next_part !== "[" 
                             && !is_numeric($next_part)
                             && $next_part[0] != "'" 
                             && $next_part[0] != "\""
@@ -244,8 +242,8 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                         $errors[] = "Cannot have a comparison operator <strong>$part</strong> as the last part in syntax.";
                     }
                     break;
-                case "or":
-                case "and":
+                case "||":
+                case "&&":
                     if ($index == 0)
                     {
                         $errors[] = "Cannot have a logical operator <strong>$part</strong> as the first part in syntax.";
@@ -343,7 +341,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
          */
         foreach($metadata as $field_name => $data)
         {
-            if ($data["field_type"] != "descriptive")
+            if ($data["field_type"] != "descriptive" && $data["field_type"] != "calc")
             {
                 $fields[] = $field_name;
             }
@@ -357,108 +355,119 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
             $fields[] = $instrument . "_complete";
         }
 
-        return json_encode(array("instruments" => $instruments, "fields" => $fields));
+        return array("instruments" => $instruments, "fields" => $fields);
     }
 
     /**
-     * Prints a DET form filled with existing data
+     * Print the form item for the destination project.
      * 
      * @param Array $settings   An associative array containing the DET settings
      */
-    public function existingForm($settings)
+    private function linkedProjectFormItem($settings)
     {
-        $metadata = REDCap::getDataDictionary("array");
-        $instrument_names = REDCap::getInstrumentNames();
-        $dest_fields = json_decode($this->retrieveProjectMetadata($settings["dest-project"]), true);
         ?>
-        <form class="jumbotron">
-            <p style="font-size:16px"><b>Here are your existing DET settings:</b></p>
-            <div class="form-group">
-                <label>Linked Project</label>
-                <select name="dest-project" id="destination-project-select" class="form-control selectpicker" data-live-search="true" required>
-                    <option value="" disabled>Select a project</option>
+        <h4>Linked Project</h4>
+        <div class="form-group">
+            <select name="dest-project" id="destination-project-select" class="form-control selectpicker" data-live-search="true" required>
+                <option value="" disabled <?php if (empty($settings)) { print "selected"; }?>>Select a project</option>
+                <?php
+                    $projects = $this->getProjects();
+                    foreach($projects as $project)
+                    {
+                        if ($project["project_id"] != $_GET["pid"]) {
+                            if (!empty($settings["dest-project"]) && $project["project_id"] == $settings["dest-project"])
+                            {
+                                print "<option value='". $project["project_id"] . "' selected>" . $project["app_title"] . "</option>";
+                            }
+                            else
+                            {
+                                print "<option value='". $project["project_id"] . "'>" . $project["app_title"] . "</option>";
+                            }
+                        }
+                    }
+                ?>
+            </select>
+        </div>
+        <?php
+    }
+
+    /**
+     * Print the form item for subject creation.
+     * 
+     * @param Array $settings   An associative array containing the DET settings
+     */
+    private function subjectCreationFormItem($settings)
+    {
+        $metadata = $this->retrieveProjectMetadata($this->getProjectId());
+        $dest_fields = $this->retrieveProjectMetadata($settings["dest-project"]);
+        ?>
+        <h4>Subject Creation</h4>
+        <div class="form-group">
+            <label>Create a subject/record ID in the linked project, PID xyz, when the following conditions are met:</label>
+            <ul>
+                <li>E.g., [event_name][instrument_name_complete] = '2'</li>
+                <li>E.g., [event_name][variable_name] = '1'</li>
+            </ul>
+            <p>Where [event_name] = only in longitudinal projects<br/>Where [instrument_name] = form copied from source to linked project</p>
+            <input id="create-record-input" name="create-record-cond" type="text" class="form-control" value="<?php print $settings["create-record-cond"]?>" required>
+        </div>
+        <div class='row link-field form-group'> 
+            <div class='col-sm-2'><p>Link source project field</p></div> 
+            <div class='col-sm-3'>
+                <select name='linkSource' class='form-control selectpicker' data-live-search='true' required>
+                    <option value='' disabled <?php if (empty($settings)) { print "selected"; }?>>Select a field</option>
                     <?php
-                        $projects = $this->getProjects();
-                        foreach($projects as $project)
+                        foreach($metadata["fields"] as $field_name)
                         {
-                            if ($project["project_id"] != $_GET["pid"]) {
-                                if (!empty($settings["dest-project"]) && $project["project_id"] == $settings["dest-project"])
-                                {
-                                    print "<option value='". $project["project_id"] . "' selected>" . $project["app_title"] . "</option>";
-                                }
-                                else
-                                {
-                                    print "<option value='". $project["project_id"] . "'>" . $project["app_title"] . "</option>";
-                                }
+                            if (!empty($settings["linkSource"]) && $field_name == $settings["linkSource"])
+                            {
+                                print "<option value='$field_name' selected>$field_name</option>";
+                            }
+                            else
+                            {
+                                print "<option value='$field_name'>$field_name</option>";
                             }
                         }
                     ?>
-                </select>
-            </div>
-            <h4>Subject Creation</h4>
-            <div class="form-group">
-                <label>Create a subject/record ID in the linked project, PID xyz, when the following conditions are met:</label>
-                <ul>
-                    <li>E.g., [event_name][instrument_name_complete] = "2"</li>
-                    <li>E.g., [event_name][variable_name] = "1"</li>
-                </ul>
-                <p>Where [event_name] = only in longitudinal projects<br/>Where [instrument_name] = form copied from source to linked project</p>
-                <input id="create-record-input" name="create-record-cond" type="text" class="form-control" value="<?php print $settings["create-record-cond"]?>" required>
-            </div>
-            <div class='row link-field form-group'> 
-                <div class='col-sm-2'><p>Link source project field</p></div> 
-                <div class='col-sm-3'>
-                    <select name='linkSource' class='form-control selectpicker' data-live-search='true' required>
-                        <option value='' disabled>Select a field</option>
-                        <?php
-                            foreach($metadata as $field_name => $data)
-                            {
-                                if ($data["field_type"] != "descriptive")
-                                {
-                                    if (!empty($settings["linkSource"]) && $field_name == $settings["linkSource"])
-                                    {
-                                        print "<option value='$field_name' selected>$field_name</option>";
-                                    }
-                                    else
-                                    {
-                                        print "<option value='$field_name'>$field_name</option>";
-                                    }
-                                }
-                            }
-                            foreach ($instrument_names as $unique_name=>$label)
-                            {
-                                if (!empty($settings["linkSource"]) && $unique_name == $settings["linkSource"])
-                                {
-                                    print "<option value='{$unique_name}_complete' selected>{$unique_name}_complete</option>";
-                                }
-                                else
-                                {
-                                    print "<option value='{$unique_name}_complete'>{$unique_name}_complete</option>";
-                                }
-                            }
-                        ?>
-                    </select> 
-                </div> 
-                <div class='col-sm-2'><p>to linked project field</p></div> 
-                <div class='col-sm-3'>
-                    <select id="link-dest-select" name='linkDest' class='form-control selectpicker select-dest-field' data-live-search='true' required>
-                        <option value='' disabled selected>Select a field</option>  
-                        <?php
-                            foreach($dest_fields["fields"] as $field_name)
-                            {
-                                if (!empty($settings["linkDest"]) && $field_name == $settings["linkDest"])
-                                {
-                                    print "<option value='$field_name' selected>$field_name</option>";
-                                }
-                                else
-                                {
-                                    print "<option value='$field_name'>$field_name</option>";
-                                }
-                            }
-                        ?>
-                    </select> 
-                </div> 
-            </div>
+                </select> 
+            </div> 
+            <div class='col-sm-2'><p>to linked project field</p></div> 
+            <div class='col-sm-3'>
+                <select id="link-dest-select" name='linkDest' class='form-control selectpicker select-dest-field' data-live-search='true' required>
+                    <?php if (empty($settings)):?>
+                    <option value='' disabled selected>Select a field</option>
+                    <?php else:?>
+                    <option value='' disabled>Select a field</option>
+                    <?php
+                    foreach($dest_fields["fields"] as $field_name)
+                    {
+                        if (!empty($settings["linkDest"]) && $field_name == $settings["linkDest"])
+                        {
+                            print "<option value='$field_name' selected>$field_name</option>";
+                        }
+                        else
+                        {
+                            print "<option value='$field_name'>$field_name</option>";
+                        }
+                    }
+                    endif;?>
+                </select> 
+            </div> 
+        </div>
+        <?php
+    }
+
+    /**
+     * Print the form items for triggers and data to import.
+     * 
+     * @param Array $settings   An associative array containing the DET settings
+     */
+    private function triggersFormItems($settings)
+    {
+        $metadata = $this->retrieveProjectMetadata($this->getProjectId());
+        $instrument_names = REDCap::getInstrumentNames();
+        $dest_fields = $this->retrieveProjectMetadata($settings["dest-project"]);
+        ?>
             <h4>Trigger conditions (Max. 10)</h4>
             <div>
                 <label>Push data from the source project to the linked project, when the following conditions are met:</label>
@@ -468,7 +477,27 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                 </ul>
                 <p>Where [event_name] = only in longitudinal projects<br/>Where [instrument_name] = form copied from source to linked project</p>
             </div>
-            <?php foreach($settings["triggers"] as $index => $trigger) :?>
+            <?php if (empty($settings)): ?>
+            <div class="form-group trigger-and-data-wrapper">
+                <div class="det-trigger">
+                    <div class="row">
+                        <div class="col-sm-2">
+                            <label>Condition:</label>
+                        </div>
+                        <div class="col-sm-9"></div>
+                        <div class="col-sm-1">
+                            <span class="fa fa-plus add-trigger-btn"></span>
+                        </div>
+                    </div>
+                    <input name="triggers[]" type="text" class="form-control det-trigger-input" required>
+                </div>
+                <p>Copy the following instruments/fields from source project to linked project when the above condition is true:</p>
+                <div class="row" style="margin-top:20px">
+                    <div class="col-sm-2"><button type="button" class="btn btn-primary add-instr-btn">+ Instrument</button></div>
+                    <div class="col-sm-2"><button type="button" class="btn btn-primary add-field-btn">+ Field</button></div>
+                </div>
+            </div>
+            <?php else: foreach($settings["triggers"] as $index => $trigger): ?>
             <div class="form-group trigger-and-data-wrapper">
                 <div class="det-trigger">
                     <div class="row">
@@ -502,29 +531,15 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                                 <select name='sourceFields[<?php print $index;?>][]' class='form-control selectpicker' data-live-search='true' required>
                                 <option value='' disabled>Select a field</option> 
                                 <?php
-                                    foreach($metadata as $field_name => $data)
+                                    foreach($metadata["fields"] as $field_name)
                                     {
-                                        if ($data["field_type"] != "descriptive")
+                                        if ($field_name == $source)
                                         {
-                                            if ($field_name == $source)
-                                            {
-                                                print "<option value='$field_name' selected>$field_name</option>";
-                                            }
-                                            else
-                                            {
-                                                print "<option value='$field_name'>$field_name</option>";
-                                            }
-                                        }
-                                    }
-                                    foreach ($instrument_names as $unique_name=>$label)
-                                    {
-                                        if ($unique_name == $source)
-                                        {
-                                            print "<option value='{$unique_name}_complete' selected>{$unique_name}_complete</option>";
+                                            print "<option value='$field_name' selected>$field_name</option>";
                                         }
                                         else
                                         {
-                                            print "<option value='{$unique_name}_complete'>{$unique_name}_complete</option>";
+                                            print "<option value='$field_name'>$field_name</option>";
                                         }
                                     }
                                 ?>
@@ -562,7 +577,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                     {
                         ?>
                         <div class='row det-field' style='margin-top:20px'>
-                            <div class='col-sm-2'><p>Copy instrument</p></div>
+                            <div class='col-sm-6'><p>Copy instrument (must have a one-to-one relationship in the destination project)</p></div>
                             <div class='col-sm-3'>
                                 <select name='sourceInstr[<?php print $index;?>][]' class='form-control selectpicker' data-live-search='true' required>
                                 <option value='' disabled>Select an instrument</option> 
@@ -581,25 +596,6 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                                 ?>
                                 </select>
                             </div>
-                            <div class='col-sm-1'><p>to</p></div>
-                            <div class='col-sm-3'>
-                                <select name='destInstr[<?php print $index;?>][]' class='form-control selectpicker select-dest-field' data-live-search='true' required>
-                                <option value='' disabled>Select an instrument</option>
-                                <?php
-                                    foreach($dest_fields["instruments"] as $instrument)
-                                    {
-                                        if ($instrument == $destInstr[$i])
-                                        {
-                                            print "<option value='$instrument' selected>$instrument</option>";
-                                        }
-                                        else
-                                        {
-                                            print "<option value='$instrument'>$instrument</option>";
-                                        }
-                                    }
-                                ?>
-                                </select>
-                            </div>
                             <div class='col-sm-1' style='text-align: center; padding-top: 1%; padding-bottom: 1%;'>
                                 <span class='fa fa-minus delete-field-btn' style='margin-right: 5px'></span>
                             </div>
@@ -608,146 +604,219 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                     }
                 ?>
             </div>
-            <?php endforeach; ?>
-            <h4>Confirm the following</h4>
-            <div class="row">
-                <div class="form-check col" style="margin-left:15px">
-                    <div class="row"><label>Overwrite data in destination project every time data is saved</label></div>
-                    <?php if ($settings["overwrite-data"] == "overwrite"):?>
-                    <input type="radio" name="overwrite-data" class="form-check-input" value="overwrite" checked required><label class="form-check-label">Yes</label>
-                    <br>
-                    <input type="radio" name="overwrite-data" class="form-check-input" value="normal" required><label class="form-check-label">No</label>
-                    <?php else:?>
-                    <input type="radio" name="overwrite-data" class="form-check-input" value="overwrite" required><label class="form-check-label">Yes</label>
-                    <br>
-                    <input type="radio" name="overwrite-data" class="form-check-input" value="normal" checked required><label class="form-check-label">No</label>
-                    <?php endif; ?>
-                </div>
-                <div class="form-check col">
-                    <div class="row"><label>Use DAGs (Will only push DAGs one-to-one)</label></div>
-                    <?php if ($settings["use-dags"] == "1"):?>
-                    <input type="radio" name="use-dags" class="form-check-input" value="1" checked required><label class="form-check-label">Yes</label>
-                    <br>
-                    <input type="radio" name="use-dags" class="form-check-input" value="0" required><label class="form-check-label">No</label>
-                    <?php else:?>
-                    <input type="radio" name="use-dags" class="form-check-input" value="1" required><label class="form-check-label">Yes</label>
-                    <br>
-                    <input type="radio" name="use-dags" class="form-check-input" value="0" checked required><label class="form-check-label">No</label>
-                    <?php endif; ?>
-                </div>
+            <?php 
+            endforeach; 
+            endif;
+    }
+
+    /**
+     * Print the form section for additional settings to confirm.
+     * 
+     * @param Array $settings   An associative array containing the DET settings
+     */
+    private function additionalSettingsFormItems($settings)
+    {
+        ?>
+        <h4>Confirm the following</h4>
+        <div class="row">
+            <div class="form-check col-6" style="margin-left:15px">
+            <div class="row"><label>Overwrite data in destination project every time data is saved. This determines whether to push blank data over to the destination project.</label></div>
+            <?php if (empty($settings)): ?>
+                <input type="radio" name="overwrite-data" class="form-check-input" value="overwrite" required><label class="form-check-label">Yes</label>
+                <br>
+                <input type="radio" name="overwrite-data" class="form-check-input" value="normal" required><label class="form-check-label">No</label>
+            <?php else:?>
+                <?php if ($settings["overwrite-data"] == "overwrite"):?>
+                <input type="radio" name="overwrite-data" class="form-check-input" value="overwrite" checked required><label class="form-check-label">Yes</label>
+                <br>
+                <input type="radio" name="overwrite-data" class="form-check-input" value="normal" required><label class="form-check-label">No</label>
+                <?php else:?>
+                <input type="radio" name="overwrite-data" class="form-check-input" value="overwrite" required><label class="form-check-label">Yes</label>
+                <br>
+                <input type="radio" name="overwrite-data" class="form-check-input" value="normal" checked required><label class="form-check-label">No</label>
+                <?php endif; ?>
+            <?php endif;?>
             </div>
+        </div>
+        <?php
+    }
+
+    /**
+     * Print the DET form. Will fill the form with 
+     * existing DET data, if it exists.
+     * 
+     * @param Array $settings   An associative array containing the DET settings
+     */
+    public function getForm($settings = null)
+    {
+        ?>
+        <form class="jumbotron">
+            <?php 
+                $this->linkedProjectFormItem($settings);
+                $this->subjectCreationFormItem($settings);
+                $this->triggersFormItems($settings);
+                $this->additionalSettingsFormItems($settings);
+            ?>
             <button id="create-det-btn" type="submit" class="btn btn-primary" style="margin-top:20px">Create DET</button>
         </form>
         <?php
     }
 
     /**
-     * Prints a new DET form
+     * Parses a String of branching logic into blocks of logic syntax.
+     * Assumes valid REDCap Logic syntax in trigger.
+     * 
+     * @param String $branching_logic   A String of REDCap branching logic.
+     * @return Array    An array of syntax blocks representing the given branching logic String.
      */
-    public function newForm()
+    public function parseCondition($branching_logic)
     {
-        ?>
-        <form class="jumbotron">
-            <div class="form-group">
-                <label>Linked Project</label>
-                <select name="dest-project" id="destination-project-select" class="form-control selectpicker" data-live-search="true" required>
-                    <option value="" disabled selected>Select a project</option>
-                    <?php
-                        $projects = $this->getProjects();
-                        foreach($projects as $project)
-                        {
-                            print "<option value='". $project["project_id"] . "'>" . $project["app_title"] . "</option>";
-                        }
-                    ?>
-                </select>
-            </div>
-            <h4>Subject Creation</h4>
-            <div class="form-group">
-                <label>Create a subject/record ID in the linked project, PID xyz, when the following conditions are met:</label>
-                <ul>
-                    <li>E.g., [event_name][instrument_name_complete] = "2"</li>
-                    <li>E.g., [event_name][variable_name] = "1"</li>
-                </ul>
-                <p>Where [event_name] = only in longitudinal projects<br/>Where [instrument_name] = form copied from source to linked project</p>
-                <input id="create-record-input" name="create-record-cond" type="text" class="form-control" value="<?php print $settings["create-record-cond"]?>" required>
-            </div>
-            <div class='row link-field form-group'> 
-                <div class='col-sm-2'><p>Link source project field</p></div> 
-                <div class='col-sm-3'>
-                    <select name='linkSource' class='form-control selectpicker' data-live-search='true' required>
-                        <option value='' disabled selected>Select a field</option>
-                        <?php
-                            $metadata = REDCap::getDataDictionary("array");
-                            foreach($metadata as $field_name => $data)
-                            {
-                                print "<option value='$field_name'>$field_name</option>";
-                            }
-                            $instrument_names = REDCap::getInstrumentNames();
-                            foreach ($instrument_names as $unique_name=>$label)
-                            {
-                                print "<option value='{$unique_name}_complete'>{$unique_name}_complete</option>";
-                            }
-                        ?>
-                    </select> 
-                </div> 
-                <div class='col-sm-2'><p>to linked project field</p></div> 
-                <div class='col-sm-3'>
-                    <select id="link-dest-select" name='linkDest' class='form-control selectpicker select-dest-field' data-live-search='true' required>
-                        <option value='' disabled selected>Select a field</option>  
-                    </select> 
-                </div> 
-            </div>
-            <h4>Trigger conditions (Max. 10)</h4>
-            <div>
-                <label>Push data from the source project to the linked project, when the following conditions are met:</label>
-                <ul>
-                    <li>E.g., [event_name][instrument_name_complete] = "2"</li>
-                    <li>E.g., [event_name][variable_name] = "1"</li>
-                </ul>
-                <p>Where [event_name] = only in longitudinal projects<br/>Where [instrument_name] = form copied from source to linked project</p>
-            </div>
-            <div class="form-group trigger-and-data-wrapper">
-                <div class="det-trigger">
-                    <div class="row">
-                        <div class="col-sm-2">
-                            <label>Condition:</label>
-                        </div>
-                        <div class="col-sm-9"></div>
-                        <div class="col-sm-1">
-                            <span class="fa fa-plus add-trigger-btn"></span>
-                        </div>
-                    </div>
-                    <input name="triggers[]" type="text" class="form-control det-trigger-input" required>
-                </div>
-                <p>Copy the following instruments/fields from source project to linked project when the above condition is true:</p>
-                <div class="row" style="margin-top:20px">
-                    <div class="col-sm-2"><button type="button" class="btn btn-primary add-instr-btn">+ Instrument</button></div>
-                    <div class="col-sm-2"><button type="button" class="btn btn-primary add-field-btn">+ Field</button></div>
-                </div>
-            </div>
-            <h4>Confirm the following</h4>
-            <div class="row">
-                <div class="form-check col" style="margin-left:15px">
-                    <div class="row"><label>Overwrite data in destination project every time data is saved</label></div>
-                    <input type="radio" name="overwrite-data" class="form-check-input" value="overwrite" required><label class="form-check-label">Yes</label>
-                    <br>
-                    <input type="radio" name="overwrite-data" class="form-check-input" value="normal" required><label class="form-check-label">No</label>
-                </div>
-                <div class="form-check col">
-                    <div class="row"><label>Use DAGs (Will only push DAGs one-to-one)</label></div>
-                    <input type="radio" name="use-dags" class="form-check-input" value="1" required><label class="form-check-label">Yes</label>
-                    <br>
-                    <input type="radio" name="use-dags" class="form-check-input" value="0" required><label class="form-check-label">No</label>
-                </div>
-            </div>
-            <button id="create-det-btn" type="submit" class="btn btn-primary" style="margin-top:20px">Create DET</button>
-        </form>
-        <?php
+        if (strpos($branching_logic, "(") !== FALSE)
+        {
+            /**
+             * Split on first && after first closing bracket, else split on any ||
+             *   Condition within bracket
+             *   Operator
+             *   Condition after operator
+             * 
+             * NOTE: Odd behavior for preg_split and PREG_SPLIT_DELIM_CAPTURE, it will only return the delim within a group.
+             * Can use this to return only the operand as a delimiter. 
+             * 
+             * Regex uses negative look ahead to search for last closing bracket (bracket without other closing brackets before it)
+             */
+            if (preg_match("/\)(?!.*\)).*(&&)/", $branching_logic) === 1)
+            {
+                $split_string = preg_split("/\)(?!.*\))(.*)(&&)/", $branching_logic, 2, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+                $split_string = array(
+                    $split_string[0] . ")" . $split_string[1],
+                    $split_string[2],
+                    $split_string[3]
+                );
+            }
+            else
+            {
+                $split_string = preg_split("/\)(?!.*\))\s*(\|\|)/", $branching_logic, 2, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE); 
+            }
+        }
+        /**
+         * Split on first &&  into the following:
+         *      Condition before operator
+         *      Operator
+         *      Condition after operator
+         */
+        else if (strpos($branching_logic, "&&") !== FALSE)
+        {   
+            $split_string = preg_split("/(&&)/", $branching_logic, 2, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+        }
+        /**
+         * Split on first ||  into the following:
+         *      Condition before operator
+         *      Operator
+         *      Condition after operator
+         */
+        else if (strpos($branching_logic, "||") !== FALSE)
+        {
+            $split_string = preg_split("/(\|\|)/", $branching_logic, 2, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+        }
+        
+        if (empty($split_string))
+        {
+            return FALSE;
+        }
+        else
+        {
+            return array(
+                "left_branch" => $split_string[0],
+                "operand" => $split_string[1],
+                "right_branch" => $split_string[2]
+            );
+        }
+    }
+
+    /**
+     * Validates the given trigger.
+     * Assumes valid REDCap Logic syntax in trigger.
+     * 
+     * @return Boolean
+     */
+    public function processTrigger($record_data, $trigger)
+    {
+        $logic_operators = array("==", "=", "<>", "!=", ">", "<", ">=", ">=", "<=");
+
+        $tokens = $this->parseCondition($trigger);
+
+        /**
+         * If there's no relational operators, then split condition on 
+         * logical operator and process.
+         */
+        if ($tokens === FALSE)
+        {
+            $blocks = preg_split("/(==|=|<>|!=|>|<|>=|>=|<=)/", $trigger, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+            
+            if (!REDCap::isLongitudinal())
+            {
+                $field = trim($blocks[0], " []'\"()");
+            }
+            else
+            {
+                $split_pos = strpos($blocks[0], "][");
+
+                $event = substr($blocks[0], 0, $split_pos);
+                $field = substr($blocks[0], $split_pos+1);
+
+                $event = trim($event, " []'\"()");
+                $field = trim($field, " []'\"()");
+                
+                $event_key = array_search($event, array_column($record_data, "redcap_event_name"));
+                $record_data = $record_data[$event_key];
+            }
+
+            $operator = trim($blocks[1]);
+            $value = trim($blocks[2], " '\"");
+
+            switch ($operator)
+            {
+                case "=":
+                case "==":
+                    return $record_data[$field] == $value;
+                break;
+                case "<>":
+                case "!=":
+                    return $record_data[$field] <> $value;
+                break;
+                case ">":
+                    return $record_data[$field] > $value;
+                break;
+                case "<":
+                    return $record_data[$field] < $value;
+                break;
+                case ">=":
+                    return $record_data[$field] >= $value;
+                break;
+                case "<=":
+                    return $record_data[$field] <= $value;
+                break;
+            }
+        }
+        /**
+         * Split the condition, if there are relational operators,
+         * and process left and right sides of argument on their own.
+         * && takes priority
+         */
+        else if ($tokens["operand"] == "&&")
+        {
+            return $this->processTrigger($record_data, $tokens["left_branch"]) && $this->processTrigger($record_data, $tokens["right_branch"]);
+        }
+        else if ($tokens["operand"] == "||")
+        {
+            return $this->processTrigger($record_data, $tokens["left_branch"]) || $this->processTrigger($record_data, $tokens["right_branch"]);
+        }
+        return true;
     }
 
     /**
      * REDCap hook is called immediately after a record is saved. Will retrieve the DET settings,
-     * import data according to DET.
+     * & import data according to DET.
      */
     public function redcap_save_record($project_id, $record, $instrument, $event_id, $group_id, $survey_hash, $response_id, $repeat_instance)
     {
@@ -759,44 +828,67 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
             $dest_project = $settings["dest-project"];
             $create_record_trigger = $settings["create-record-cond"];
             $link_source = $settings["linkSource"];
-            $dest_source = $settings["destSource"];
+            $link_dest = $settings["linkDest"];
             $triggers = $settings["triggers"];
             $source_fields = $settings["sourceFields"];
             $dest_fields = $settings["destFields"];
+            $source_instruments = $settings["sourceInstr"];
             $overwrite_data = $settings["overwrite-data"];
-            $use_dags = $settings["use-dags"];
             
             // Get current record data
-            $record_data = REDCap::getData("array", $record, array(), $event_id, $group_id)[$record];
+            $record_data = json_decode(REDCap::getData("json", $record, array()), true)[0];
 
-            if ($create_record_trigger)
+            if ($this->processTrigger($record_data, $create_record_trigger))
             {
-                $dest_record_data[$dest_source] = $record_data[$link_source];
+                $dest_record_data[$link_dest] = $record_data[$link_source];
+
+                foreach($triggers as $index => $trigger)
+                {
+                    if ($this->processTrigger($record_data, $trigger))
+                    {
+                        $trigger_source_fields = $source_fields[$index];
+                        $trigger_dest_fields = $dest_fields[$index];
+                        foreach($trigger_dest_fields as $i => $dest_field)
+                        {
+                            $source_field = $trigger_source_fields[$i];
+                            $dest_record_data[$dest_field] = $record_data[$source_field];
+                        }
+    
+                        $trigger_source_instruments = $source_instruments[$index];
+                        foreach($trigger_source_instruments as $i => $source_instrument)
+                        {
+                            // Fields are returned in the order they are in the REDCap project
+                            $source_instrument_fields = REDCap::getFieldNames($source_instrument);
+                            $source_instrument_data = json_decode(REDCap::getData("json", $record, $source_instrument_fields), true)[0];
+                            $dest_record_data = $dest_record_data + $source_instrument_data;
+                        }
+                    }
+                }
             }
 
-            foreach($triggers as $trigger)
+            if (!empty($dest_record_data))
             {
+                // Save DET data in destination project;
+                $save_response = REDCap::saveData($dest_project, "json", json_encode(array($dest_record_data)), $overwrite_data);
 
-            }
+                if (!empty($save_response["errors"]))
+                {
+                    REDCap::logEvent("DET: Errors", json_encode($save_response["errors"]), null, $record, $event_id, $project_id);
+                }
+                else
+                {
+                    REDCap::logEvent("DET: Ran successfully", "Data was successfully imported from project $project_id to project $dest_project", null, $record, $event_id, $project_id);
+                }
 
-            $dest_record_data = $record_data;
+                if (!empty($save_response["warnings"]))
+                {
+                    REDCap::logEvent("DET: Ran sucessfully with Warnings", json_encode($save_response["warnings"]), null, $record, $event_id, $project_id);
+                }
 
-            // Save DET data in destination project;
-            $save_response = REDCap::saveData($dest_project, "array", $dest_record_data, $overwrite_data);
-
-            if (!empty($save_response["errors"]))
-            {
-                REDCap::logEvent("DET: Errors", json_encode($save_response["errors"]), null, $record, $event_id, $project_id);
-            }
-             
-            if (!empty($save_response["warnings"]))
-            {
-                REDCap::logEvent("DET: Warnings", json_encode($save_response["warnings"]), null, $record, $event_id, $project_id);
-            }
-
-            if (!empty($save_response["ids"]))
-            {
-                REDCap::logEvent("DET: Modified/Saved the following records", json_encode($save_response["ids"]), null, null, null, $dest_project);
+                if (!empty($save_response["ids"]))
+                {
+                    REDCap::logEvent("DET: Modified/Saved the following records", json_encode($save_response["ids"]), null, null, null, $dest_project);
+                }
             }
         }
     }
