@@ -210,8 +210,6 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                 case ">=":
                 case "<=":
                 case "<=":
-                case "||":
-                case "&&":
                 case "=":
                     if ($index == 0)
                     {
@@ -516,20 +514,21 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                 </div>
                 <p>Copy the following instruments/fields from source project to linked project when the above condition is true:</p>
                 <div class="row" style="margin-top:20px">
-                    <div class="col-sm-2"><button type="button" class="btn btn-primary add-instr-btn">+ Instrument</button></div>
-                    <div class="col-sm-2"><button type="button" class="btn btn-primary add-field-btn">+ Field</button></div>
+                    <div class="col-sm-2"><button type="button" class="btn btn-link add-instr-btn">Pipe Instrument</button></div>
+                    <div class="col-sm-2"><button type="button" class="btn btn-link add-field-btn">Pipe Field</button></div>
+                    <div class="col-sm-2"><button type="button" class="btn btn-link set-field-btn">Set Field</button></div>
                 </div>
                 <?php
-                    $sourceFields = $settings["sourceFields"][$index];
-                    $destFields = $settings["destFields"][$index];
-                    foreach($sourceFields as $i => $source)
+                    $pipingSourceFields = $settings["sourceFields"][$index];
+                    $pipingDestFields = $settings["destFields"][$index];
+                    foreach($pipingSourceFields as $i => $source)
                     {
                         ?>
                         <div class='row det-field' style='margin-top:20px'>
                             <div class='col-sm-2'><p>Copy field</p></div>
                             <div class='col-sm-3'>
                                 <select name='sourceFields[<?php print $index;?>][]' class='form-control selectpicker' data-live-search='true' required>
-                                <option value='' disabled>Select a field</option> 
+                                <option value='' disabled>Select a source field</option> 
                                 <?php
                                     foreach($metadata["fields"] as $field_name)
                                     {
@@ -548,11 +547,11 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                             <div class='col-sm-1'><p>to</p></div>
                             <div class='col-sm-3'>
                                 <select name='destFields[<?php print $index;?>][]' class='form-control selectpicker select-dest-field' data-live-search='true' required>
-                                <option value='' disabled>Select a field</option>
+                                <option value='' disabled>Select a destination field</option>
                                 <?php
                                     foreach($dest_fields["fields"] as $field_name)
                                     {
-                                        if ($field_name == $destFields[$i])
+                                        if ($field_name == $pipingDestFields[$i])
                                         {
                                             print "<option value='$field_name' selected>$field_name</option>";
                                         }
@@ -569,6 +568,42 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                             </div>
                         </div>
                       <?php
+                    }
+
+                    $setDestFields = $settings["setDestFields"][$index];
+                    $setDestFieldsValues = $settings["setDestFieldsValues"][$index];
+                    foreach($setDestFields as $i => $source)
+                    {
+                        ?>
+                        <div class='row det-field' style='margin-top:20px'>
+                            <div class='col-sm-2'><p>Set field</p></div>
+                            <div class='col-sm-3'>
+                                <select name='setDestFields[<?php print $index;?>][]' class='form-control selectpicker select-dest-field' data-live-search='true' required>
+                                <option value='' disabled>Select a destination field</option>
+                                <?php
+                                    foreach($dest_fields["fields"] as $field_name)
+                                    {
+                                        if ($field_name == $source)
+                                        {
+                                            print "<option value='$field_name' selected>$field_name</option>";
+                                        }
+                                        else
+                                        {
+                                            print "<option value='$field_name'>$field_name</option>";
+                                        }
+                                    }
+                                ?>
+                                </select>
+                            </div>
+                            <div class='col-sm-1'><p>to</p></div>
+                            <div class='col-sm-3'>
+                                <input name='setDestFieldsValues[<?php print $index;?>][]' class='form-control' value='<?php print $setDestFieldsValues[$i]; ?>' required>
+                            </div>
+                            <div class='col-sm-1' style='text-align: center; padding-top: 1%; padding-bottom: 1%;'>
+                                <span class='fa fa-minus delete-field-btn' style='margin-right: 5px'></span>
+                            </div>
+                        </div>
+                        <?php
                     }
 
                     $sourceInstr = $settings["sourceInstr"][$index];
@@ -772,7 +807,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
             }
 
             $operator = trim($blocks[1]);
-            $value = trim($blocks[2], " '\"");
+            $value = trim($blocks[2], " '\")");
 
             switch ($operator)
             {
@@ -830,8 +865,10 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
             $link_source = $settings["linkSource"];
             $link_dest = $settings["linkDest"];
             $triggers = $settings["triggers"];
-            $source_fields = $settings["sourceFields"];
-            $dest_fields = $settings["destFields"];
+            $piping_source_fields = $settings["sourceFields"];
+            $piping_dest_fields = $settings["destFields"];
+            $set_dest_fields = $settings["setDestFields"];
+            $set_dest_fields_values = $settings["setDestFieldsValues"];
             $source_instruments = $settings["sourceInstr"];
             $overwrite_data = $settings["overwrite-data"];
             
@@ -840,18 +877,40 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
 
             if ($this->processTrigger($record_data, $create_record_trigger))
             {
+                $dest_record_id = $this->framework->getRecordIdField($dest_project);
+                if ($dest_record_id != $link_dest)
+                {
+                    // Check for existing record, otherwise create a new one. Assume linking ID is unique
+                    $existing_record = REDCap::getData("json", null, array($dest_record_id), null, null, false, false, false, "[$link_dest] = " . $record_data[$link_source]);
+                    $existing_record = json_decode($existing_record, true);
+                    if (sizeof($existing_record) == 0)
+                    {
+                        $dest_record_data[$dest_record_id] = $this->framework->addAutoNumberedRecord($dest_project);
+                    }
+                    else
+                    {
+                        $dest_record_data[$dest_record_id] = $existing_record[0][$dest_record_id];
+                    }
+                }
                 $dest_record_data[$link_dest] = $record_data[$link_source];
 
                 foreach($triggers as $index => $trigger)
                 {
                     if ($this->processTrigger($record_data, $trigger))
                     {
-                        $trigger_source_fields = $source_fields[$index];
-                        $trigger_dest_fields = $dest_fields[$index];
+                        $trigger_source_fields = $piping_source_fields[$index];
+                        $trigger_dest_fields = $piping_dest_fields[$index];
                         foreach($trigger_dest_fields as $i => $dest_field)
                         {
                             $source_field = $trigger_source_fields[$i];
                             $dest_record_data[$dest_field] = $record_data[$source_field];
+                        }
+
+                        $trigger_dest_fields = $set_dest_fields[$index];
+                        $trigger_dest_values = $set_dest_fields_values[$index];
+                        foreach($trigger_dest_fields as $i => $dest_field)
+                        {
+                            $dest_record_data[$dest_field] = $trigger_dest_values[$i];
                         }
     
                         $trigger_source_instruments = $source_instruments[$index];
@@ -870,6 +929,8 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
             {
                 // Save DET data in destination project;
                 $save_response = REDCap::saveData($dest_project, "json", json_encode(array($dest_record_data)), $overwrite_data);
+
+                REDCap::logEvent("DET: Attempted to import", json_encode(array($dest_record_data)), null, $record, $event_id, $project_id);
 
                 if (!empty($save_response["errors"]))
                 {

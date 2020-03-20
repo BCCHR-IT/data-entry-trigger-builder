@@ -102,8 +102,8 @@
                 "<div class='row det-field' style='margin-top:20px'>" +
                     "<div class='col-sm-2'><p>Copy field</p></div>" +
                     "<div class='col-sm-3'>" +
-                        "<select name='sourceFields[" + index + "][]' class='form-control selectpicker' data-live-search='true' required>" +
-                        "<option value='' disabled selected>Select a field</option>" + 
+                        "<select name='pipingSourceFields[" + index + "][]' class='form-control selectpicker' data-live-search='true' required>" +
+                        "<option value='' disabled selected>Select a source field</option>" + 
                         <?php
                             $fields = REDCap::getFieldNames();
                             foreach($fields as $field)
@@ -115,10 +115,48 @@
                     "</div>" +
                     "<div class='col-sm-1'><p>to</p></div>" +
                     "<div class='col-sm-3'>" +
-                        "<select name='destFields[" + index + "][]' class='form-control selectpicker select-dest-field' data-live-search='true' required>" +
-                        "<option value='' disabled selected>Select a field</option>" + 
+                        "<select name='pipingDestFields[" + index + "][]' class='form-control selectpicker select-dest-field' data-live-search='true' required>" +
+                        "<option value='' disabled selected>Select a destination field</option>" + 
                         options + 
                         "</select>" +
+                    "</div>" +
+                    "<div class='col-sm-1' style='text-align: center; padding-top: 1%; padding-bottom: 1%;'>" +
+                        "<span class='fa fa-minus delete-field-btn' style='margin-right: 5px'></span>" +
+                    "</div>" +
+                "</div>"
+            );
+            $(this).closest('.row').after(elem);
+            elem.find('.selectpicker').selectpicker('render');
+        }
+        else
+        {
+            alert("You have reached the maximum number of allowed fields for a trigger (10)")
+        }
+    });
+
+    $('body').on('click', '.set-field-btn', function () {
+        var fields = $(this).closest('.trigger-and-data-wrapper').find('.det-field');
+        if (fields.length < 10)
+        {
+            var options = "";
+            fieldOptions.forEach(function(item) {
+                options += "<option " + "value='" + item + "'>" + item + "</option>";
+            });
+
+            var index = $(".trigger-and-data-wrapper").index($(this).closest('.trigger-and-data-wrapper'));
+
+            var elem = $(
+                "<div class='row det-field' style='margin-top:20px'>" +
+                    "<div class='col-sm-2'><p>Set field</p></div>" +
+                    "<div class='col-sm-3'>" +
+                        "<select name='setDestFields[" + index + "][]' class='form-control selectpicker select-dest-field' data-live-search='true' required>" +
+                        "<option value='' disabled selected>Select a destination field</option>" + 
+                        options + 
+                        "</select>" +
+                    "</div>" +
+                    "<div class='col-sm-1'><p>to</p></div>" +
+                    "<div class='col-sm-3'>" +
+                        "<input name='setDestFieldsValues[" + index + "][]' class='form-control' required>" +
                     "</div>" +
                     "<div class='col-sm-1' style='text-align: center; padding-top: 1%; padding-bottom: 1%;'>" +
                         "<span class='fa fa-minus delete-field-btn' style='margin-right: 5px'></span>" +

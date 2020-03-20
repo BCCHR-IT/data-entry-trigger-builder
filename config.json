@@ -28,5 +28,6 @@
     ],
     "permissions": [
         "redcap_save_record"
-    ]
+    ],
+    "framework-version": 3
 }
