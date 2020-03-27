@@ -4,6 +4,8 @@
      */
     var fieldOptions = [];
     var instrOptions = [];
+    var eventOptions = [];
+    var isLongitudinal = false;
 
     /**
         Code to add another trigger
@@ -20,8 +22,7 @@
                                 "<label>Condition:</label>" +
                             "</div>" +
                             "<div class='col-sm-9'></div>" +
-                            "<div class='col-sm-1'>" +
-                                "<span class='fa fa-plus add-trigger-btn' style='margin-right: 5px'></span>" +
+                            "<div class='col-sm-1' style='text-align: center;'>" +
                                 "<span class='fa fa-minus delete-trigger-btn'></span>" +
                             "</div>" +
                         "</div>" +
@@ -29,8 +30,9 @@
                     "</div>" +
                     "<p>Copy the following instruments/fields from source project to linked project when the above condition is true:</p>" +
                     "<div class='row' style='margin-top:20px'>" +
-                        "<div class='col-sm-2'><button type='button' class='btn btn-primary add-instr-btn'>+ Instrument</button></div>" +
-                        "<div class='col-sm-2'><button type='button' class='btn btn-primary add-field-btn'>+ Field</button></div>" +
+                        "<div class='col-sm-2'><button type='button' class='btn btn-link add-instr-btn'>Pipe Instrument</button></div>" +
+                        "<div class='col-sm-2'><button type='button' class='btn btn-link add-field-btn'>Pipe Field</button></div>" +
+                        "<div class='col-sm-2'><button type='button' class='btn btn-link set-field-btn'>Set Field</button></div>" +
                     "</div>" + 
                 "</div>"
             );
@@ -57,10 +59,24 @@
 
             var elem = $(
                 "<div class='row det-instrument' style='margin-top:20px;'>" +
-                    "<div class='col-sm-6'><p>Copy instrument (must have a one-to-one relationship in the destination project)</p></div>" +
-                    "<div class='col-sm-3'>" +
+                    "<div class='col-sm-7'><p>Copy instrument (must have a one-to-one relationship in the destination project)</p></div>" +
+                    <?php if (REDCap::isLongitudinal()): ?>
+                    "<div class='col-sm-2'>" +
+                        "<select name='sourceInstrEvents[" + index + "][]' class='form-control selectpicker select-source-instr' data-live-search='true' required>" +
+                        "<option value='' disabled selected>Select event</option>" + 
+                        <?php
+                            $events = REDCap::getEventNames(true, true);
+                            foreach ($events as $event_name) 
+                            {
+                                print "\"<option value='$event_name'>$event_name</option>\" +";
+                            }
+                        ?>
+                        "</select>" +
+                    "</div>" +
+                    <?php endif;?>
+                    "<div class='col-sm-2'>" +
                         "<select name='sourceInstr[" + index + "][]' class='form-control selectpicker select-source-instr' data-live-search='true' required>" +
-                        "<option value='' disabled selected>Select an instrument</option>" + 
+                        "<option value='' disabled selected>Select instrument</option>" + 
                         <?php
                             $instruments = REDCap::getInstrumentNames();
                             foreach($instruments as $unique_name => $label)
@@ -91,19 +107,27 @@
         var fields = $(this).closest('.trigger-and-data-wrapper').find('.det-field');
         if (fields.length < 10)
         {
-            var options = "";
-            fieldOptions.forEach(function(item) {
-                options += "<option " + "value='" + item + "'>" + item + "</option>";
-            });
-
             var index = $(".trigger-and-data-wrapper").index($(this).closest('.trigger-and-data-wrapper'));
 
-            var elem = $(
-                "<div class='row det-field' style='margin-top:20px'>" +
+            var text = "<div class='row det-field' style='margin-top:20px'>" +
                     "<div class='col-sm-2'><p>Copy field</p></div>" +
-                    "<div class='col-sm-3'>" +
+                    <?php if (REDCap::isLongitudinal()): ?>
+                    "<div class='col-sm-2'>" +
+                        "<select name='pipingSourceEvents[" + index + "][]' class='form-control selectpicker select-source-instr' data-live-search='true' required>" +
+                        "<option value='' disabled selected>Select event</option>" + 
+                        <?php
+                            $events = REDCap::getEventNames(true, true);
+                            foreach ($events as $event_name) 
+                            {
+                                print "\"<option value='$event_name'>$event_name</option>\" +";
+                            }
+                        ?>
+                        "</select>" +
+                    "</div>" +
+                    <?php endif;?>
+                    "<div class='col-sm-2'>" +
                         "<select name='pipingSourceFields[" + index + "][]' class='form-control selectpicker' data-live-search='true' required>" +
-                        "<option value='' disabled selected>Select a source field</option>" + 
+                        "<option value='' disabled selected>Select field</option>" + 
                         <?php
                             $fields = REDCap::getFieldNames();
                             foreach($fields as $field)
@@ -113,10 +137,33 @@
                         ?>
                         "</select>" +
                     "</div>" +
-                    "<div class='col-sm-1'><p>to</p></div>" +
-                    "<div class='col-sm-3'>" +
+                    "<div class='col-sm-1'><p>to</p></div>";
+            
+            if (isLongitudinal == true)
+            {
+                options = "";
+                eventOptions.forEach(function(item) {
+                    options += "<option " + "value='" + item + "'>" + item + "</option>";
+                });
+
+                text = text + 
+                    "<div class='col-sm-2'>" +
+                        "<select name='pipingDestEvents[" + index + "][]' class='form-control selectpicker select-dest-field' data-live-search='true' required>" +
+                        "<option value='' disabled selected>Select event</option>" + 
+                        options + 
+                        "</select>" +
+                    "</div>"
+            }
+
+            var options = "";
+            fieldOptions.forEach(function(item) {
+                options += "<option " + "value='" + item + "'>" + item + "</option>";
+            });
+
+            text = text + 
+                "<div class='col-sm-2'>" +
                         "<select name='pipingDestFields[" + index + "][]' class='form-control selectpicker select-dest-field' data-live-search='true' required>" +
-                        "<option value='' disabled selected>Select a destination field</option>" + 
+                        "<option value='' disabled selected>Select field</option>" + 
                         options + 
                         "</select>" +
                     "</div>" +
@@ -124,7 +171,8 @@
                         "<span class='fa fa-minus delete-field-btn' style='margin-right: 5px'></span>" +
                     "</div>" +
                 "</div>"
-            );
+
+            var elem = $(text);
             $(this).closest('.row').after(elem);
             elem.find('.selectpicker').selectpicker('render');
         }
@@ -138,19 +186,35 @@
         var fields = $(this).closest('.trigger-and-data-wrapper').find('.det-field');
         if (fields.length < 10)
         {
-            var options = "";
+            var index = $(".trigger-and-data-wrapper").index($(this).closest('.trigger-and-data-wrapper'));
+
+            var text = "<div class='row det-field' style='margin-top:20px'>" + "<div class='col-sm-2'><p>Set field</p></div>";
+
+            if (isLongitudinal == true)
+            {
+                options = "";
+                eventOptions.forEach(function(item) {
+                    options += "<option " + "value='" + item + "'>" + item + "</option>";
+                });
+
+                text = text + 
+                    "<div class='col-sm-2'>" +
+                        "<select name='setDestEvents[" + index + "][]' class='form-control selectpicker select-dest-field' data-live-search='true' required>" +
+                        "<option value='' disabled selected>Select event</option>" + 
+                        options + 
+                        "</select>" +
+                    "</div>"
+            }
+            
+            options = "";
             fieldOptions.forEach(function(item) {
                 options += "<option " + "value='" + item + "'>" + item + "</option>";
             });
 
-            var index = $(".trigger-and-data-wrapper").index($(this).closest('.trigger-and-data-wrapper'));
-
-            var elem = $(
-                "<div class='row det-field' style='margin-top:20px'>" +
-                    "<div class='col-sm-2'><p>Set field</p></div>" +
-                    "<div class='col-sm-3'>" +
+            text = text + 
+                    "<div class='col-sm-2'>" +
                         "<select name='setDestFields[" + index + "][]' class='form-control selectpicker select-dest-field' data-live-search='true' required>" +
-                        "<option value='' disabled selected>Select a destination field</option>" + 
+                        "<option value='' disabled selected>Select field</option>" + 
                         options + 
                         "</select>" +
                     "</div>" +
@@ -162,7 +226,8 @@
                         "<span class='fa fa-minus delete-field-btn' style='margin-right: 5px'></span>" +
                     "</div>" +
                 "</div>"
-            );
+
+            var elem = $(text);
             $(this).closest('.row').after(elem);
             elem.find('.selectpicker').selectpicker('render');
         }
@@ -204,8 +269,6 @@
     $(document).ready(function() {
         if ($("#destination-project-select").val() != "")
         {
-            fieldOptions = [];
-            instrOptions = [];
             $.ajax({
                 url: "<?php print $module->getUrl("getDestinationFields.php") ?>",
                 type: "POST",
@@ -216,6 +279,8 @@
                     var metadata = JSON.parse(data);
                     fieldOptions = metadata.fields;
                     instrOptions = metadata.instruments;
+                    eventOptions = metadata.events;
+                    isLongitudinal = metadata.isLongitudinal;
                 },
                 error: function (data, status, error) {
                     console.log("Returned with status " + status + " - " + error);
@@ -242,21 +307,44 @@
                 var metadata = JSON.parse(data);
                 fieldOptions = metadata.fields;
                 instrOptions = metadata.instruments;
+                eventOptions = metadata.events;
+                isLongitudinal = metadata.isLongitudinal;
 
                 // Refreshes the link-dest-select right away.
-                var options = "<option value='' disabled selected>Select a field</option>";
+                var options = "<option value='' disabled selected>Select field</option>";
                 fieldOptions.forEach(function(item) {
                     options += "<option " + "value='" + item + "'>" + item + "</option>";
                 });
-
                 $("#link-dest-select").empty().append(options)
                 $("#link-dest-select").selectpicker('refresh');
 
+                if (isLongitudinal)
+                {
+                    options = "<option value='' disabled selected>Select event</option>";
+                    eventOptions.forEach(function(item) {
+                        options += "<option " + "value='" + item + "'>" + item + "</option>";
+                    });
+                    
+                    var elem = $(
+                        "<div id='link-event-wrapper' class='col-sm-2'>" +
+                            "<select id='link-event-select' name='linkDestEvent' class='form-control selectpicker' data-live-search='true' required>" +
+                                options +
+                            "</select>" + 
+                        "</div>"
+                    );
+                    $("#link-source-wrapper").before(elem);
+                    elem.find('.selectpicker').selectpicker('render');
+                }
+                else
+                {
+                    $("#link-event-wrapper").remove();
+                }
             },
             error: function (data, status, error) {
                 console.log("Returned with status " + status + " - " + error);
             }
         });
+        $('#main-form').show();
     });
 
     /**

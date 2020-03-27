@@ -3,6 +3,7 @@
 namespace BCCHR\DataEntryTriggerBuilder;
 
 use REDCap;
+use Project;
 
 class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule 
 {
@@ -329,31 +330,37 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
      */
     public function retrieveProjectMetadata($pid)
     {
-        $metadata = REDCap::getDataDictionary($pid, "array");
-        $instruments = array_keys(REDCap::getInstrumentNames());
-
-        /**
-         * We can pipe over any data except descriptive fields. 
-         * 
-         * NOTE: For calculation fields only the raw data can be imported/exported.
-         */
-        foreach($metadata as $field_name => $data)
+        if (!empty($pid))
         {
-            if ($data["field_type"] != "descriptive" && $data["field_type"] != "calc")
+            $metadata = REDCap::getDataDictionary($pid, "array");
+            $instruments = array_keys(REDCap::getInstrumentNames());
+            $Proj = new Project($pid);
+            $events = array_values($Proj->getUniqueEventNames());
+            $isLongitudinal = $Proj->longitudinal;
+            /**
+             * We can pipe over any data except descriptive fields. 
+             * 
+             * NOTE: For calculation fields only the raw data can be imported/exported.
+             */
+            foreach($metadata as $field_name => $data)
             {
-                $fields[] = $field_name;
+                if ($data["field_type"] != "descriptive" && $data["field_type"] != "calc")
+                {
+                    $fields[] = $field_name;
+                }
             }
-        }
 
-        /**
-         * Add form completion status fields to push
-         */
-        foreach($instruments as $instrument)
-        {
-            $fields[] = $instrument . "_complete";
-        }
+            /**
+             * Add form completion status fields to push
+             */
+            foreach($instruments as $instrument)
+            {
+                $fields[] = $instrument . "_complete";
+            }
 
-        return array("instruments" => $instruments, "fields" => $fields);
+            return ["instruments" => $instruments, "fields" => $fields, "events" => $events, "isLongitudinal" => $isLongitudinal];
+        }
+        return FALSE;
     }
 
     /**
@@ -364,7 +371,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
     private function linkedProjectFormItem($settings)
     {
         ?>
-        <h4>Linked Project</h4>
+        <h4>Select a linked Project</h4>
         <div class="form-group">
             <select name="dest-project" id="destination-project-select" class="form-control selectpicker" data-live-search="true" required>
                 <option value="" disabled <?php if (empty($settings)) { print "selected"; }?>>Select a project</option>
@@ -396,6 +403,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
      */
     private function subjectCreationFormItem($settings)
     {
+        $events = REDCap::getEventNames(true, true);
         $metadata = $this->retrieveProjectMetadata($this->getProjectId());
         $dest_fields = $this->retrieveProjectMetadata($settings["dest-project"]);
         ?>
@@ -411,9 +419,28 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
         </div>
         <div class='row link-field form-group'> 
             <div class='col-sm-2'><p>Link source project field</p></div> 
-            <div class='col-sm-3'>
+            <?php if (REDCap::isLongitudinal()): ?>
+            <div class='col-sm-2'>
+                <select name='linkSourceEvent' class='form-control selectpicker' data-live-search='true' required>
+                    <option value='' disabled <?php if (empty($settings)) { print "selected"; }?>>Select event</option>
+                    <?php
+                        foreach ($events as $event_name) {
+                            if (!empty($settings["linkSourceEvent"]) && $event_name == $settings["linkSourceEvent"])
+                            {
+                                print "<option value='$event_name' selected>$event_name</option>";
+                            }
+                            else
+                            {
+                                print "<option value='$event_name'>$event_name</option>";
+                            }
+                        }
+                    ?>
+                </select> 
+            </div>
+            <?php endif;?>
+            <div class='col-sm-2'>
                 <select name='linkSource' class='form-control selectpicker' data-live-search='true' required>
-                    <option value='' disabled <?php if (empty($settings)) { print "selected"; }?>>Select a field</option>
+                    <option value='' disabled <?php if (empty($settings)) { print "selected"; }?>>Select field</option>
                     <?php
                         foreach($metadata["fields"] as $field_name)
                         {
@@ -429,26 +456,44 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                     ?>
                 </select> 
             </div> 
-            <div class='col-sm-2'><p>to linked project field</p></div> 
-            <div class='col-sm-3'>
-                <select id="link-dest-select" name='linkDest' class='form-control selectpicker select-dest-field' data-live-search='true' required>
-                    <?php if (empty($settings)):?>
-                    <option value='' disabled selected>Select a field</option>
-                    <?php else:?>
-                    <option value='' disabled>Select a field</option>
+            <div class='col-sm-2'><p>to linked project field</p></div>
+            <?php if (!empty($dest_fields) && !empty($settings["linkDestEvent"])): ?>
+            <div id="link-event-wrapper" class='col-sm-2'>
+                <select id="link-event-select" name='linkDestEvent' class='form-control selectpicker' data-live-search='true' required>
+                    <option value='' disabled>Select event</option>
                     <?php
-                    foreach($dest_fields["fields"] as $field_name)
-                    {
-                        if (!empty($settings["linkDest"]) && $field_name == $settings["linkDest"])
-                        {
-                            print "<option value='$field_name' selected>$field_name</option>";
+                        foreach ($dest_fields["events"] as $event_name) {
+                            if ($event_name == $settings["linkDestEvent"])
+                            {
+                                print "<option value='$event_name' selected>$event_name</option>";
+                            }
+                            else
+                            {
+                                print "<option value='$event_name'>$event_name</option>";
+                            }
                         }
-                        else
+                    ?>
+                </select> 
+            </div>
+            <?php endif;?>
+            <div id="link-source-wrapper" class='col-sm-2'>
+                <select id="link-dest-select" name='linkDest' class='form-control selectpicker select-dest-field' data-live-search='true' required>
+                    <option value='' disabled <?php if (empty($settings)) { print "selected"; }?>>Select field</option>
+                    <?php
+                    if (!empty($dest_fields)) {
+                        foreach($dest_fields["fields"] as $field_name)
                         {
-                            print "<option value='$field_name'>$field_name</option>";
+                            if (!empty($settings["linkDest"]) && $field_name == $settings["linkDest"])
+                            {
+                                print "<option value='$field_name' selected>$field_name</option>";
+                            }
+                            else
+                            {
+                                print "<option value='$field_name'>$field_name</option>";
+                            }
                         }
                     }
-                    endif;?>
+                    ?>
                 </select> 
             </div> 
         </div>
@@ -462,6 +507,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
      */
     private function triggersFormItems($settings)
     {
+        $events = REDCap::getEventNames(true, true);
         $metadata = $this->retrieveProjectMetadata($this->getProjectId());
         $instrument_names = REDCap::getInstrumentNames();
         $dest_fields = $this->retrieveProjectMetadata($settings["dest-project"]);
@@ -474,8 +520,9 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                     <li>E.g., [event_name][variable_name] = "1"</li>
                 </ul>
                 <p>Where [event_name] = only in longitudinal projects<br/>Where [instrument_name] = form copied from source to linked project</p>
+                <button type="button" class="btn btn-link add-trigger-btn">Add Trigger</button>
             </div>
-            <?php if (empty($settings)): ?>
+            <?php if (!empty($settings)): foreach($settings["triggers"] as $index => $trigger): ?>
             <div class="form-group trigger-and-data-wrapper">
                 <div class="det-trigger">
                     <div class="row">
@@ -483,31 +530,8 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                             <label>Condition:</label>
                         </div>
                         <div class="col-sm-9"></div>
-                        <div class="col-sm-1">
-                            <span class="fa fa-plus add-trigger-btn"></span>
-                        </div>
-                    </div>
-                    <input name="triggers[]" type="text" class="form-control det-trigger-input" required>
-                </div>
-                <p>Copy the following instruments/fields from source project to linked project when the above condition is true:</p>
-                <div class="row" style="margin-top:20px">
-                    <div class="col-sm-2"><button type="button" class="btn btn-primary add-instr-btn">+ Instrument</button></div>
-                    <div class="col-sm-2"><button type="button" class="btn btn-primary add-field-btn">+ Field</button></div>
-                </div>
-            </div>
-            <?php else: foreach($settings["triggers"] as $index => $trigger): ?>
-            <div class="form-group trigger-and-data-wrapper">
-                <div class="det-trigger">
-                    <div class="row">
-                        <div class="col-sm-2">
-                            <label>Condition:</label>
-                        </div>
-                        <div class="col-sm-9"></div>
-                        <div class="col-sm-1">
-                            <span class="fa fa-plus add-trigger-btn"></span>
-                            <?php if ($index > 0): ?>
-                                <span class="fa fa-minus delete-trigger-btn"></span>
-                            <?php endif;?>
+                        <div class="col-sm-1" style="text-align: center;">
+                            <span class="fa fa-minus delete-trigger-btn"></span>
                         </div>
                     </div>
                     <input name="triggers[]" type="text" class="form-control det-trigger-input" value="<?php print $trigger; ?>" required>
@@ -519,16 +543,37 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                     <div class="col-sm-2"><button type="button" class="btn btn-link set-field-btn">Set Field</button></div>
                 </div>
                 <?php
-                    $pipingSourceFields = $settings["sourceFields"][$index];
-                    $pipingDestFields = $settings["destFields"][$index];
+                    $pipingSourceEvents = $settings["pipingSourceEvents"][$index];
+                    $pipingDestEvents = $settings["pipingDestEvents"][$index];
+                    $pipingSourceFields = $settings["pipingSourceFields"][$index];
+                    $pipingDestFields = $settings["pipingDestFields"][$index];
                     foreach($pipingSourceFields as $i => $source)
                     {
                         ?>
                         <div class='row det-field' style='margin-top:20px'>
                             <div class='col-sm-2'><p>Copy field</p></div>
-                            <div class='col-sm-3'>
-                                <select name='sourceFields[<?php print $index;?>][]' class='form-control selectpicker' data-live-search='true' required>
-                                <option value='' disabled>Select a source field</option> 
+                            <?php if (REDCap::isLongitudinal()): ?>
+                            <div class='col-sm-2'>
+                                <select name='pipingSourceEvents[<?php print $index;?>][]' class='form-control selectpicker' data-live-search='true' required>
+                                    <option value='' disabled <?php if (empty($settings)) { print "selected"; }?>>Select event</option>
+                                    <?php
+                                        foreach ($events as $event_name) {
+                                            if ($event_name == $pipingSourceEvents[$i])
+                                            {
+                                                print "<option value='$event_name' selected>$event_name</option>";
+                                            }
+                                            else
+                                            {
+                                                print "<option value='$event_name'>$event_name</option>";
+                                            }
+                                        }
+                                    ?>
+                                </select> 
+                            </div>
+                            <?php endif;?>
+                            <div class='col-sm-2'>
+                                <select name='pipingSourceFields[<?php print $index;?>][]' class='form-control selectpicker' data-live-search='true' required>
+                                <option value='' disabled>Select field</option> 
                                 <?php
                                     foreach($metadata["fields"] as $field_name)
                                     {
@@ -545,9 +590,28 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                                 </select>
                             </div>
                             <div class='col-sm-1'><p>to</p></div>
-                            <div class='col-sm-3'>
-                                <select name='destFields[<?php print $index;?>][]' class='form-control selectpicker select-dest-field' data-live-search='true' required>
-                                <option value='' disabled>Select a destination field</option>
+                            <?php if ($dest_fields["isLongitudinal"]): ?>
+                            <div class='col-sm-2'>
+                                <select name='pipingDestEvents[<?php print $index;?>][]' class='form-control selectpicker' data-live-search='true' required>
+                                    <option value='' disabled <?php if (empty($settings)) { print "selected"; }?>>Select event</option>
+                                    <?php
+                                        foreach ($dest_fields["events"] as $event_name) {
+                                            if ($event_name == $pipingDestEvents[$i])
+                                            {
+                                                print "<option value='$event_name' selected>$event_name</option>";
+                                            }
+                                            else
+                                            {
+                                                print "<option value='$event_name'>$event_name</option>";
+                                            }
+                                        }
+                                    ?>
+                                </select> 
+                            </div>
+                            <?php endif;?>
+                            <div class='col-sm-2'>
+                                <select name='pipingDestFields[<?php print $index;?>][]' class='form-control selectpicker select-dest-field' data-live-search='true' required>
+                                <option value='' disabled>Select field</option>
                                 <?php
                                     foreach($dest_fields["fields"] as $field_name)
                                     {
@@ -570,6 +634,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                       <?php
                     }
 
+                    $setDestEvents = $settings["setDestEvents"][$index];
                     $setDestFields = $settings["setDestFields"][$index];
                     $setDestFieldsValues = $settings["setDestFieldsValues"][$index];
                     foreach($setDestFields as $i => $source)
@@ -577,7 +642,26 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                         ?>
                         <div class='row det-field' style='margin-top:20px'>
                             <div class='col-sm-2'><p>Set field</p></div>
-                            <div class='col-sm-3'>
+                            <?php if ($dest_fields["isLongitudinal"]): ?>
+                            <div class='col-sm-2'>
+                                <select name='setDestEvents[<?php print $index;?>][]' class='form-control selectpicker' data-live-search='true' required>
+                                    <option value='' disabled <?php if (empty($settings)) { print "selected"; }?>>Select event</option>
+                                    <?php
+                                        foreach ($dest_fields["events"] as $event_name) {
+                                            if ($event_name == $setDestEvents[$i])
+                                            {
+                                                print "<option value='$event_name' selected>$event_name</option>";
+                                            }
+                                            else
+                                            {
+                                                print "<option value='$event_name'>$event_name</option>";
+                                            }
+                                        }
+                                    ?>
+                                </select> 
+                            </div>
+                            <?php endif;?>
+                            <div class='col-sm-2'>
                                 <select name='setDestFields[<?php print $index;?>][]' class='form-control selectpicker select-dest-field' data-live-search='true' required>
                                 <option value='' disabled>Select a destination field</option>
                                 <?php
@@ -607,13 +691,32 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                     }
 
                     $sourceInstr = $settings["sourceInstr"][$index];
-                    $destInstr = $settings["destInstr"][$index];
+                    $sourceInstrEvents = $settings["sourceInstrEvents"][$index];
                     foreach($sourceInstr as $i => $source)
                     {
                         ?>
                         <div class='row det-field' style='margin-top:20px'>
-                            <div class='col-sm-6'><p>Copy instrument (must have a one-to-one relationship in the destination project)</p></div>
-                            <div class='col-sm-3'>
+                            <div class='col-sm-7'><p>Copy instrument (must have a one-to-one relationship in the destination project)</p></div>
+                            <?php if (REDCap::isLongitudinal()): ?>
+                            <div class='col-sm-2'>
+                                <select name='sourceInstrEvents[<?php print $index;?>][]' class='form-control selectpicker' data-live-search='true' required>
+                                    <option value='' disabled <?php if (empty($settings)) { print "selected"; }?>>Select event</option>
+                                    <?php
+                                        foreach ($events as $event_name) {
+                                            if ($event_name == $sourceInstrEvents[$i])
+                                            {
+                                                print "<option value='$event_name' selected>$event_name</option>";
+                                            }
+                                            else
+                                            {
+                                                print "<option value='$event_name'>$event_name</option>";
+                                            }
+                                        }
+                                    ?>
+                                </select> 
+                            </div>
+                            <?php endif;?>
+                            <div class='col-sm-2'>
                                 <select name='sourceInstr[<?php print $index;?>][]' class='form-control selectpicker' data-live-search='true' required>
                                 <option value='' disabled>Select an instrument</option> 
                                 <?php
@@ -621,11 +724,11 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                                     {
                                         if ($unique_name == $source)
                                         {
-                                            print "<option value='{$unique_name}' selected>{$unique_name}</option>";
+                                            print "<option value='$unique_name' selected>$unique_name</option>";
                                         }
                                         else
                                         {
-                                            print "<option value='{$unique_name}'>{$unique_name}</option>";
+                                            print "<option value='$unique_name'>$unique_name</option>";
                                         }
                                     }
                                 ?>
@@ -685,14 +788,16 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
     public function getForm($settings = null)
     {
         ?>
-        <form class="jumbotron">
-            <?php 
-                $this->linkedProjectFormItem($settings);
-                $this->subjectCreationFormItem($settings);
-                $this->triggersFormItems($settings);
-                $this->additionalSettingsFormItems($settings);
-            ?>
-            <button id="create-det-btn" type="submit" class="btn btn-primary" style="margin-top:20px">Create DET</button>
+        <form class="jumbotron" method="post" action="<?php print $this->getUrl("index.php");?>">
+            <?php $this->linkedProjectFormItem($settings); ?>
+            <div id="main-form" <?php if (empty($settings)) :?> style="display:none" <?php endif;?>>
+                <?php
+                    $this->subjectCreationFormItem($settings);
+                    $this->triggersFormItems($settings);
+                    $this->additionalSettingsFormItems($settings);
+                ?>
+                <button id="create-det-btn" type="submit" class="btn btn-primary" style="margin-top:20px">Create DET</button>
+            </div>
         </form>
         <?php
     }
@@ -701,70 +806,123 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
      * Parses a String of branching logic into blocks of logic syntax.
      * Assumes valid REDCap Logic syntax in trigger.
      * 
-     * @param String $branching_logic   A String of REDCap branching logic.
+     * Figure out case for : (() () ())) 
+     * 
+     * @param String $trigger_cond   A String of REDCap branching logic.
      * @return Array    An array of syntax blocks representing the given branching logic String.
      */
-    public function parseCondition($branching_logic)
+    public function parseCondition($trigger_cond)
     {
-        if (strpos($branching_logic, "(") !== FALSE)
-        {
-            /**
-             * Split on first && after first closing bracket, else split on any ||
-             *   Condition within bracket
-             *   Operator
-             *   Condition after operator
-             * 
-             * NOTE: Odd behavior for preg_split and PREG_SPLIT_DELIM_CAPTURE, it will only return the delim within a group.
-             * Can use this to return only the operand as a delimiter. 
-             * 
-             * Regex uses negative look ahead to search for last closing bracket (bracket without other closing brackets before it)
-             */
-            if (preg_match("/\)(?!.*\)).*(&&)/", $branching_logic) === 1)
-            {
-                $split_string = preg_split("/\)(?!.*\))(.*)(&&)/", $branching_logic, 2, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
-                $split_string = array(
-                    $split_string[0] . ")" . $split_string[1],
-                    $split_string[2],
-                    $split_string[3]
-                );
-            }
-            else
-            {
-                $split_string = preg_split("/\)(?!.*\))\s*(\|\|)/", $branching_logic, 2, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE); 
-            }
-        }
+        $pos = strpos($trigger_cond, "(");
         /**
-         * Split on first &&  into the following:
-         *      Condition before operator
-         *      Operator
-         *      Condition after operator
+         * If brackets are at the beginning of the condition then split on first
+         * && after them. If there are no && then split on the first ||.
          */
-        else if (strpos($branching_logic, "&&") !== FALSE)
-        {   
-            $split_string = preg_split("/(&&)/", $branching_logic, 2, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
-        }
-        /**
-         * Split on first ||  into the following:
-         *      Condition before operator
-         *      Operator
-         *      Condition after operator
-         */
-        else if (strpos($branching_logic, "||") !== FALSE)
+        if ($pos === 0)
         {
-            $split_string = preg_split("/(\|\|)/", $branching_logic, 2, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+            $before = strstr($trigger_cond, ")", true);
+            $num_opening_brackets = substr_count($before, "("); // Count the number of opening brackets before the first closing bracket. This indicates which closing bracket to split on.
+
+            // if (preg_match("/(\)){2,}/", $trigger_cond, $matches, PREG_OFFSET_CAPTURE) > 0)
+            // {
+            //     var_dump($matches);
+            //     $closing_bracket_offset = $matches[0][1];
+            //     $last_closing_bracket_offset = $matches[sizeof($matches)-1][1];
+
+            //     if ($last_closing_bracket_offset == strlen($trigger_cond) - 1)
+            //     {
+            //         $left_cond = substr($trigger_cond, 1);
+            //         $left_cond = substr($left_cond, 0, -1);
+
+            //         return [
+            //             "left_branch" => $left_cond, 
+            //             "operand" => "", 
+            //             "right_branch" => ""
+            //         ];
+            //     }
+            //     else
+            //     {
+            //         $remainder = substr($trigger_cond, $closing_bracket_offset + strlen($matches[0][0]) + 2);
+            //     }
+            // }
+
+            if (preg_match_all("/\)/", $trigger_cond, $closing_brackets, PREG_OFFSET_CAPTURE) > 0)
+            {
+                $closing_brackets = $closing_brackets[0];
+                $closing_offset = $closing_brackets[$num_opening_brackets-1][1];
+
+                if ($closing_offset == strlen($trigger_cond) - 1)
+                {
+                    $left_cond = substr($trigger_cond, 1);
+                    $left_cond = substr($left_cond, 0, -1);
+
+                    return [
+                        "left_branch" => $left_cond, 
+                        "operand" => "", 
+                        "right_branch" => ""
+                    ];
+                }
+                else
+                {
+                    $remainder = substr($trigger_cond, $closing_offset+2);
+                }
+            }
         }
-        
-        if (empty($split_string))
+        else if ($pos > 0)
         {
-            return FALSE;
+            $remainder = substr($trigger_cond, 0, $pos);
+        }
+        else if ($pos === FALSE)
+        {
+            $remainder = $trigger_cond;
+        }
+
+        $left_cond = "";
+        $operator = "";
+        $right_cond = "";
+
+        if (preg_match("/\s*(&&)/", $remainder, $operators, PREG_OFFSET_CAPTURE) === 1 || 
+            preg_match("/\s*(\|\|)/", $remainder, $operators, PREG_OFFSET_CAPTURE) === 1)
+        {
+            $relational_offset = $operators[0][1];
+            $operator = $operators[0][0];
+
+            if ($pos > 0 || $pos === FALSE)
+            {
+                $offset = $relational_offset + 1;
+            }
+            else if ($pos === 0)
+            {
+                $offset = $closing_offset + $relational_offset + 2;
+            }
+
+            $left_cond = trim(substr($trigger_cond, 0, $offset));
+            $right_cond = trim(substr($trigger_cond, $offset + strlen($operator)));
+            $operator = trim($operator);
+
+            // Remove first opening and closing bracket
+            if ($right_cond[0] == "(" && $right_cond[strlen($right_cond)-1] == ")")
+            {
+                $right_cond = substr($right_cond, 1);
+                $right_cond = substr($right_cond, 0, -1);
+            }
+
+            // Remove first opening and closing bracket
+            if ($left_cond[0] == "(" && $left_cond[strlen($left_cond)-1] == ")")
+            {
+                $left_cond = substr($left_cond, 1);
+                $left_cond = substr($left_cond, 0, -1);
+            }
+
+            return [
+                "left_branch" => $left_cond, 
+                "operand" => $operator, 
+                "right_branch" => $right_cond
+            ];
         }
         else
         {
-            return array(
-                "left_branch" => $split_string[0],
-                "operand" => $split_string[1],
-                "right_branch" => $split_string[2]
-            );
+            return false;
         }
     }
 
@@ -791,6 +949,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
             if (!REDCap::isLongitudinal())
             {
                 $field = trim($blocks[0], " []'\"()");
+                $record_data = $record_data[0];
             }
             else
             {
@@ -801,7 +960,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
 
                 $event = trim($event, " []'\"()");
                 $field = trim($field, " []'\"()");
-                
+
                 $event_key = array_search($event, array_column($record_data, "redcap_event_name"));
                 $record_data = $record_data[$event_key];
             }
@@ -846,6 +1005,10 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
         {
             return $this->processTrigger($record_data, $tokens["left_branch"]) || $this->processTrigger($record_data, $tokens["right_branch"]);
         }
+        else
+        {
+            return $this->processTrigger($record_data, $tokens["left_branch"]);
+        }
         return true;
     }
 
@@ -862,75 +1025,181 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
             // Get DET settings
             $dest_project = $settings["dest-project"];
             $create_record_trigger = $settings["create-record-cond"];
+            $link_source_event = $settings["linkSourceEvent"];
             $link_source = $settings["linkSource"];
-            $link_dest = $settings["linkDest"];
+            $link_dest_event = $settings["linkDestEvent"];
+            $link_dest_field = $settings["linkDest"];
             $triggers = $settings["triggers"];
-            $piping_source_fields = $settings["sourceFields"];
-            $piping_dest_fields = $settings["destFields"];
+            $piping_source_events = $settings["pipingSourceEvents"];
+            $piping_dest_events = $settings["pipingDestEvents"];
+            $piping_source_fields = $settings["pipingSourceFields"];
+            $piping_dest_fields = $settings["pipingDestFields"];
+            $set_dest_events = $settings["setDestEvents"];
             $set_dest_fields = $settings["setDestFields"];
             $set_dest_fields_values = $settings["setDestFieldsValues"];
+            $source_instruments_events = $settings["sourceInstrEvents"];
             $source_instruments = $settings["sourceInstr"];
             $overwrite_data = $settings["overwrite-data"];
             
             // Get current record data
-            $record_data = json_decode(REDCap::getData("json", $record, array()), true)[0];
+            $record_data = json_decode(REDCap::getData("json", $record), true);
 
             if ($this->processTrigger($record_data, $create_record_trigger))
             {
-                $dest_record_id = $this->framework->getRecordIdField($dest_project);
-                if ($dest_record_id != $link_dest)
-                {
-                    // Check for existing record, otherwise create a new one. Assume linking ID is unique
-                    $existing_record = REDCap::getData("json", null, array($dest_record_id), null, null, false, false, false, "[$link_dest] = " . $record_data[$link_source]);
-                    $existing_record = json_decode($existing_record, true);
-                    if (sizeof($existing_record) == 0)
-                    {
-                        $dest_record_data[$dest_record_id] = $this->framework->addAutoNumberedRecord($dest_project);
-                    }
-                    else
-                    {
-                        $dest_record_data[$dest_record_id] = $existing_record[0][$dest_record_id];
-                    }
-                }
-                $dest_record_data[$link_dest] = $record_data[$link_source];
-
                 foreach($triggers as $index => $trigger)
                 {
                     if ($this->processTrigger($record_data, $trigger))
                     {
                         $trigger_source_fields = $piping_source_fields[$index];
                         $trigger_dest_fields = $piping_dest_fields[$index];
+                        $trigger_source_events = $piping_source_events[$index];
+                        $trigger_dest_events = $piping_source_events[$index];
+
                         foreach($trigger_dest_fields as $i => $dest_field)
                         {
+                            if (!empty($trigger_source_events[$i]))
+                            {
+                                $source_event = $trigger_source_events[$i];
+                                $key = array_search($source_event, array_column($record_data, "redcap_event_name"));
+                                $data = $record_data[$key];
+                            }
+                            else
+                            {
+                                $data = $record_data[0];
+                            }
+
+                            if (!empty($trigger_dest_events[$i]))
+                            {
+                                $dest_event = $trigger_dest_events[$i];
+                            }
+                            else
+                            {
+                                $dest_event = "event_1_arm_1";
+                            }
+                            
+                            if (empty($dest_record_data[$dest_event]))
+                            {
+                                $event_data = ["redcap_event_name" => $dest_event];
+                            }
+                            else
+                            {
+                                $event_data = $dest_record_data[$dest_event];
+                            }
+
                             $source_field = $trigger_source_fields[$i];
-                            $dest_record_data[$dest_field] = $record_data[$source_field];
+                            $event_data[$dest_field] = $data[$source_field];
+                            $dest_record_data[$dest_event] = $event_data;
                         }
 
                         $trigger_dest_fields = $set_dest_fields[$index];
                         $trigger_dest_values = $set_dest_fields_values[$index];
+                        $trigger_dest_events = $set_dest_events[$index];
                         foreach($trigger_dest_fields as $i => $dest_field)
                         {
-                            $dest_record_data[$dest_field] = $trigger_dest_values[$i];
+                            if (!empty($trigger_dest_events[$i]))
+                            {
+                                $dest_event = $trigger_dest_events[$i];
+                            }
+                            else
+                            {
+                                $dest_event = "event_1_arm_1";
+                            }
+
+                            if (empty($dest_record_data[$dest_event]))
+                            {
+                                $event_data = ["redcap_event_name" => $dest_event];
+                            }
+                            else
+                            {
+                                $event_data = $dest_record_data[$dest_event];
+                            }
+
+                            $event_data[$dest_field] = $trigger_dest_values[$i];
+                            $dest_record_data[$dest_event] = $event_data;
                         }
     
                         $trigger_source_instruments = $source_instruments[$index];
+                        $trigger_source_instruments_events = $source_instruments_events[$index];
                         foreach($trigger_source_instruments as $i => $source_instrument)
                         {
+                            if (!empty($trigger_source_instruments_events[$i]))
+                            {
+                                $event = $trigger_source_instruments_events[$i];
+                            }
+                            else
+                            {
+                                $event = "event_1_arm_1";
+                            }
+
+                            if (empty($dest_record_data[$event]))
+                            {
+                                $event_data = ["redcap_event_name" => $event];
+                            }
+                            else
+                            {
+                                $event_data = $dest_record_data[$event];
+                            }
+
                             // Fields are returned in the order they are in the REDCap project
                             $source_instrument_fields = REDCap::getFieldNames($source_instrument);
-                            $source_instrument_data = json_decode(REDCap::getData("json", $record, $source_instrument_fields), true)[0];
-                            $dest_record_data = $dest_record_data + $source_instrument_data;
+                            $source_instrument_data = json_decode(REDCap::getData("json", $record, $source_instrument_fields, $event), true)[0];
+
+                            $event_data = $event_data + $source_instrument_data;
+                            $dest_record_data[$event] = $event_data;
                         }
                     }
                 }
+
+                // Check if the linking id field is the same as the record id field.
+                $dest_record_id = $this->framework->getRecordIdField($dest_project);
+                $link_dest_value = $record_data[0][$link_source];
+                if ($dest_record_id != $link_dest_field)
+                {
+                    // Check for existing record, otherwise create a new one. Assume linking ID is unique
+                    if (REDCap::isLongitudinal())
+                    {
+                        $key = array_search($link_source_event, array_column($record_data, "redcap_event_name"));
+                        $data = $record_data[$key];
+                        $link_dest_value = $data[$link_source];
+                    }
+
+                    $existing_record = REDCap::getData("json", null, $dest_record_id, $link_dest_event, null, false, false, false, "[$link_dest_field] = $link_dest_value");
+                    $existing_record = json_decode($existing_record, true);
+                    if (sizeof($existing_record) == 0)
+                    {
+                        $dest_record = $this->framework->addAutoNumberedRecord($dest_project);
+                    }
+                    else
+                    {
+                        $dest_record = $existing_record[0][$dest_record_id];
+                    }
+                }
+                
+                if (!empty($dest_record_data))
+                {
+                    foreach ($dest_record_data as $i => $data)
+                    {
+                        if (!empty($dest_record))
+                        {
+                            $dest_record_data[$i][$dest_record_id] = $dest_record;
+                        }
+                        $dest_record_data[$i][$link_dest_field] = $link_dest_value;
+                    }
+                }
+                else
+                {
+                    $dest_record_data[] = [$dest_record_id => $dest_record, $link_dest_field => $link_dest_value];
+                }
+                
+                $dest_record_data = array_values($dest_record_data);
             }
 
             if (!empty($dest_record_data))
             {
                 // Save DET data in destination project;
-                $save_response = REDCap::saveData($dest_project, "json", json_encode(array($dest_record_data)), $overwrite_data);
+                $save_response = REDCap::saveData($dest_project, "json", json_encode($dest_record_data), $overwrite_data);
 
-                REDCap::logEvent("DET: Attempted to import", json_encode(array($dest_record_data)), null, $record, $event_id, $project_id);
+                REDCap::logEvent("DET: Attempted to import", json_encode($dest_record_data), null, $record, $event_id, $project_id);
 
                 if (!empty($save_response["errors"]))
                 {
