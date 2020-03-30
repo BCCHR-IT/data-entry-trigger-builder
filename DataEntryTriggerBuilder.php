@@ -513,7 +513,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
         $dest_fields = $this->retrieveProjectMetadata($settings["dest-project"]);
         ?>
             <h4>Trigger conditions (Max. 10)</h4>
-            <div>
+            <div id="trigger-instr">
                 <label>Push data from the source project to the linked project, when the following conditions are met:</label>
                 <ul>
                     <li>E.g., [event_name][instrument_name_complete] = "2"</li>
@@ -680,7 +680,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                                 </select>
                             </div>
                             <div class='col-sm-1'><p>to</p></div>
-                            <div class='col-sm-3'>
+                            <div class='col-sm-4'>
                                 <input name='setDestFieldsValues[<?php print $index;?>][]' class='form-control' value='<?php print $setDestFieldsValues[$i]; ?>' required>
                             </div>
                             <div class='col-sm-1' style='text-align: center; padding-top: 1%; padding-bottom: 1%;'>
@@ -811,61 +811,48 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
      * @param String $trigger_cond   A String of REDCap branching logic.
      * @return Array    An array of syntax blocks representing the given branching logic String.
      */
-    public function parseCondition($trigger_cond)
+    private function parseCondition($trigger_cond)
     {
         $pos = strpos($trigger_cond, "(");
+
         /**
          * If brackets are at the beginning of the condition then split on first
          * && after them. If there are no && then split on the first ||.
          */
         if ($pos === 0)
         {
-            $before = strstr($trigger_cond, ")", true);
-            $num_opening_brackets = substr_count($before, "("); // Count the number of opening brackets before the first closing bracket. This indicates which closing bracket to split on.
-
-            // if (preg_match("/(\)){2,}/", $trigger_cond, $matches, PREG_OFFSET_CAPTURE) > 0)
-            // {
-            //     var_dump($matches);
-            //     $closing_bracket_offset = $matches[0][1];
-            //     $last_closing_bracket_offset = $matches[sizeof($matches)-1][1];
-
-            //     if ($last_closing_bracket_offset == strlen($trigger_cond) - 1)
-            //     {
-            //         $left_cond = substr($trigger_cond, 1);
-            //         $left_cond = substr($left_cond, 0, -1);
-
-            //         return [
-            //             "left_branch" => $left_cond, 
-            //             "operand" => "", 
-            //             "right_branch" => ""
-            //         ];
-            //     }
-            //     else
-            //     {
-            //         $remainder = substr($trigger_cond, $closing_bracket_offset + strlen($matches[0][0]) + 2);
-            //     }
-            // }
-
-            if (preg_match_all("/\)/", $trigger_cond, $closing_brackets, PREG_OFFSET_CAPTURE) > 0)
+            for($i = 0; $i < strlen($trigger_cond); $i++)
             {
-                $closing_brackets = $closing_brackets[0];
-                $closing_offset = $closing_brackets[$num_opening_brackets-1][1];
-
-                if ($closing_offset == strlen($trigger_cond) - 1)
+                if ($trigger_cond[$i] == "(")
                 {
-                    $left_cond = substr($trigger_cond, 1);
-                    $left_cond = substr($left_cond, 0, -1);
-
-                    return [
-                        "left_branch" => $left_cond, 
-                        "operand" => "", 
-                        "right_branch" => ""
-                    ];
+                    $opening_brackets[] = $i;
                 }
-                else
+                else if ($trigger_cond[$i] == ")")
                 {
-                    $remainder = substr($trigger_cond, $closing_offset+2);
+                    array_pop($opening_brackets);
+                    if (empty($opening_brackets))
+                    {
+                        $closing_offset = $i;
+                        break;
+                    }
                 }
+                $closing_offset = -1;
+            }
+
+            if ($closing_offset == strlen($trigger_cond) - 1)
+            {
+                $left_cond = substr($trigger_cond, 1);
+                $left_cond = substr($left_cond, 0, -1);
+
+                return [
+                    "left_branch" => $left_cond, 
+                    "operand" => "", 
+                    "right_branch" => ""
+                ];
+            }
+            else
+            {
+                $remainder = substr($trigger_cond, $closing_offset+2);
             }
         }
         else if ($pos > 0)
@@ -900,20 +887,6 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
             $right_cond = trim(substr($trigger_cond, $offset + strlen($operator)));
             $operator = trim($operator);
 
-            // Remove first opening and closing bracket
-            if ($right_cond[0] == "(" && $right_cond[strlen($right_cond)-1] == ")")
-            {
-                $right_cond = substr($right_cond, 1);
-                $right_cond = substr($right_cond, 0, -1);
-            }
-
-            // Remove first opening and closing bracket
-            if ($left_cond[0] == "(" && $left_cond[strlen($left_cond)-1] == ")")
-            {
-                $left_cond = substr($left_cond, 1);
-                $left_cond = substr($left_cond, 0, -1);
-            }
-
             return [
                 "left_branch" => $left_cond, 
                 "operand" => $operator, 
@@ -932,7 +905,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
      * 
      * @return Boolean
      */
-    public function processTrigger($record_data, $trigger)
+    private function processTrigger($record_data, $trigger)
     {
         $logic_operators = array("==", "=", "<>", "!=", ">", "<", ">=", ">=", "<=");
 
@@ -1177,13 +1150,21 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                 
                 if (!empty($dest_record_data))
                 {
-                    foreach ($dest_record_data as $i => $data)
+                    if (!empty($dest_record))
                     {
-                        if (!empty($dest_record))
-                        {
-                            $dest_record_data[$i][$dest_record_id] = $dest_record;
+                        foreach ($dest_record_data as $i => $data)
+                        { 
+                            $dest_record_data[$i][$dest_record_id] = $dest_record;  
                         }
-                        $dest_record_data[$i][$link_dest_field] = $link_dest_value;
+                    }
+
+                    if (!empty($link_dest_event))
+                    {
+                        $dest_record_data[$link_dest_event][$link_dest_field] = $link_dest_value;
+                    }
+                    else
+                    {
+                        $dest_record_data["event_1_arm_1"][$link_dest_field] = $link_dest_value;
                     }
                 }
                 else

@@ -12,10 +12,8 @@
      */
     $("body").on('click', '.add-trigger-btn', function () {
         var triggers = $(".trigger-and-data-wrapper");
-        if (triggers.length < 10)
-        {
-            triggers.last().after(
-                "<div class='form-group trigger-and-data-wrapper new-wrapper'>" +
+        
+        var html = "<div class='form-group trigger-and-data-wrapper new-wrapper'>" +
                     "<div class='det-trigger'>" +
                         "<div class='row'>" + 
                             "<div class='col-sm-2'>" +
@@ -34,8 +32,15 @@
                         "<div class='col-sm-2'><button type='button' class='btn btn-link add-field-btn'>Pipe Field</button></div>" +
                         "<div class='col-sm-2'><button type='button' class='btn btn-link set-field-btn'>Set Field</button></div>" +
                     "</div>" + 
-                "</div>"
-            );
+                "</div>";
+        
+        if (triggers.length == 0)
+        {
+            $("#trigger-instr").after(html);
+        }
+        else if (triggers.length < 10)
+        {
+            triggers.last().after(html);
         }
         else
         {
@@ -219,7 +224,7 @@
                         "</select>" +
                     "</div>" +
                     "<div class='col-sm-1'><p>to</p></div>" +
-                    "<div class='col-sm-3'>" +
+                    "<div class='col-sm-4'>" +
                         "<input name='setDestFieldsValues[" + index + "][]' class='form-control' required>" +
                     "</div>" +
                     "<div class='col-sm-1' style='text-align: center; padding-top: 1%; padding-bottom: 1%;'>" +
