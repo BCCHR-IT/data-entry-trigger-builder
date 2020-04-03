@@ -1,245 +1,62 @@
 <script>
-    /**
-        The field and instrument options for the current destination project
+    /** 
+     * Code to populate the populate
+     * the autocomplete fields for the 
+     * source project
      */
-    var fieldOptions = [];
-    var instrOptions = [];
-    var eventOptions = [];
-    var isLongitudinal = false;
 
-    /**
-        Code to add another trigger
-     */
-    $("body").on('click', '.add-trigger-btn', function () {
-        var triggers = $(".trigger-and-data-wrapper");
-        
-        var html = "<div class='form-group trigger-and-data-wrapper new-wrapper'>" +
-                    "<div class='det-trigger'>" +
-                        "<div class='row'>" + 
-                            "<div class='col-sm-2'>" +
-                                "<label>Condition:</label>" +
-                            "</div>" +
-                            "<div class='col-sm-9'></div>" +
-                            "<div class='col-sm-1' style='text-align: center;'>" +
-                                "<span class='fa fa-minus delete-trigger-btn'></span>" +
-                            "</div>" +
-                        "</div>" +
-                        "<input name='triggers[]' type='text' class='form-control det-trigger-input' required>" +
-                    "</div>" +
-                    "<p>Copy the following instruments/fields from source project to linked project when the above condition is true:</p>" +
-                    "<div class='row' style='margin-top:20px'>" +
-                        "<div class='col-sm-2'><button type='button' class='btn btn-link add-instr-btn'>Pipe Instrument</button></div>" +
-                        "<div class='col-sm-2'><button type='button' class='btn btn-link add-field-btn'>Pipe Field</button></div>" +
-                        "<div class='col-sm-2'><button type='button' class='btn btn-link set-field-btn'>Set Field</button></div>" +
-                    "</div>" + 
-                "</div>";
-        
-        if (triggers.length == 0)
-        {
-            $("#trigger-instr").after(html);
-        }
-        else if (triggers.length < 10)
-        {
-            triggers.last().after(html);
-        }
-        else
-        {
-            alert("You have reached the maximum number of allowed triggers (10)")
-        }
-    });
-
-    /**
-        Code to add an instrument to a trigger
-     */
-    $('body').on('click', '.add-instr-btn', function () {
-        var instruments = $(this).closest('.trigger-and-data-wrapper').find('.det-instrument');
-        if (instruments.length < 10)
-        {
-            var options = "";
-            instrOptions.forEach(function(item) {
-                options += "<option " + "value='" + item + "'>" + item + "</option>";
-            });
-            
-            var index = $(".trigger-and-data-wrapper").index($(this).closest('.trigger-and-data-wrapper'));
-
-            var elem = $(
-                "<div class='row det-instrument' style='margin-top:20px;'>" +
-                    "<div class='col-sm-7'><p>Copy instrument (must have a one-to-one relationship in the destination project)</p></div>" +
-                    <?php if (REDCap::isLongitudinal()): ?>
-                    "<div class='col-sm-2'>" +
-                        "<select name='sourceInstrEvents[" + index + "][]' class='form-control selectpicker select-source-instr' data-live-search='true' required>" +
-                        "<option value='' disabled selected>Select event</option>" + 
-                        <?php
-                            $events = REDCap::getEventNames(true, true);
-                            foreach ($events as $event_name) 
-                            {
-                                print "\"<option value='$event_name'>$event_name</option>\" +";
-                            }
-                        ?>
-                        "</select>" +
-                    "</div>" +
-                    <?php endif;?>
-                    "<div class='col-sm-2'>" +
-                        "<select name='sourceInstr[" + index + "][]' class='form-control selectpicker select-source-instr' data-live-search='true' required>" +
-                        "<option value='' disabled selected>Select instrument</option>" + 
-                        <?php
-                            $instruments = REDCap::getInstrumentNames();
-                            foreach($instruments as $unique_name => $label)
-                            {
-                                print "\"<option value='$unique_name'>$unique_name</option>\" +";
-                            }
-                        ?>
-                        "</select>" +
-                    "</div>" +
-                    "<div class='col-sm-1' style='text-align: center; padding-top: 1%; padding-bottom: 1%;'>" +
-                        "<span class='fa fa-minus delete-instr-btn'></span>" +
-                    "</div>" +
-                "</div>"
-            );
-            $(this).closest('.row').after(elem);
-            elem.find('.selectpicker').selectpicker('render');
-        }
-        else
-        {
-            alert("You have reached the maximum number of allowed instruments for a trigger (10)")
-        }
-    });
-
-    /**
-        Code to add a field to a trigger
-     */
-    $('body').on('click', '.add-field-btn', function() {
-        var fields = $(this).closest('.trigger-and-data-wrapper').find('.det-field');
-        if (fields.length < 10)
-        {
-            var index = $(".trigger-and-data-wrapper").index($(this).closest('.trigger-and-data-wrapper'));
-
-            var text = "<div class='row det-field' style='margin-top:20px'>" +
-                    "<div class='col-sm-2'><p>Copy field</p></div>" +
-                    <?php if (REDCap::isLongitudinal()): ?>
-                    "<div class='col-sm-2'>" +
-                        "<select name='pipingSourceEvents[" + index + "][]' class='form-control selectpicker select-source-instr' data-live-search='true' required>" +
-                        "<option value='' disabled selected>Select event</option>" + 
-                        <?php
-                            $events = REDCap::getEventNames(true, true);
-                            foreach ($events as $event_name) 
-                            {
-                                print "\"<option value='$event_name'>$event_name</option>\" +";
-                            }
-                        ?>
-                        "</select>" +
-                    "</div>" +
-                    <?php endif;?>
-                    "<div class='col-sm-2'>" +
-                        "<select name='pipingSourceFields[" + index + "][]' class='form-control selectpicker' data-live-search='true' required>" +
-                        "<option value='' disabled selected>Select field</option>" + 
-                        <?php
-                            $fields = REDCap::getFieldNames();
-                            foreach($fields as $field)
-                            {
-                                print "\"<option value='$field'>$field</option>\" +";
-                            }
-                        ?>
-                        "</select>" +
-                    "</div>" +
-                    "<div class='col-sm-1'><p>to</p></div>";
-            
-            if (isLongitudinal == true)
+    <?php if (REDCap::isLongitudinal()): ?>
+        var sourceEvents = [
+            <?php
+            $events = REDCap::getEventNames(true, true);
+            foreach ($events as $event)
             {
-                options = "";
-                eventOptions.forEach(function(item) {
-                    options += "<option " + "value='" + item + "'>" + item + "</option>";
-                });
-
-                text = text + 
-                    "<div class='col-sm-2'>" +
-                        "<select name='pipingDestEvents[" + index + "][]' class='form-control selectpicker select-dest-field' data-live-search='true' required>" +
-                        "<option value='' disabled selected>Select event</option>" + 
-                        options + 
-                        "</select>" +
-                    "</div>"
+                print "'$event',";
             }
-
-            var options = "";
-            fieldOptions.forEach(function(item) {
-                options += "<option " + "value='" + item + "'>" + item + "</option>";
-            });
-
-            text = text + 
-                "<div class='col-sm-2'>" +
-                        "<select name='pipingDestFields[" + index + "][]' class='form-control selectpicker select-dest-field' data-live-search='true' required>" +
-                        "<option value='' disabled selected>Select field</option>" + 
-                        options + 
-                        "</select>" +
-                    "</div>" +
-                    "<div class='col-sm-1' style='text-align: center; padding-top: 1%; padding-bottom: 1%;'>" +
-                        "<span class='fa fa-minus delete-field-btn' style='margin-right: 5px'></span>" +
-                    "</div>" +
-                "</div>"
-
-            var elem = $(text);
-            $(this).closest('.row').after(elem);
-            elem.find('.selectpicker').selectpicker('render');
-        }
-        else
+            ?>
+        ]
+        
+        $(".source-events-autocomplete" ).autocomplete({
+            source: sourceEvents
+        });
+    <?php endif;?>
+                
+    var sourceFields = [
+        <?php
+        $metadata = REDCap::getDataDictionary('array');
+        foreach ($metadata as $field => $data)
         {
-            alert("You have reached the maximum number of allowed fields for a trigger (10)")
+            print "'$field',";
         }
+        ?>
+    ]
+    $(".source-fields-autocomplete" ).autocomplete({source: sourceFields});
+
+    var sourceInstr = [
+        <?php
+        $instrument_names = REDCap::getInstrumentNames();
+        foreach ($instrument_names as $unique_name => $label)
+        {
+            print "'$unique_name',";
+        }
+        ?>
+    ]
+    $(".source-instr-autocomplete").autocomplete({source: sourceInstr});
+
+    /**
+     * When user goes to add a field or instrument
+     * update .table-id item, hidden in each modal,
+     * to tell them which trigger's table to update.
+     * 
+     */
+    $("body").on("click", ".add-field-btn, .add-instr-btn", function () {
+        var id = $(this).siblings("table").attr("id");
+        $(".table-id").val(id);
     });
 
-    $('body').on('click', '.set-field-btn', function () {
-        var fields = $(this).closest('.trigger-and-data-wrapper').find('.det-field');
-        if (fields.length < 10)
-        {
-            var index = $(".trigger-and-data-wrapper").index($(this).closest('.trigger-and-data-wrapper'));
-
-            var text = "<div class='row det-field' style='margin-top:20px'>" + "<div class='col-sm-2'><p>Set field</p></div>";
-
-            if (isLongitudinal == true)
-            {
-                options = "";
-                eventOptions.forEach(function(item) {
-                    options += "<option " + "value='" + item + "'>" + item + "</option>";
-                });
-
-                text = text + 
-                    "<div class='col-sm-2'>" +
-                        "<select name='setDestEvents[" + index + "][]' class='form-control selectpicker select-dest-field' data-live-search='true' required>" +
-                        "<option value='' disabled selected>Select event</option>" + 
-                        options + 
-                        "</select>" +
-                    "</div>"
-            }
-            
-            options = "";
-            fieldOptions.forEach(function(item) {
-                options += "<option " + "value='" + item + "'>" + item + "</option>";
-            });
-
-            text = text + 
-                    "<div class='col-sm-2'>" +
-                        "<select name='setDestFields[" + index + "][]' class='form-control selectpicker select-dest-field' data-live-search='true' required>" +
-                        "<option value='' disabled selected>Select field</option>" + 
-                        options + 
-                        "</select>" +
-                    "</div>" +
-                    "<div class='col-sm-1'><p>to</p></div>" +
-                    "<div class='col-sm-4'>" +
-                        "<input name='setDestFieldsValues[" + index + "][]' class='form-control' required>" +
-                    "</div>" +
-                    "<div class='col-sm-1' style='text-align: center; padding-top: 1%; padding-bottom: 1%;'>" +
-                        "<span class='fa fa-minus delete-field-btn' style='margin-right: 5px'></span>" +
-                    "</div>" +
-                "</div>"
-
-            var elem = $(text);
-            $(this).closest('.row').after(elem);
-            elem.find('.selectpicker').selectpicker('render');
-        }
-        else
-        {
-            alert("You have reached the maximum number of allowed fields for a trigger (10)")
-        }
+    $("body").on("click", ".fa-pencil-alt", function () {
+        var id = $(this).parents("table").attr("id");
+        $(".table-id").val(id);
     });
 
     /**
@@ -250,17 +67,10 @@
     });
 
     /**
-        Code to delete a trigger's instrument
+        Code to delete a trigger's field/instrument
      */
-    $("body").on("click", ".delete-instr-btn", function () {
-        $(this).closest('.det-instrument').remove();
-    });
-
-    /**
-        Code to delete a trigger's field
-     */
-    $("body").on("click", ".delete-field-btn", function () {
-        $(this).closest('.det-field').remove();
+    $("body").on("click", ".delete-trigger-field", function () {
+        $(this).closest('.trigger-field-row').remove();
     });
 
     /**
@@ -282,10 +92,20 @@
                 },
                 success: function (data) {
                     var metadata = JSON.parse(data);
-                    fieldOptions = metadata.fields;
-                    instrOptions = metadata.instruments;
-                    eventOptions = metadata.events;
-                    isLongitudinal = metadata.isLongitudinal;
+                    var destFields = metadata.fields;
+                    var destEvents = metadata.events;
+                    var isLongitudinal = metadata.isLongitudinal;
+
+                    if (isLongitudinal) {
+                        $(".dest-events-autocomplete").autocomplete({source: destEvents});
+                        $(".dest-event-wrapper").show();
+                    }
+                    else {
+                        $(".dest-events-autocomplete").val("");
+                        $(".dest-event-wrapper").hide();
+                    }
+
+                    $(".dest-fields-autocomplete").autocomplete({source: destFields});
                 },
                 error: function (data, status, error) {
                     console.log("Returned with status " + status + " - " + error);
@@ -299,9 +119,12 @@
         destination project changes.
     */
     $("#destination-project-select").change(function () {
+        // Reset form by removing all triggers.
+        $('.trigger-and-data-wrapper').remove();
+
         fieldOptions = [];
         instrOptions = [];
-        $('.new-wrapper, .det-field, .det-instrument').remove();
+        
         $.ajax({
             url: "<?php print $module->getUrl("getDestinationFields.php") ?>",
             type: "POST",
@@ -310,45 +133,28 @@
             },
             success: function (data) {
                 var metadata = JSON.parse(data);
-                fieldOptions = metadata.fields;
-                instrOptions = metadata.instruments;
-                eventOptions = metadata.events;
-                isLongitudinal = metadata.isLongitudinal;
+                var destFields = metadata.fields;
+                var destEvents = metadata.events;
+                var isLongitudinal = metadata.isLongitudinal;
 
-                // Refreshes the link-dest-select right away.
-                var options = "<option value='' disabled selected>Select field</option>";
-                fieldOptions.forEach(function(item) {
-                    options += "<option " + "value='" + item + "'>" + item + "</option>";
-                });
-                $("#link-dest-select").empty().append(options)
-                $("#link-dest-select").selectpicker('refresh');
+                if (isLongitudinal) {
+                    $(".dest-events-autocomplete").autocomplete({source: destEvents});
+                    $(".dest-event-wrapper").show();
+                }
+                else {
+                    $(".dest-events-autocomplete").val("");
+                    $(".dest-event-wrapper").hide();
+                }
 
-                if (isLongitudinal)
-                {
-                    options = "<option value='' disabled selected>Select event</option>";
-                    eventOptions.forEach(function(item) {
-                        options += "<option " + "value='" + item + "'>" + item + "</option>";
-                    });
-                    
-                    var elem = $(
-                        "<div id='link-event-wrapper' class='col-sm-2'>" +
-                            "<select id='link-event-select' name='linkDestEvent' class='form-control selectpicker' data-live-search='true' required>" +
-                                options +
-                            "</select>" + 
-                        "</div>"
-                    );
-                    $("#link-source-wrapper").before(elem);
-                    elem.find('.selectpicker').selectpicker('render');
-                }
-                else
-                {
-                    $("#link-event-wrapper").remove();
-                }
+                $(".dest-fields-autocomplete").val("");
+                $(".dest-fields-autocomplete").autocomplete({source: destFields});
             },
             error: function (data, status, error) {
                 console.log("Returned with status " + status + " - " + error);
             }
         });
+
+        // Show the main form are if it's not already visible
         $('#main-form').show();
     });
 
@@ -405,5 +211,29 @@
                 console.log("Returned with status " + status + " - " + error);
             }
         });
+    })
+
+    /**
+     * Clear add field modal items, whenever
+     * user switches back and forth between
+     * entering a custom value or selecting a field
+     * for the source.
+     */
+    $('.fa-exchange-alt').click(function () {
+        $('#source-select').toggle();
+        $('#field-value').val("");
+        $('#source-input').toggle();
+        $('#field-select').val("");
+    });
+
+    /**
+     * When a user closes a modal, clear the
+     * form. 
+     */
+    $('.close-modal-btn').click(function() {
+        clearInstrForm();
+        clearFieldForm();
+        $('#add-field-btn').text("Add");
+        $('#add-instr-btn').text("Add");
     })
 </script>
