@@ -1,3 +1,7 @@
+<?php
+    $metadata = $data_entry_trigger_builder->retrieveProjectMetadata($module->getProjectId());
+    $instrument_names = REDCap::getInstrumentNames();
+?>
 <script>
     /** 
      * Code to populate the populate
@@ -8,8 +12,7 @@
     <?php if (REDCap::isLongitudinal()): ?>
         var sourceEvents = [
             <?php
-            $events = REDCap::getEventNames(true, true);
-            foreach ($events as $event)
+            foreach ($metadata["events"] as $event)
             {
                 print "'$event',";
             }
@@ -23,8 +26,7 @@
                 
     var sourceFields = [
         <?php
-        $metadata = REDCap::getDataDictionary('array');
-        foreach ($metadata as $field => $data)
+        foreach ($metadata["fields"] as $field)
         {
             print "'$field',";
         }
@@ -34,7 +36,6 @@
 
     var sourceInstr = [
         <?php
-        $instrument_names = REDCap::getInstrumentNames();
         foreach ($instrument_names as $unique_name => $label)
         {
             print "'$unique_name',";
