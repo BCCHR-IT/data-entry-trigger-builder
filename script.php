@@ -8,7 +8,6 @@
      * the autocomplete fields for the 
      * source project
      */
-
     <?php if (REDCap::isLongitudinal()): ?>
         var sourceEvents = [
             <?php
@@ -19,9 +18,7 @@
             ?>
         ]
         
-        $(".source-events-autocomplete" ).autocomplete({
-            source: sourceEvents
-        });
+        $(".source-events-autocomplete" ).autocomplete({source: sourceEvents});
     <?php endif;?>
                 
     var sourceFields = [
@@ -117,7 +114,7 @@
 
     /**
         Call to retrieve destination project's fields and instruments when 
-        destination project changes.
+        destination project changes, and update autcomplete items
     */
     $("#destination-project-select").change(function () {
         // Reset form by removing all triggers.

@@ -100,12 +100,13 @@ function updateTable(elem)
 function addTrigger()
 {
     var triggers = $(".trigger-and-data-wrapper");
+    var trigNum = triggers.length + 1;
     
     var html = "<div class='form-group trigger-and-data-wrapper new-wrapper'>" +
                 "<div class='det-trigger'>" +
                     "<div class='row'>" + 
                         "<div class='col-sm-2'>" +
-                            "<h5>Trigger #" + triggers.length + "</h5>" +
+                            "<h5>Trigger #" + trigNum + "</h5>" +
                         "</div>" +
                         "<div class='col-sm-9'></div>" +
                         "<div class='col-sm-1' style='text-align: center;'>" +
@@ -120,7 +121,7 @@ function addTrigger()
                 "<button type='button' data-toggle='modal' data-target='#add-field-modal' class='btn btn-primary btn-xs add-field-btn'>Add Field</button> " + 
                 "<button type='button' data-toggle='modal' data-target='#add-instr-modal' class='btn btn-primary btn-xs add-instr-btn'>Add Instrument</button>" +
                 "<br/><br/>" + 
-                "<table class='table' id='table-" + triggers.length + "'>" +
+                "<table class='table' id='table-" + trigNum + "'>" +
                     "<thead>" + 
                         "<tr>" + 
                             "<th>From Source Project</th>" +

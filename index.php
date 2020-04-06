@@ -13,7 +13,14 @@ $dest_fields = $data_entry_trigger_builder->retrieveProjectMetadata($settings["d
 ?>
 <html>
     <head>
+        <!-- boostrap-select css and js-->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/css/bootstrap-select.min.css">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/js/bootstrap-select.min.js"></script>
         <style>
+            p {
+                font-size: 18px;
+                max-width: 100%;
+            }
             .fa:hover {
                 color:grey;
             }
@@ -30,9 +37,11 @@ $dest_fields = $data_entry_trigger_builder->retrieveProjectMetadata($settings["d
     <body>
         <div class="container">
             <h1>Data Entry Trigger Builder</h1>
-            <p style="font-size:18px; max-width: 100%">
-                This module allows the user to customize data entry transfers between two projects in REDCap. If your requirements are more complicated than what's allowed here, please contact
-                the <b>BCCHR REDCap</b> team.
+            <p>
+                This module allows users to customize data entry transfers (DETs) between two projects in REDCap.
+                A DET runs every time data is created/saved in a record via data entry or surveys. To disable your DET after creation,
+                disable the module. Your settings will be saved, and automatically applied, when the module is enabled again.
+                If your requirements are more complicated than what's allowed here, please submit a ticket to the <b>BCCHR REDCap</b> team.
             </p>
             <form class="jumbotron" method="post" action="<?php print $module->getUrl("index.php");?>">
                 <h4>Select a linked Project</h4>
@@ -70,22 +79,31 @@ $dest_fields = $data_entry_trigger_builder->retrieveProjectMetadata($settings["d
                         <input id="create-record-input" name="create-record-cond" type="text" class="form-control" value="<?php print $settings["create-record-cond"]?>" required>
                     </div>
                     <div class='row link-field form-group'> 
-                        <div class='col-sm-2'><p>Link source project field</p></div> 
-                        <?php if (REDCap::isLongitudinal()): ?>
-                            <div class='col-sm-2'>
-                                <input class="source-events-autocomplete form-control" name='linkSourceEvent' placeholder="Type to search for event" value="<?php print $settings["linkSourceEvent"]; ?>">
+                        <div class='col-sm-6'>
+                            <div class='class-sm-12'><label>Link source project field</label></div>
+                            <div class='row'>
+                                <?php if (REDCap::isLongitudinal()): ?>
+                                    <div class='col-sm-6'>
+                                        <input class="source-events-autocomplete form-control" name='linkSourceEvent' placeholder="Type to search for event" value="<?php print $settings["linkSourceEvent"]; ?>">
+                                    </div>
+                                <?php endif;?>
+                                <div class='col-sm-6'>
+                                    <input class="source-fields-autocomplete form-control" name='linkSource' placeholder="Type to search for field" value="<?php print $settings["linkSource"]; ?>">
+                                </div> 
                             </div>
-                        <?php endif;?>
-                        <div class='col-sm-2'>
-                            <input class="source-fields-autocomplete form-control" name='linkSource' placeholder="Type to search for field" value="<?php print $settings["linkSource"]; ?>">
-                        </div> 
-                        <div class='col-sm-2' id="link-source-text"><p>to linked project field</p></div>
-                        <div class='col-sm-2 dest-event-wrapper' <?php if(empty($settings["linkDestEvent"])) {print "style='display:none'";} ?>>
-                            <input class='dest-events-autocomplete form-control' name='linkDestEvent' placeholder="Type to search for event" value="<?php print $settings["linkDestEvent"]; ?>">
                         </div>
-                        <div id="link-source-wrapper" class='col-sm-2'>
-                            <input class='dest-fields-autocomplete form-control' name='linkDest' placeholder="Type to search for field" value="<?php print $settings["linkDest"]; ?>">
+                        <div class='col-sm-6'>
+                            <div class='class-sm-12' id="link-source-text"><label>To linked project field</label></div>
+                            <div class='row'>
+                                <div class='col-sm-6 dest-event-wrapper' <?php if(empty($settings["linkDestEvent"])) {print "style='display:none'";} ?>>
+                                    <input class='dest-events-autocomplete form-control' name='linkDestEvent' placeholder="Type to search for event" value="<?php print $settings["linkDestEvent"]; ?>">
+                                </div>
+                                <div id="link-source-wrapper" class='col-sm-6'>
+                                    <input class='dest-fields-autocomplete form-control' name='linkDest' placeholder="Type to search for field" value="<?php print $settings["linkDest"]; ?>">
+                                </div>
+                            </div>
                         </div>
+
                     </div>
                     <hr>
                     <h4>Trigger conditions (Max. 10)</h4>
@@ -103,7 +121,7 @@ $dest_fields = $data_entry_trigger_builder->retrieveProjectMetadata($settings["d
                         <div class="det-trigger">
                             <div class="row">
                                 <div class="col-sm-2">
-                                    <label><h5>Trigger #<?php print $index?></h5></label>
+                                    <label><h5>Trigger #<?php print $index + 1?></h5></label>
                                 </div>
                                 <div class="col-sm-9"></div>
                                 <div class="col-sm-1" style="text-align: center;">
