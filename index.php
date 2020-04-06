@@ -31,6 +31,16 @@ $dest_fields = $data_entry_trigger_builder->retrieveProjectMetadata($settings["d
                 border: none;
                 background-color: transparent;
             }
+            .table tr > td:first-child {
+                width: 40% ;
+            }
+            .table tr > td:nth-child(2) {
+                width: 40% ;
+            }
+            .table tr > td:nth-child(3), 
+            .table tr > td:nth-child(4) {
+                width: 10% ;
+            }
         </style>
         <script src="<?php print $module->getUrl("functions.js");?>" type="text/javascript"></script>
     </head>
