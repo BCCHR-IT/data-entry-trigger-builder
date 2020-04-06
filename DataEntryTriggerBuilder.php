@@ -143,7 +143,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
     }
 
     /**
-     * Validate general syntax.
+     * Validate syntax.
      * 
      * @access private
      * @see Template::getSyntaxParts()  For retreiving blocks of syntax from the given syntax string.
@@ -323,7 +323,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
     }
 
     /**
-     * Retrieves a project's instruments and fields
+     * Retrieves a project's fields
      * 
      * @param String $pid   A project's id in REDCap.
      * @return String       A JSON encoded string that contains all the instruments and fields for a project. 
@@ -333,7 +333,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
         if (!empty($pid))
         {
             $metadata = REDCap::getDataDictionary($pid, "array");
-            $instruments = array_keys(REDCap::getInstrumentNames());
+            $instruments = array_unique(array_column($metadata, "form_name"));
             $Proj = new Project($pid);
             $events = array_values($Proj->getUniqueEventNames());
             $isLongitudinal = $Proj->longitudinal;
@@ -358,7 +358,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                 $fields[] = $instrument . "_complete";
             }
 
-            return ["instruments" => $instruments, "fields" => $fields, "events" => $events, "isLongitudinal" => $isLongitudinal];
+            return ["fields" => $fields, "events" => $events, "isLongitudinal" => $isLongitudinal];
         }
         return FALSE;
     }

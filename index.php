@@ -318,7 +318,7 @@ $dest_fields = $data_entry_trigger_builder->retrieveProjectMetadata($settings["d
                                 </div>
                                 <?php endif;?>
                                 <div class='col-sm-6 ui-front'>
-                                    <input class='source-instr-autocomplete form-control' id="instr-select" placeholder="Type to search for field">
+                                    <input class='source-instr-autocomplete form-control' id="instr-select" placeholder="Type to search for instrument">
                                 </div>
                             </div>
                         </div>
