@@ -31,14 +31,18 @@ $dest_fields = $data_entry_trigger_builder->retrieveProjectMetadata($settings["d
                 border: none;
                 background-color: transparent;
             }
-            .table tr > td:first-child {
+            .table tr > td:first-child,
+            .table tr > th:first-child {
                 width: 40% ;
             }
-            .table tr > td:nth-child(2) {
+            .table tr > td:nth-child(2),
+            .table tr > th:nth-child(2)  {
                 width: 40% ;
             }
             .table tr > td:nth-child(3), 
-            .table tr > td:nth-child(4) {
+            .table tr > td:nth-child(4),
+            .table tr > th:nth-child(3), 
+            .table tr > th:nth-child(4) {
                 width: 10% ;
             }
         </style>
@@ -94,11 +98,11 @@ $dest_fields = $data_entry_trigger_builder->retrieveProjectMetadata($settings["d
                             <div class='row'>
                                 <?php if (REDCap::isLongitudinal()): ?>
                                     <div class='col-sm-6'>
-                                        <input class="source-events-autocomplete form-control" name='linkSourceEvent' placeholder="Type to search for event" value="<?php print $settings["linkSourceEvent"]; ?>">
+                                        <input class="source-events-autocomplete form-control" name='linkSourceEvent' placeholder="Type to search for event" value="<?php print $settings["linkSourceEvent"]; ?>" required>
                                     </div>
                                 <?php endif;?>
                                 <div class='col-sm-6'>
-                                    <input class="source-fields-autocomplete form-control" name='linkSource' placeholder="Type to search for field" value="<?php print $settings["linkSource"]; ?>">
+                                    <input class="source-fields-autocomplete form-control" name='linkSource' placeholder="Type to search for field" value="<?php print $settings["linkSource"]; ?>" required>
                                 </div> 
                             </div>
                         </div>
@@ -106,10 +110,10 @@ $dest_fields = $data_entry_trigger_builder->retrieveProjectMetadata($settings["d
                             <div class='class-sm-12' id="link-source-text"><label>To linked project field</label></div>
                             <div class='row'>
                                 <div class='col-sm-6 dest-event-wrapper' <?php if(empty($settings["linkDestEvent"])) {print "style='display:none'";} ?>>
-                                    <input class='dest-events-autocomplete form-control' name='linkDestEvent' placeholder="Type to search for event" value="<?php print $settings["linkDestEvent"]; ?>">
+                                    <input class='dest-events-autocomplete form-control' name='linkDestEvent' placeholder="Type to search for event" value="<?php print $settings["linkDestEvent"]; ?>" required>
                                 </div>
                                 <div id="link-source-wrapper" class='col-sm-6'>
-                                    <input class='dest-fields-autocomplete form-control' name='linkDest' placeholder="Type to search for field" value="<?php print $settings["linkDest"]; ?>">
+                                    <input class='dest-fields-autocomplete form-control' name='linkDest' placeholder="Type to search for field" value="<?php print $settings["linkDest"]; ?>" required>
                                 </div>
                             </div>
                         </div>

@@ -73,27 +73,34 @@ function createInstrRow()
 
 function updateTable(elem)
 {
-    if ($(elem).attr("id") == "add-field-btn")
+    if ($(elem).attr("id") == "add-field-btn" && validateFieldForm())
     {
         var newRow = createFieldRow();
         clearFieldForm();
     }   
-    else
+    else if (validateInstrumentForm())
     {
         var newRow = createInstrRow();
         clearInstrForm();
     }
 
-    if ($(elem).text() == 'Update')
+    if (newRow)
     {
-        row.after(newRow)
-        row.remove();
-        $(elem).text("Add");
+        if ($(elem).text() == 'Update')
+        {
+            row.after(newRow)
+            row.remove();
+            $(elem).text("Add");
+        }
+        else
+        {
+            var id = $(".table-id").val();
+            $("#" + id).find("tbody").append(newRow);
+        }
     }
     else
     {
-        var id = $(".table-id").val();
-        $("#" + id).find("tbody").append(newRow);
+        alert("Please make sure all fields are filled out before, clicking 'Add'!");
     }
 }
 
@@ -218,4 +225,26 @@ function fillInstrForm(elem)
 
     $('#add-instr-btn').text("Update");
     $('#add-instr-modal').modal('show');
+}
+
+function validateFieldForm()
+{
+    if ($('#dest-field-select').val() == '' || 
+        ($('#dest-event-select').is(':visible') && $('#dest-event-select').val() == '') ||
+        ($('#field-value').is(':visible') && $('#field-value').val() == '') ||
+        ($('#event-select').is(':visible') && $('#event-select').val() == '') ||
+        ($('#field-select').is(':visible') && $('#field-select').val() == ''))
+    {
+        return false;
+    }
+    return true;
+}
+
+function validateInstrumentForm()
+{
+    if (($('#instr-event-select') && $('#instr-event-select').val() == '') || $('#instr-select').val() == '')
+    {
+        return false;
+    }
+    return true;
 }
