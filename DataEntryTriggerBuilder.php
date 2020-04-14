@@ -576,163 +576,160 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
             // Get current record data
             $record_data = json_decode(REDCap::getData("json", $record), true);
 
-            if ($this->processTrigger($record_data, $create_record_trigger))
+            foreach($triggers as $index => $trigger)
             {
-                foreach($triggers as $index => $trigger)
+                if ($this->processTrigger($record_data, $trigger))
                 {
-                    if ($this->processTrigger($record_data, $trigger))
+                    $trigger_source_fields = $piping_source_fields[$index];
+                    $trigger_dest_fields = $piping_dest_fields[$index];
+                    $trigger_source_events = $piping_source_events[$index];
+                    $trigger_dest_events = $piping_source_events[$index];
+
+                    foreach($trigger_dest_fields as $i => $dest_field)
                     {
-                        $trigger_source_fields = $piping_source_fields[$index];
-                        $trigger_dest_fields = $piping_dest_fields[$index];
-                        $trigger_source_events = $piping_source_events[$index];
-                        $trigger_dest_events = $piping_source_events[$index];
-
-                        foreach($trigger_dest_fields as $i => $dest_field)
+                        if (!empty($trigger_source_events[$i]))
                         {
-                            if (!empty($trigger_source_events[$i]))
-                            {
-                                $source_event = $trigger_source_events[$i];
-                                $key = array_search($source_event, array_column($record_data, "redcap_event_name"));
-                                $data = $record_data[$key];
-                            }
-                            else
-                            {
-                                $data = $record_data[0];
-                            }
-
-                            if (!empty($trigger_dest_events[$i]))
-                            {
-                                $dest_event = $trigger_dest_events[$i];
-                            }
-                            else
-                            {
-                                $dest_event = "event_1_arm_1";
-                            }
-                            
-                            if (empty($dest_record_data[$dest_event]))
-                            {
-                                $event_data = ["redcap_event_name" => $dest_event];
-                            }
-                            else
-                            {
-                                $event_data = $dest_record_data[$dest_event];
-                            }
-
-                            $source_field = $trigger_source_fields[$i];
-                            $event_data[$dest_field] = $data[$source_field];
-                            $dest_record_data[$dest_event] = $event_data;
+                            $source_event = $trigger_source_events[$i];
+                            $key = array_search($source_event, array_column($record_data, "redcap_event_name"));
+                            $data = $record_data[$key];
+                        }
+                        else
+                        {
+                            $data = $record_data[0];
                         }
 
-                        $trigger_dest_fields = $set_dest_fields[$index];
-                        $trigger_dest_values = $set_dest_fields_values[$index];
-                        $trigger_dest_events = $set_dest_events[$index];
-                        foreach($trigger_dest_fields as $i => $dest_field)
+                        if (!empty($trigger_dest_events[$i]))
                         {
-                            if (!empty($trigger_dest_events[$i]))
-                            {
-                                $dest_event = $trigger_dest_events[$i];
-                            }
-                            else
-                            {
-                                $dest_event = "event_1_arm_1";
-                            }
-
-                            if (empty($dest_record_data[$dest_event]))
-                            {
-                                $event_data = ["redcap_event_name" => $dest_event];
-                            }
-                            else
-                            {
-                                $event_data = $dest_record_data[$dest_event];
-                            }
-
-                            $event_data[$dest_field] = $trigger_dest_values[$i];
-                            $dest_record_data[$dest_event] = $event_data;
+                            $dest_event = $trigger_dest_events[$i];
                         }
-    
-                        $trigger_source_instruments = $source_instruments[$index];
-                        $trigger_source_instruments_events = $source_instruments_events[$index];
-                        foreach($trigger_source_instruments as $i => $source_instrument)
+                        else
                         {
-                            if (!empty($trigger_source_instruments_events[$i]))
-                            {
-                                $event = $trigger_source_instruments_events[$i];
-                            }
-                            else
-                            {
-                                $event = "event_1_arm_1";
-                            }
-
-                            if (empty($dest_record_data[$event]))
-                            {
-                                $event_data = ["redcap_event_name" => $event];
-                            }
-                            else
-                            {
-                                $event_data = $dest_record_data[$event];
-                            }
-
-                            // Fields are returned in the order they are in the REDCap project
-                            $source_instrument_fields = REDCap::getFieldNames($source_instrument);
-                            $source_instrument_data = json_decode(REDCap::getData("json", $record, $source_instrument_fields, $event), true)[0];
-
-                            $event_data = $event_data + $source_instrument_data;
-                            $dest_record_data[$event] = $event_data;
+                            $dest_event = "event_1_arm_1";
                         }
+                        
+                        if (empty($dest_record_data[$dest_event]))
+                        {
+                            $event_data = ["redcap_event_name" => $dest_event];
+                        }
+                        else
+                        {
+                            $event_data = $dest_record_data[$dest_event];
+                        }
+
+                        $source_field = $trigger_source_fields[$i];
+                        $event_data[$dest_field] = $data[$source_field];
+                        $dest_record_data[$dest_event] = $event_data;
+                    }
+
+                    $trigger_dest_fields = $set_dest_fields[$index];
+                    $trigger_dest_values = $set_dest_fields_values[$index];
+                    $trigger_dest_events = $set_dest_events[$index];
+                    foreach($trigger_dest_fields as $i => $dest_field)
+                    {
+                        if (!empty($trigger_dest_events[$i]))
+                        {
+                            $dest_event = $trigger_dest_events[$i];
+                        }
+                        else
+                        {
+                            $dest_event = "event_1_arm_1";
+                        }
+
+                        if (empty($dest_record_data[$dest_event]))
+                        {
+                            $event_data = ["redcap_event_name" => $dest_event];
+                        }
+                        else
+                        {
+                            $event_data = $dest_record_data[$dest_event];
+                        }
+
+                        $event_data[$dest_field] = $trigger_dest_values[$i];
+                        $dest_record_data[$dest_event] = $event_data;
+                    }
+
+                    $trigger_source_instruments = $source_instruments[$index];
+                    $trigger_source_instruments_events = $source_instruments_events[$index];
+                    foreach($trigger_source_instruments as $i => $source_instrument)
+                    {
+                        if (!empty($trigger_source_instruments_events[$i]))
+                        {
+                            $event = $trigger_source_instruments_events[$i];
+                        }
+                        else
+                        {
+                            $event = "event_1_arm_1";
+                        }
+
+                        if (empty($dest_record_data[$event]))
+                        {
+                            $event_data = ["redcap_event_name" => $event];
+                        }
+                        else
+                        {
+                            $event_data = $dest_record_data[$event];
+                        }
+
+                        // Fields are returned in the order they are in the REDCap project
+                        $source_instrument_fields = REDCap::getFieldNames($source_instrument);
+                        $source_instrument_data = json_decode(REDCap::getData("json", $record, $source_instrument_fields, $event), true)[0];
+
+                        $event_data = $event_data + $source_instrument_data;
+                        $dest_record_data[$event] = $event_data;
                     }
                 }
+            }
 
-                // Check if the linking id field is the same as the record id field.
-                $dest_record_id = $this->framework->getRecordIdField($dest_project);
-                $link_dest_value = $record_data[0][$link_source];
-                if ($dest_record_id != $link_dest_field)
+            // Check if the linking id field is the same as the record id field.
+            $dest_record_id = $this->framework->getRecordIdField($dest_project);
+            $link_dest_value = $record_data[0][$link_source];
+            if ($dest_record_id != $link_dest_field)
+            {
+                // Check for existing record, otherwise create a new one. Assume linking ID is unique
+                if (!empty($link_source_event))
                 {
-                    // Check for existing record, otherwise create a new one. Assume linking ID is unique
-                    if (!empty($link_source_event))
-                    {
-                        $key = array_search($link_source_event, array_column($record_data, "redcap_event_name"));
-                        $data = $record_data[$key];
-                        $link_dest_value = $data[$link_source];
-                    }
-
-                    $existing_record = REDCap::getData($dest_project, "json", null, $dest_record_id, $link_dest_event, null, false, false, false, "[$link_dest_field] = $link_dest_value");
-                    $existing_record = json_decode($existing_record, true);
-                    if (sizeof($existing_record) == 0)
-                    {
-                        $dest_record = $this->framework->addAutoNumberedRecord($dest_project);
-                    }
-                    else
-                    {
-                        $dest_record = $existing_record[0][$dest_record_id];
-                    }
+                    $key = array_search($link_source_event, array_column($record_data, "redcap_event_name"));
+                    $data = $record_data[$key];
+                    $link_dest_value = $data[$link_source];
                 }
-                
-                if (!empty($dest_record_data))
-                {
-                    if (!empty($dest_record))
-                    {
-                        foreach ($dest_record_data as $i => $data)
-                        { 
-                            $dest_record_data[$i][$dest_record_id] = $dest_record;  
-                        }
-                    }
 
-                    if (!empty($link_dest_event))
-                    {
-                        $dest_record_data[$link_dest_event][$link_dest_field] = $link_dest_value;
-                    }
-                    else
-                    {
-                        $dest_record_data["event_1_arm_1"][$link_dest_field] = $link_dest_value;
-                    }
+                $existing_record = REDCap::getData($dest_project, "json", null, $dest_record_id, $link_dest_event, null, false, false, false, "[$link_dest_field] = $link_dest_value");
+                $existing_record = json_decode($existing_record, true);
+                if (sizeof($existing_record) == 0)
+                {
+                    $dest_record = $this->framework->addAutoNumberedRecord($dest_project);
                 }
                 else
                 {
-                    $dest_record_data[] = [$dest_record_id => $dest_record, $link_dest_field => $link_dest_value];
+                    $dest_record = $existing_record[0][$dest_record_id];
                 }
-                
-                $dest_record_data = array_values($dest_record_data);
             }
+            
+            if (!empty($dest_record_data))
+            {
+                if (!empty($dest_record))
+                {
+                    foreach ($dest_record_data as $i => $data)
+                    { 
+                        $dest_record_data[$i][$dest_record_id] = $dest_record;  
+                    }
+                }
+
+                if (!empty($link_dest_event))
+                {
+                    $dest_record_data[$link_dest_event][$link_dest_field] = $link_dest_value;
+                }
+                else
+                {
+                    $dest_record_data["event_1_arm_1"][$link_dest_field] = $link_dest_value;
+                }
+            }
+            else
+            {
+                $dest_record_data[] = [$dest_record_id => $dest_record, $link_dest_field => $link_dest_value];
+            }
+            
+            $dest_record_data = array_values($dest_record_data);
 
             if (!empty($dest_record_data))
             {

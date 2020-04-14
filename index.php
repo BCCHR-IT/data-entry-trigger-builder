@@ -18,7 +18,6 @@ $dest_fields = $data_entry_trigger_builder->retrieveProjectMetadata($settings["d
         <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/js/bootstrap-select.min.js"></script>
         <style>
             p {
-                font-size: 18px;
                 max-width: 100%;
             }
             .fa:hover {
@@ -49,16 +48,17 @@ $dest_fields = $data_entry_trigger_builder->retrieveProjectMetadata($settings["d
         <script src="<?php print $module->getUrl("functions.js");?>" type="text/javascript"></script>
     </head>
     <body>
-        <div class="container">
-            <h1>Data Entry Trigger Builder</h1>
-            <p>
-                This module allows users to customize data entry transfers (DETs) between two projects in REDCap.
-                A DET runs every time data is created/saved in a record via data entry or surveys. To disable your DET after creation,
-                disable the module. Your settings will be saved, and automatically applied, when the module is enabled again.
-                If your requirements are more complicated than what's allowed here, please submit a ticket to the <b>BCCHR REDCap</b> team.
-            </p>
-            <form class="jumbotron" method="post" action="<?php print $module->getUrl("index.php");?>">
-                <h4>Select a linked Project</h4>
+        <div class="container jumbotron">
+            <h2>Data Entry Trigger Builder</h2>
+            <p>*This module will work will classical and longitudinal projects, but is currently imcompatible with repeating events.</p>
+            <hr/>
+            <h5>Import/Export your DET Settings</h5>
+            <p>If you've created a JSON string containing your DET settings, you may upload it to the module, or you may export your current DET settings (If they exist).</p>
+            <button type="button" data-toggle="modal" data-target="#upload-json-modal" class="btn btn-primary btn-sm">Upload DET Settings</button>
+            <?php if (!empty($settings)): ?><button type="button" data-toggle="modal" data-target="#export-json-modal" class="btn btn-primary btn-sm">Export DET Settings</button><?php endif; ?>
+            <hr/>
+            <form id="det-form" method="post">
+                <h5>Select a linked Project</h5>
                 <div class="form-group">
                     <select name="dest-project" id="destination-project-select" class="form-control selectpicker" data-live-search="true" required>
                         <option value="" disabled <?php if (empty($settings)) { print "selected"; }?>>Select a project</option>
@@ -82,16 +82,8 @@ $dest_fields = $data_entry_trigger_builder->retrieveProjectMetadata($settings["d
                 </div>
                 <hr>
                 <div id="main-form" <?php if (empty($settings)) :?> style="display:none" <?php endif;?>>
-                    <h4>Subject Creation</h4>
-                    <div class="form-group">
-                        <label>Create a subject/record ID in the linked project, PID xyz, when the following conditions are met:</label>
-                        <ul>
-                            <li>E.g., [event_name][instrument_name_complete] = '2'</li>
-                            <li>E.g., [event_name][variable_name] = '1'</li>
-                        </ul>
-                        <p>Where [event_name] = only in longitudinal projects<br/>Where [instrument_name] = form copied from source to linked project</p>
-                        <input id="create-record-input" name="create-record-cond" type="text" class="form-control" value="<?php print $settings["create-record-cond"]?>" required>
-                    </div>
+                    <h5>Record Linkage</h5>
+                    <p>When at least one of the triggers are met, then records between the source and linked project will be created and linked via the chosen fields.</p>
                     <div class='row link-field form-group'> 
                         <div class='col-sm-6'>
                             <div class='class-sm-12'><label>Link source project field</label></div>
@@ -120,7 +112,7 @@ $dest_fields = $data_entry_trigger_builder->retrieveProjectMetadata($settings["d
 
                     </div>
                     <hr>
-                    <h4>Trigger conditions (Max. 10)</h4>
+                    <h5>Trigger conditions (Max. 10)</h5>
                     <div id="trigger-instr" style="margin-bottom:20px">
                         <label>Push data from the source project to the linked project, when the following conditions are met:</label>
                         <ul>
@@ -128,18 +120,18 @@ $dest_fields = $data_entry_trigger_builder->retrieveProjectMetadata($settings["d
                             <li>E.g., [event_name][variable_name] = "1"</li>
                         </ul>
                         <p>Where [event_name] = only in longitudinal projects<br/>Where [instrument_name] = form copied from source to linked project</p>
-                        <button type="button" class="btn btn-primary btn-sm add-trigger-btn" onclick="addTrigger()">Add Trigger</button>
+                        <button type="button" id="add-trigger-btn" class="btn btn-primary btn-sm">Add Trigger</button>
                     </div>
                     <?php if (!empty($settings)): foreach($settings["triggers"] as $index => $trigger): ?>
                     <div class="form-group trigger-and-data-wrapper">
                         <div class="det-trigger">
                             <div class="row">
                                 <div class="col-sm-2">
-                                    <label><h5>Trigger #<?php print $index + 1?></h5></label>
+                                    <label><h6>Trigger:</h6></label>
                                 </div>
                                 <div class="col-sm-9"></div>
                                 <div class="col-sm-1" style="text-align: center;">
-                                    <span class="fa fa-minus delete-trigger-btn"></span>
+                                    <span class="fa fa-trash-alt delete-trigger-btn"></span>
                                 </div>
                             </div>
                             <input name="triggers[]" type="text" class="form-control det-trigger-input" value="<?php print $trigger; ?>" required>
@@ -237,7 +229,7 @@ $dest_fields = $data_entry_trigger_builder->retrieveProjectMetadata($settings["d
                     </div>
                     <?php endforeach; endif;?>
                     <hr>
-                    <h4>Confirm the following</h4>
+                    <h5>Confirm the following</h5>
                     <div class="row">
                         <div class="form-check col-6" style="margin-left:15px">
                         <div class="row"><label>Overwrite data in destination project every time data is saved. This determines whether to push blank data over to the destination project.</label></div>
@@ -306,7 +298,7 @@ $dest_fields = $data_entry_trigger_builder->retrieveProjectMetadata($settings["d
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary close-modal-btn" data-dismiss="modal">Close</button>
-                            <button type="button" id="add-field-btn" class="btn btn-primary" onclick="updateTable(this)">Add</button>
+                            <button type="button" id="add-field-btn" class="btn btn-primary">Add</button>
                         </div>
                     </div>
                 </div>
@@ -338,7 +330,61 @@ $dest_fields = $data_entry_trigger_builder->retrieveProjectMetadata($settings["d
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary close-modal-btn" data-dismiss="modal">Close</button>
-                            <button type="button" id="add-instr-btn" class="btn btn-primary" onclick="updateTable(this)">Add</button>
+                            <button type="button" id="add-instr-btn" class="btn btn-primary">Add</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" id="upload-json-modal" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <input class="table-id" type="hidden">
+                        <div class="modal-header">
+                            <h5>Upload DET Settings</h5>
+                            <button type="button" class="close close-modal-btn" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <form id="upload-json-form" method="post">
+                            <div class="modal-body">
+                                <div class='row'>
+                                    <div class="col-sm-12"><label>Please copy-paste your json into the editor below</label></div>
+                                    <div id="json-errors-div" class="col-sm-12" style="color:red"></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-12"><textarea rows="4" cols="60" name="json"></textarea></div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary close-modal-btn" data-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-primary">Upload</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" id="export-json-modal" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <input class="table-id" type="hidden">
+                        <div class="modal-header">
+                            <h5>Copy DET Settings</h5>
+                            <button type="button" class="close close-modal-btn" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class='row'>
+                                <div class="col-sm-12"><label>Please copy your json in the editor below</label></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <code><?php print json_encode($settings); ?></code>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary close-modal-btn" data-dismiss="modal">Close</button>
                         </div>
                     </div>
                 </div>

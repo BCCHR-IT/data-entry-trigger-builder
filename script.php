@@ -17,8 +17,9 @@
             }
             ?>
         ]
-        
         $(".source-events-autocomplete" ).autocomplete({source: sourceEvents});
+    <?php else: ?>
+        var sourceEvents = [];
     <?php endif;?>
                 
     var sourceFields = [
@@ -29,7 +30,7 @@
         }
         ?>
     ]
-    $(".source-fields-autocomplete" ).autocomplete({source: sourceFields});
+    $(".source-fields-autocomplete").autocomplete({source: sourceFields});
 
     var sourceInstr = [
         <?php
@@ -40,6 +41,26 @@
         ?>
     ]
     $(".source-instr-autocomplete").autocomplete({source: sourceInstr});
+
+    /**
+     * Code to check whether input values in autocompletes are valid fields/events/instruments.
+     */
+    $('.source-events-autocomplete, .source-fields-autocomplete, .source-instr-autocomplete, .dest-fields-autocomplete, .dest-events-autocomplete').focusout(function(event) {
+        if ($(this).val() != '' && $.inArray($(this).val(), sourceFields) == -1 && $.inArray($(this).val(), destFields) == -1 && $.inArray($(this).val(), sourceEvents) == -1 
+            && $.inArray($(this).val(), destEvents) == -1)
+        {
+            $(this).attr("style", "border: 2px solid red");
+            if ($(this).siblings('.error').length == 0) {
+                $(this).after("<p class='error'><i style='color:red'>Invalid field/event/instrument! Please fix before continuing.</i></p>");
+            }
+            $(this).focus();
+        }
+        else 
+        {
+            $(this).removeAttr("style");
+            $(this).siblings('.error').remove();
+        }
+    });
 
     /**
      * When user goes to add a field or instrument
@@ -89,20 +110,7 @@
                     pid: $("#destination-project-select").val()
                 },
                 success: function (data) {
-                    var metadata = JSON.parse(data);
-                    var destFields = metadata.fields;
-                    var destEvents = metadata.events;
-                    var isLongitudinal = metadata.isLongitudinal;
-
-                    if (isLongitudinal) {
-                        $(".dest-events-autocomplete").autocomplete({source: destEvents});
-                        $(".dest-event-wrapper").show();
-                    }
-                    else {
-                        $(".dest-events-autocomplete").val("");
-                        $(".dest-event-wrapper").hide();
-                    }
-
+                    updateAutocompleteItems(data);
                     $(".dest-fields-autocomplete").autocomplete({source: destFields});
                 },
                 error: function (data, status, error) {
@@ -119,9 +127,6 @@
     $("#destination-project-select").change(function () {
         // Reset form by removing all triggers.
         $('.trigger-and-data-wrapper').remove();
-
-        fieldOptions = [];
-        instrOptions = [];
         
         $.ajax({
             url: "<?php print $module->getUrl("getDestinationFields.php") ?>",
@@ -130,22 +135,8 @@
                 pid: $(this).val()
             },
             success: function (data) {
-                var metadata = JSON.parse(data);
-                var destFields = metadata.fields;
-                var destEvents = metadata.events;
-                var isLongitudinal = metadata.isLongitudinal;
-
-                if (isLongitudinal) {
-                    $(".dest-events-autocomplete").autocomplete({source: destEvents});
-                    $(".dest-event-wrapper").show();
-                }
-                else {
-                    $(".dest-events-autocomplete").val("");
-                    $(".dest-event-wrapper").hide();
-                }
-
+                updateAutocompleteItems(data);
                 $(".dest-fields-autocomplete").val("");
-                $(".dest-fields-autocomplete").autocomplete({source: destFields});
             },
             error: function (data, status, error) {
                 console.log("Returned with status " + status + " - " + error);
@@ -159,7 +150,7 @@
     /**
      * Ajax call to submit form, and validate
      */
-    $("form").submit(function (event) {
+    $("#det-form").submit(function (event) {
         event.preventDefault();
         $.ajax({
             url: "<?php print $module->getUrl("SubmitForm.php") ?>",
@@ -176,16 +167,6 @@
 
                 if (errors.success != true)
                 {
-                    if (errors.create_subject_errors)
-                    {
-                        var msg = "<b>ERROR! Syntax errors exist in the logic:</b><br>"
-                        errors.create_subject_errors.forEach(function(item) {
-                            msg += "&bull; " + item + "<br/>";
-                        })
-                        $("#create-record-input").attr("style", "border: 2px solid red")
-                        $("#create-record-input").after("<p class='error'><i style='color:red'>" + msg + "</i></p>")
-                    }
-                    
                     if (errors.trigger_errors)
                     {
                         for (var index in errors.trigger_errors)
@@ -211,6 +192,43 @@
         });
     })
 
+    $("#upload-json-form").submit(function (event) {
+        event.preventDefault();
+        $.ajax({
+            url: "<?php print $module->getUrl("SubmitForm.php") ?>",
+            type: "POST",
+            data: $("form").serialize(),
+            success: function (data) {
+                var errors = JSON.parse(data);
+                var triggers = $('.det-trigger');
+
+                if (errors.success != true)
+                {
+                    if (errors.trigger_errors)
+                    {
+                        var msg = "<b>ERROR! There are several errors with your trigger conditions. Please correct them and resubmit:</b><br>";
+                        for (var index in errors.trigger_errors)
+                        {
+                            var item = errors.trigger_errors[index];
+                            item.forEach(function(m) {
+                                msg += "&bull; " + m + "<br/>";
+                            });
+                        }
+                        $("#json-errors-div").append(msg);
+                    }
+                }
+                else
+                {
+                    $("#json-errors-div").empty();
+                    alert("Your DET has successfully been created. Please refresh the page.");
+                }
+            },
+            error: function (data, status, error) {
+                console.log("Returned with status " + status + " - " + error);
+            }
+        });
+    })
+
     /**
      * Clear add field modal items, whenever
      * user switches back and forth between
@@ -222,6 +240,7 @@
         $('#field-value').val("");
         $('#source-input').toggle();
         $('#field-select').val("");
+        $('#event-select').val("");
     });
 
     /**
@@ -233,5 +252,13 @@
         clearFieldForm();
         $('#add-field-btn').text("Add");
         $('#add-instr-btn').text("Add");
+    })
+
+    $('#add-trigger-btn').click(function() {
+        addTrigger();
+    })
+
+    $('#add-field-btn, #add-instr-btn').click(function () {
+        updateTable(this);
     })
 </script>

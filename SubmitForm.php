@@ -1,11 +1,19 @@
 <?php
 $data_entry_trigger_builder = new BCCHR\DataEntryTriggerBuilder\DataEntryTriggerBuilder();
 
-$create_subject_trigger = $_POST["create-record-cond"];
-$triggers = $_POST["triggers"];
-$dest_project_pid = $_POST["dest-project"];
+if (!empty($_POST["json"]))
+{
+    $settings = json_decode(trim($_POST["json"]), true);
+}
+else
+{
+    $settings = $_POST;
+    unset($settings["json"]);
+}
 
-$create_subject_errors = $data_entry_trigger_builder->validateSyntax($create_subject_trigger);
+$triggers = $settings["triggers"];
+$dest_project_pid = $settings["dest-project"];
+
 $trigger_errors = array();
 
 foreach($triggers as $index => $trigger)
@@ -36,6 +44,6 @@ if (!empty($errors))
 }
 else
 {
-    $data_entry_trigger_builder->setProjectSetting("det_settings", json_encode($_POST));
-    print json_encode(array("success" => true, "data" => json_encode($_POST)));
+    $data_entry_trigger_builder->setProjectSetting("det_settings", json_encode($settings));
+    print json_encode(array("success" => true));
 }

@@ -1,4 +1,6 @@
 var row = null;
+var destFields = [];
+var destEvents = [];
 
 function createFieldRow()
 {
@@ -107,17 +109,17 @@ function updateTable(elem)
 function addTrigger()
 {
     var triggers = $(".trigger-and-data-wrapper");
-    var trigNum = triggers.length + 1;
+    var trigNum = triggers.length;
     
     var html = "<div class='form-group trigger-and-data-wrapper new-wrapper'>" +
                 "<div class='det-trigger'>" +
                     "<div class='row'>" + 
                         "<div class='col-sm-2'>" +
-                            "<h5>Trigger #" + trigNum + "</h5>" +
+                            "<h6>Trigger:</h6>" +
                         "</div>" +
                         "<div class='col-sm-9'></div>" +
                         "<div class='col-sm-1' style='text-align: center;'>" +
-                            "<span class='fa fa-minus delete-trigger-btn'></span>" +
+                            "<span class='fa fa-trash-alt delete-trigger-btn'></span>" +
                         "</div>" +
                     "</div>" +
                     "<input name='triggers[]' type='text' class='form-control det-trigger-input' required>" +
@@ -247,4 +249,24 @@ function validateInstrumentForm()
         return false;
     }
     return true;
+}
+
+function updateAutocompleteItems(data)
+{
+    var metadata = JSON.parse(data);
+    destFields = metadata.fields;
+    destEvents = metadata.events;
+    var isLongitudinal = metadata.isLongitudinal;
+
+    if (isLongitudinal) {
+        $(".dest-events-autocomplete").autocomplete({source: destEvents});
+        $(".dest-events-autocomplete").prop("required", true);
+        $(".dest-event-wrapper").show();
+    }
+    else {
+        $(".dest-events-autocomplete").val("");
+        $(".dest-events-autocomplete").prop("required", false);
+        $(".dest-event-wrapper").hide();
+    }
+    $(".dest-fields-autocomplete").autocomplete({source: destFields});
 }
