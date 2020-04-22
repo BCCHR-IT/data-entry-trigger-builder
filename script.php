@@ -42,18 +42,20 @@
     ]
     $(".source-instr-autocomplete").autocomplete({source: sourceInstr});
 
+    $( "#dialog" ).dialog({ autoOpen: false });
     /**
      * Code to check whether input values in autocompletes are valid fields/events/instruments.
      */
     $('.source-events-autocomplete, .source-fields-autocomplete, .source-instr-autocomplete, .dest-fields-autocomplete, .dest-events-autocomplete').focusout(function(event) {
         if ($(this).val() != '' && $.inArray($(this).val(), sourceFields) == -1 && $.inArray($(this).val(), destFields) == -1 && $.inArray($(this).val(), sourceEvents) == -1 
-            && $.inArray($(this).val(), destEvents) == -1)
+            && $.inArray($(this).val(), destEvents) == -1 && $.inArray($(this).val(), sourceInstr) == -1)
         {
             $(this).attr("style", "border: 2px solid red");
             if ($(this).siblings('.error').length == 0) {
                 $(this).after("<p class='error'><i style='color:red'>Invalid field/event/instrument! Please fix before continuing.</i></p>");
             }
             $(this).focus();
+            $( "#invalid-entry-modal" ).modal('show');
         }
         else 
         {
@@ -184,43 +186,6 @@
                 else
                 {
                     alert("Your DET has successfully been created");
-                }
-            },
-            error: function (data, status, error) {
-                console.log("Returned with status " + status + " - " + error);
-            }
-        });
-    })
-
-    $("#upload-json-form").submit(function (event) {
-        event.preventDefault();
-        $.ajax({
-            url: "<?php print $module->getUrl("SubmitForm.php") ?>",
-            type: "POST",
-            data: $("form").serialize(),
-            success: function (data) {
-                var errors = JSON.parse(data);
-                var triggers = $('.det-trigger');
-
-                if (errors.success != true)
-                {
-                    if (errors.trigger_errors)
-                    {
-                        var msg = "<b>ERROR! There are several errors with your trigger conditions. Please correct them and resubmit:</b><br>";
-                        for (var index in errors.trigger_errors)
-                        {
-                            var item = errors.trigger_errors[index];
-                            item.forEach(function(m) {
-                                msg += "&bull; " + m + "<br/>";
-                            });
-                        }
-                        $("#json-errors-div").append(msg);
-                    }
-                }
-                else
-                {
-                    $("#json-errors-div").empty();
-                    alert("Your DET has successfully been created. Please refresh the page.");
                 }
             },
             error: function (data, status, error) {

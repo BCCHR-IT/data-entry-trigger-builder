@@ -1,15 +1,7 @@
 <?php
 $data_entry_trigger_builder = new BCCHR\DataEntryTriggerBuilder\DataEntryTriggerBuilder();
 
-if (!empty($_POST["json"]))
-{
-    $settings = json_decode(trim($_POST["json"]), true);
-}
-else
-{
-    $settings = $_POST;
-    unset($settings["json"]);
-}
+$settings = $_POST;
 
 $triggers = $settings["triggers"];
 $dest_project_pid = $settings["dest-project"];
@@ -26,11 +18,6 @@ foreach($triggers as $index => $trigger)
             $trigger_errors[$index] = $errors;
         }
     }
-}
-
-if (!empty($create_subject_errors))
-{
-    $errors["create_subject_errors"] = $create_subject_errors;
 }
 
 if (!empty($trigger_errors))

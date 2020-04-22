@@ -595,7 +595,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                         }
                         else
                         {
-                            $data = $record_data[0];
+                            $data = $record_data[0]; // Takes data from first event
                         }
 
                         if (!empty($trigger_dest_events[$i]))
@@ -604,7 +604,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                         }
                         else
                         {
-                            $dest_event = "event_1_arm_1";
+                            $dest_event = "event_1_arm_1"; // Assume classic project and use event_1_arm_1
                         }
                         
                         if (empty($dest_record_data[$dest_event]))
@@ -757,6 +757,27 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                     REDCap::logEvent("DET: Modified/Saved the following records", json_encode($save_response["ids"]), null, null, null, $dest_project);
                 }
             }
+        }
+    }
+
+    /**
+     * Function called by external module that checks whether the user has permissions to use the module.
+     * 
+     * @param String $project_id    Project ID of current REDCap project.
+     * @param String $link          Link that redirects to external module.
+     * @return NULL Return null if the user doesn't have permissions to use the module. 
+     * @return String Return link to module if the user has permissions to use it. 
+     */
+    public function redcap_module_link_check_display($project_id, $link)
+    {
+        $rights = REDCap::getUserRights($this->userid);
+        if ($rights[$this->userid]["design"] === "0")
+        {
+            return NULL;
+        }
+        else
+        {
+            return $link;
         }
     }
 }

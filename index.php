@@ -8,8 +8,20 @@ require_once "DataEntryTriggerBuilder.php";
 require_once APP_PATH_DOCROOT . 'ProjectGeneral/header.php';
 
 $data_entry_trigger_builder = new BCCHR\DataEntryTriggerBuilder\DataEntryTriggerBuilder();
-$settings = json_decode($data_entry_trigger_builder->getProjectSetting("det_settings"), true);
-$dest_fields = $data_entry_trigger_builder->retrieveProjectMetadata($settings["dest-project"]);
+if (!empty($_POST["json"])) {
+    $settings = json_decode($_POST["json"], true);
+    if ($settings == null)
+    {
+        $import_err_msg = "Invalid JSON! Please check your DET settings.";
+    }
+}
+
+if ($settings == null)
+{
+    $settings = json_decode($data_entry_trigger_builder->getProjectSetting("det_settings"), true);
+    $dest_fields = $data_entry_trigger_builder->retrieveProjectMetadata($settings["dest-project"]);
+}
+
 ?>
 <html>
     <head>
@@ -50,15 +62,19 @@ $dest_fields = $data_entry_trigger_builder->retrieveProjectMetadata($settings["d
     <body>
         <div class="container jumbotron">
             <h2>Data Entry Trigger Builder</h2>
-            <p>*This module will work will classical and longitudinal projects, but is currently imcompatible with repeating events.</p>
+            <p>*This module will work will classical and longitudinal projects, but is currently incompatible with repeatable events.</p>
             <hr/>
-            <h5>Import/Export your DET Settings</h5>
-            <p>If you've created a JSON string containing your DET settings, you may upload it to the module, or you may export your current DET settings (If they exist).</p>
-            <button type="button" data-toggle="modal" data-target="#upload-json-modal" class="btn btn-primary btn-sm">Upload DET Settings</button>
+            <h5>Import/Export Your DET Settings</h5>
+            <p>If you've created a JSON string containing your DET settings, you may import them into the module, or you may export your current DET settings (If they exist).</p>
+            <p><b>IMPORTANT: Once you've imported your DET settings, you must still save them by clicking "Save DET" at the bottom of the page.</b></p>
+            <button type="button" data-toggle="modal" data-target="#upload-json-modal" class="btn btn-primary btn-sm">Import DET Settings</button>
             <?php if (!empty($settings)): ?><button type="button" data-toggle="modal" data-target="#export-json-modal" class="btn btn-primary btn-sm">Export DET Settings</button><?php endif; ?>
+            <?php if (!empty($import_err_msg)): ?>
+            <p style="color:red"><b><?php print $import_err_msg; ?></b></p>
+            <?php endif;?>
             <hr/>
             <form id="det-form" method="post">
-                <h5>Select a linked Project</h5>
+                <h5>Select a Linked Project</h5>
                 <div class="form-group">
                     <select name="dest-project" id="destination-project-select" class="form-control selectpicker" data-live-search="true" required>
                         <option value="" disabled <?php if (empty($settings)) { print "selected"; }?>>Select a project</option>
@@ -112,7 +128,7 @@ $dest_fields = $data_entry_trigger_builder->retrieveProjectMetadata($settings["d
 
                     </div>
                     <hr>
-                    <h5>Trigger conditions (Max. 10)</h5>
+                    <h5>Trigger Conditions (Max. 10)</h5>
                     <div id="trigger-instr" style="margin-bottom:20px">
                         <label>Push data from the source project to the linked project, when the following conditions are met:</label>
                         <ul>
@@ -338,26 +354,25 @@ $dest_fields = $data_entry_trigger_builder->retrieveProjectMetadata($settings["d
             <div class="modal fade" id="upload-json-modal" tabindex="-1" role="dialog" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered" role="document">
                     <div class="modal-content">
-                        <input class="table-id" type="hidden">
                         <div class="modal-header">
-                            <h5>Upload DET Settings</h5>
+                            <h5>Import DET Settings</h5>
                             <button type="button" class="close close-modal-btn" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
-                        <form id="upload-json-form" method="post">
+                        <form id="upload-json-form" method="post" action="<?php print $module->getUrl("index.php");?>">
                             <div class="modal-body">
                                 <div class='row'>
                                     <div class="col-sm-12"><label>Please copy-paste your json into the editor below</label></div>
                                     <div id="json-errors-div" class="col-sm-12" style="color:red"></div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-sm-12"><textarea rows="4" cols="60" name="json"></textarea></div>
+                                    <div class="col-sm-12"><textarea id="upload-textarea" rows="4" cols="60" name="json" required></textarea></div>
                                 </div>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary close-modal-btn" data-dismiss="modal">Close</button>
-                                <button type="submit" class="btn btn-primary">Upload</button>
+                                <button type="submit" class="btn btn-primary">Import</button>
                             </div>
                         </form>
                     </div>
@@ -375,16 +390,35 @@ $dest_fields = $data_entry_trigger_builder->retrieveProjectMetadata($settings["d
                         </div>
                         <div class="modal-body">
                             <div class='row'>
-                                <div class="col-sm-12"><label>Please copy your json in the editor below</label></div>
+                                <div class="col-sm-12"><label>Please copy your json below</label></div>
                             </div>
                             <div class="row">
                                 <div class="col-sm-12">
-                                    <code><?php print json_encode($settings); ?></code>
+                                    <div style="background-color:lightgrey; border: 1px solid black; color:deeppink; padding: 5px">
+                                        <?php print json_encode($settings, JSON_PRETTY_PRINT); ?>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary close-modal-btn" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" id="invalid-entry-modal" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5>Invalid field/event!</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-sm-12"><p>Invalid field/event/instrument! Please fix before continuing.</p></div>
+                            </div>
                         </div>
                     </div>
                 </div>

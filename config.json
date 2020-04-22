@@ -14,7 +14,7 @@
             {
                 "name": "Data Entry Trigger Builder",
                 "url": "index.php",
-                "icon": "link"
+                "icon": "fas fa-wrench"
             }
         ]
     },
