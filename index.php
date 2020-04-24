@@ -21,7 +21,6 @@ if ($settings == null)
     $settings = json_decode($data_entry_trigger_builder->getProjectSetting("det_settings"), true);
     $dest_fields = $data_entry_trigger_builder->retrieveProjectMetadata($settings["dest-project"]);
 }
-
 ?>
 <html>
     <head>
@@ -55,6 +54,12 @@ if ($settings == null)
             .table tr > th:nth-child(3), 
             .table tr > th:nth-child(4) {
                 width: 10% ;
+            }
+            .error {
+                border: 2px solid red;
+            }
+            .error-msg {
+                color: red
             }
         </style>
         <script src="<?php print $module->getUrl("functions.js");?>" type="text/javascript"></script>
@@ -106,11 +111,11 @@ if ($settings == null)
                             <div class='row'>
                                 <?php if (REDCap::isLongitudinal()): ?>
                                     <div class='col-sm-6'>
-                                        <input class="source-events-autocomplete form-control" name='linkSourceEvent' placeholder="Type to search for event" value="<?php print $settings["linkSourceEvent"]; ?>" required>
+                                        <input id='linkSourceEvent' class="source-events-autocomplete form-control" name='linkSourceEvent' placeholder="Type to search for event" value="<?php print $settings["linkSourceEvent"]; ?>" required>
                                     </div>
                                 <?php endif;?>
                                 <div class='col-sm-6'>
-                                    <input class="source-fields-autocomplete form-control" name='linkSource' placeholder="Type to search for field" value="<?php print $settings["linkSource"]; ?>" required>
+                                    <input id='linkSource' class="source-fields-autocomplete form-control" name='linkSource' placeholder="Type to search for field" value="<?php print $settings["linkSource"]; ?>" required>
                                 </div> 
                             </div>
                         </div>
@@ -118,10 +123,10 @@ if ($settings == null)
                             <div class='class-sm-12' id="link-source-text"><label>To linked project field</label></div>
                             <div class='row'>
                                 <div class='col-sm-6 dest-event-wrapper' <?php if(empty($settings["linkDestEvent"])) {print "style='display:none'";} ?>>
-                                    <input class='dest-events-autocomplete form-control' name='linkDestEvent' placeholder="Type to search for event" value="<?php print $settings["linkDestEvent"]; ?>" required>
+                                    <input id='linkDestEvent' class='dest-events-autocomplete form-control' name='linkDestEvent' placeholder="Type to search for event" value="<?php print $settings["linkDestEvent"]; ?>" required>
                                 </div>
                                 <div id="link-source-wrapper" class='col-sm-6'>
-                                    <input class='dest-fields-autocomplete form-control' name='linkDest' placeholder="Type to search for field" value="<?php print $settings["linkDest"]; ?>" required>
+                                    <input id='linkDest' class='dest-fields-autocomplete form-control' name='linkDest' placeholder="Type to search for field" value="<?php print $settings["linkDest"]; ?>" required>
                                 </div>
                             </div>
                         </div>
@@ -286,7 +291,7 @@ if ($settings == null)
                             </div>
                             <div id="source-input" class="row ui-front" style="display:none">
                                 <div class="col-sm-6">
-                                    <input id="field-value" class='form-control' value='<?php print $setDestFieldsValues[$i]; ?>' placeholder="Type the value to tranfer">
+                                    <input id="field-value" class='form-control' placeholder="Type the value to tranfer">
                                 </div>
                             </div>
                             <div id="source-select" class="row">
@@ -367,7 +372,7 @@ if ($settings == null)
                                     <div id="json-errors-div" class="col-sm-12" style="color:red"></div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-sm-12"><textarea id="upload-textarea" rows="4" cols="60" name="json" required></textarea></div>
+                                    <div class="col-sm-12"><textarea id="upload-textarea" rows="4" name="json" style="width:100%" required></textarea></div>
                                 </div>
                             </div>
                             <div class="modal-footer">
@@ -402,23 +407,6 @@ if ($settings == null)
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary close-modal-btn" data-dismiss="modal">Close</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal fade" id="invalid-entry-modal" tabindex="-1" role="dialog" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5>Invalid field/event!</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="row">
-                                <div class="col-sm-12"><p>Invalid field/event/instrument! Please fix before continuing.</p></div>
-                            </div>
                         </div>
                     </div>
                 </div>

@@ -270,3 +270,23 @@ function updateAutocompleteItems(data)
     }
     $(".dest-fields-autocomplete").autocomplete({source: destFields});
 }
+
+function addError(id, error)
+{
+    $('#' + id).addClass("error");
+    $('#' + id).after("<p class='error-msg'><i>" + error + "</i></p>");
+}
+
+function addTableErrors(errors, inputName)
+{
+    for(var index in errors)
+    {
+        var items = $("td > input[name='" + inputName + "[" + index + "][]']");
+        console.log(items);
+        for(var i in errors[index])
+        {
+            var msg =  errors[index][i];
+            $(items[i]).after("<p class='error-msg'><i>" + msg + "</i></p>");
+        }   
+    }
+}

@@ -112,29 +112,34 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
      * @param String $text      The line of text to validate.
      * @return Array            An array of errors, with the line number appended to indicate where it occured.
      */
-    public function isValidFieldOrEvent($var)
+    public function isValidFieldOrEvent($var, $pid = null)
     {
         $var = trim($var, "'");
-
-        $data_dictionary = REDCap::getDataDictionary('array');
-
-        $events = REDCap::getEventNames(true, true); // If there are no events (the project is classical), the method will return false
+        
+        if ($pid != null) {
+            $data_dictionary = REDCap::getDataDictionary($pid, 'array');
+        }
+        else {
+            $data_dictionary = REDCap::getDataDictionary('array');
+        }
+        
+        $Proj = new Project($pid);
+        $instruments = array_unique(array_column($data_dictionary, "form_name"));
+        $events = array_values($Proj->getUniqueEventNames());
 
         /**
          * Get REDCap completion fields
          */
         $external_fields = array();
-        $instruments = REDCap::getInstrumentNames();
-        foreach ($instruments as $unique_name => $label)
+        foreach ($instruments as $unique_name)
         {   
             $external_fields[] = "{$unique_name}_complete";
         }
 
-        if (!in_array($var, $external_fields))
+        if (!in_array($var, $external_fields) && !in_array($var, $instruments))
         {
             $dictionary = $data_dictionary[$var];
-            if (($events === FALSE && empty($dictionary)) ||
-                ($events !== FALSE && !in_array($var, $events) && empty($dictionary)))
+            if (!in_array($var, $events) && empty($dictionary))
             {
                 return false;
             }
@@ -680,57 +685,59 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                 }
             }
 
-            // Check if the linking id field is the same as the record id field.
-            $dest_record_id = $this->framework->getRecordIdField($dest_project);
-            $link_dest_value = $record_data[0][$link_source];
-            if ($dest_record_id != $link_dest_field)
-            {
-                // Check for existing record, otherwise create a new one. Assume linking ID is unique
-                if (!empty($link_source_event))
+            if (!empty($dest_record_data)) {
+                // Check if the linking id field is the same as the record id field.
+                $dest_record_id = $this->framework->getRecordIdField($dest_project);
+                $link_dest_value = $record_data[0][$link_source];
+                if ($dest_record_id != $link_dest_field)
                 {
-                    $key = array_search($link_source_event, array_column($record_data, "redcap_event_name"));
-                    $data = $record_data[$key];
-                    $link_dest_value = $data[$link_source];
-                }
+                    // Check for existing record, otherwise create a new one. Assume linking ID is unique
+                    if (!empty($link_source_event))
+                    {
+                        $key = array_search($link_source_event, array_column($record_data, "redcap_event_name"));
+                        $data = $record_data[$key];
+                        $link_dest_value = $data[$link_source];
+                    }
 
-                $existing_record = REDCap::getData($dest_project, "json", null, $dest_record_id, $link_dest_event, null, false, false, false, "[$link_dest_field] = $link_dest_value");
-                $existing_record = json_decode($existing_record, true);
-                if (sizeof($existing_record) == 0)
-                {
-                    $dest_record = $this->framework->addAutoNumberedRecord($dest_project);
-                }
-                else
-                {
-                    $dest_record = $existing_record[0][$dest_record_id];
-                }
-            }
-            
-            if (!empty($dest_record_data))
-            {
-                if (!empty($dest_record))
-                {
-                    foreach ($dest_record_data as $i => $data)
-                    { 
-                        $dest_record_data[$i][$dest_record_id] = $dest_record;  
+                    $existing_record = REDCap::getData($dest_project, "json", null, $dest_record_id, $link_dest_event, null, false, false, false, "[$link_dest_field] = $link_dest_value");
+                    $existing_record = json_decode($existing_record, true);
+                    if (sizeof($existing_record) == 0)
+                    {
+                        $dest_record = $this->framework->addAutoNumberedRecord($dest_project);
+                    }
+                    else
+                    {
+                        $dest_record = $existing_record[0][$dest_record_id];
                     }
                 }
-
-                if (!empty($link_dest_event))
+                
+                if (!empty($dest_record_data))
                 {
-                    $dest_record_data[$link_dest_event][$link_dest_field] = $link_dest_value;
+                    if (!empty($dest_record))
+                    {
+                        foreach ($dest_record_data as $i => $data)
+                        { 
+                            $dest_record_data[$i][$dest_record_id] = $dest_record;  
+                        }
+                    }
+
+                    if (!empty($link_dest_event))
+                    {
+                        $dest_record_data[$link_dest_event][$link_dest_field] = $link_dest_value;
+                    }
+                    else
+                    {
+                        $dest_record_data["event_1_arm_1"][$link_dest_field] = $link_dest_value;
+                    }
                 }
                 else
                 {
-                    $dest_record_data["event_1_arm_1"][$link_dest_field] = $link_dest_value;
+                    $dest_record_data[] = [$dest_record_id => $dest_record, $link_dest_field => $link_dest_value];
                 }
-            }
-            else
-            {
-                $dest_record_data[] = [$dest_record_id => $dest_record, $link_dest_field => $link_dest_value];
+
+                $dest_record_data = array_values($dest_record_data);
             }
             
-            $dest_record_data = array_values($dest_record_data);
-
             if (!empty($dest_record_data))
             {
                 // Save DET data in destination project;
