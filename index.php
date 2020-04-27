@@ -186,7 +186,7 @@ if ($settings == null)
                                         print "[" . $pipingSourceEvents[$i] . "]";
                                         print "<input class='pipingSourceEvents' type='hidden' name='pipingSourceEvents[$index][]' value='" . $pipingSourceEvents[$i] . "'>";
                                     }
-                                    print "['" . $source . "]";
+                                    print "[" . $source . "]";
                                     print "<input class='pipingSourceFields' type='hidden' name='pipingSourceFields[$index][]' value='" . $source . "'></td><td>";
                                     if (!empty($pipingDestEvents[$i]))
                                     {
@@ -339,7 +339,7 @@ if ($settings == null)
                                 <div class="col-sm-12"><label>There must be a one-to-one relationship in the linked project</label></div>
                             </div>
                             <div class="row">
-                                <?php if ($dest_fields["isLongitudinal"]): ?>
+                                <?php if (REDCap::isLongitudinal()): ?>
                                 <div class='col-sm-6 ui-front'>
                                     <input class='source-events-autocomplete form-control' id="instr-event-select" placeholder="Type to search for event">
                                 </div>

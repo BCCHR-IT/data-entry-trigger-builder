@@ -210,9 +210,9 @@
                         for (var index in errors.trigger_errors)
                         {
                             var item = errors.trigger_errors[index];
-                            var msg = "<b>ERROR! Syntax errors exist in the logic:</b><br>";
+                            var msg = "";
                             item.forEach(function(m) {
-                                msg += "&bull; " + m + "<br/>";
+                                msg += m + "<br/>";
                             });
                             $(triggers[index]).find("input").addClass("error")
                             $(triggers[index]).after("<p class='error-msg'><i>" + msg + "</i></p>")
