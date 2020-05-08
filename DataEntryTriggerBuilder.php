@@ -612,7 +612,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                             $dest_event = "event_1_arm_1"; // Assume classic project and use event_1_arm_1
                         }
                         
-                        if (empty($dest_record_data[$dest_event]))
+                        if (empty($dest_record_data[$dest_event])) // Create entry for event if it doesn't already exist.
                         {
                             $event_data = ["redcap_event_name" => $dest_event];
                         }
@@ -688,7 +688,6 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
             if (!empty($dest_record_data)) {
                 // Check if the linking id field is the same as the record id field.
                 $dest_record_id = $this->framework->getRecordIdField($dest_project);
-                $link_dest_value = $record_data[0][$link_source];
                 if ($dest_record_id != $link_dest_field)
                 {
                     // Check for existing record, otherwise create a new one. Assume linking ID is unique
@@ -710,32 +709,17 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                         $dest_record = $existing_record[0][$dest_record_id];
                     }
                 }
-                
-                if (!empty($dest_record_data))
-                {
-                    if (!empty($dest_record))
-                    {
-                        foreach ($dest_record_data as $i => $data)
-                        { 
-                            $dest_record_data[$i][$dest_record_id] = $dest_record;  
-                        }
-                    }
-
-                    if (!empty($link_dest_event))
-                    {
-                        $dest_record_data[$link_dest_event][$link_dest_field] = $link_dest_value;
-                    }
-                    else
-                    {
-                        $dest_record_data["event_1_arm_1"][$link_dest_field] = $link_dest_value;
-                    }
-                }
                 else
                 {
-                    $dest_record_data[] = [$dest_record_id => $dest_record, $link_dest_field => $link_dest_value];
+                    $dest_record = $record_data[0][$link_source];
+                }
+                
+                foreach ($dest_record_data as $i => $data)
+                {
+                    $dest_record_data[$i][$dest_record_id] = $dest_record;
                 }
 
-                $dest_record_data = array_values($dest_record_data);
+                $dest_record_data = array_values($dest_record_data); // Don't need the keys to push, only the values.
             }
             
             if (!empty($dest_record_data))
@@ -769,6 +753,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
 
     /**
      * Function called by external module that checks whether the user has permissions to use the module.
+     * Only returns the link if the user has design privileges.
      * 
      * @param String $project_id    Project ID of current REDCap project.
      * @param String $link          Link that redirects to external module.
@@ -777,14 +762,15 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
      */
     public function redcap_module_link_check_display($project_id, $link)
     {
-        $rights = REDCap::getUserRights($this->userid);
-        if ($rights[$this->userid]["design"] === "0")
+        $user_id = strtolower(USERID);
+        $rights = REDCap::getUserRights($user_id);
+        if ($rights[$user_id]["design"] == 1)
         {
-            return NULL;
+            return $link;
         }
         else
         {
-            return $link;
+            return null;
         }
     }
 }

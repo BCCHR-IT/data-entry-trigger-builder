@@ -21,12 +21,13 @@ if ($settings == null)
     $settings = json_decode($data_entry_trigger_builder->getProjectSetting("det_settings"), true);
     $dest_fields = $data_entry_trigger_builder->retrieveProjectMetadata($settings["dest-project"]);
 }
+
 ?>
 <html>
     <head>
         <!-- boostrap-select css and js-->
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/css/bootstrap-select.min.css">
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/js/bootstrap-select.min.js"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.15/dist/css/bootstrap-select.min.css">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.15/dist/js/bootstrap-select.min.js"></script>
         <style>
             p {
                 max-width: 100%;
@@ -104,9 +105,12 @@ if ($settings == null)
                 <hr>
                 <div id="main-form" <?php if (empty($settings)) :?> style="display:none" <?php endif;?>>
                     <h5>Record Linkage</h5>
-                    <p>When at least one of the triggers are met, then records between the source and linked project will be created and linked via the chosen fields.</p>
+                    <p>
+                        Create subjects/push data to linked project using variables in source and linked project. 
+                        When at least one of the triggers are met, then records between the source and linked project will be linked via the chosen fields.
+                    </p>
                     <div class='row link-field form-group'> 
-                        <div class='col-sm-6'>
+                        <div class='col-sm-12' style="margin-bottom:10px">
                             <div class='class-sm-12'><label>Link source project field</label></div>
                             <div class='row'>
                                 <?php if (REDCap::isLongitudinal()): ?>
@@ -119,7 +123,7 @@ if ($settings == null)
                                 </div> 
                             </div>
                         </div>
-                        <div class='col-sm-6'>
+                        <div class='col-sm-12'>
                             <div class='class-sm-12' id="link-source-text"><label>To linked project field</label></div>
                             <div class='row'>
                                 <div class='col-sm-6 dest-event-wrapper' <?php if(empty($settings["linkDestEvent"])) {print "style='display:none'";} ?>>
@@ -130,10 +134,9 @@ if ($settings == null)
                                 </div>
                             </div>
                         </div>
-
                     </div>
                     <hr>
-                    <h5>Trigger Conditions (Max. 10)</h5>
+                    <h5>Triggers (Max. 10)</h5>
                     <div id="trigger-instr" style="margin-bottom:20px">
                         <label>Push data from the source project to the linked project, when the following conditions are met:</label>
                         <ul>
@@ -141,6 +144,60 @@ if ($settings == null)
                             <li>E.g., [event_name][variable_name] = "1"</li>
                         </ul>
                         <p>Where [event_name] = only in longitudinal projects<br/>Where [instrument_name] = form copied from source to linked project</p>
+                        <p>
+                            Multiple conditions can be chained in the same trigger using AND/OR. When creating a trigger 
+                            <b>AND must be written as &&</b>, and 
+                            <b>OR must be written as ||</b>
+                        </p>
+                        <ul>
+                            <li>E.g., [event_name][instrument_name_complete] = "2" && [event_name][variable_name] = "1"</li>
+                            <li>E.g., [event_name][instrument_name_complete] = "2" || [event_name][variable_name] = "1"</li>
+                        </ul>
+                        <p>The following qualifiers are of valid use within the module:</p>
+                        <table border="1" style="margin-bottom:10px">
+                            <colgroup>
+                                <col align="center" class="alternates">
+                                <col class="meaning">
+                                <col class="example">
+                            </colgroup>
+                            <thead><tr>
+                                <th align="center">Qualifier</th>
+                                <th>Syntax Example</th>
+                                <th>Meaning</th>
+                            </tr></thead>
+                            <tbody>
+                                <tr>
+                                    <td align="center">=, ==</td>
+                                    <td>$a = $b</td>
+                                    <td>equals</td>
+                                </tr>
+                                <tr>
+                                    <td align="center"><>, !=</td>
+                                    <td>$a <> $b</td>
+                                    <td>not equals</td>
+                                </tr>
+                                <tr>
+                                    <td align="center">></td>
+                                    <td>$a > $b</td>
+                                    <td>greater than</td>
+                                </tr>
+                                <tr>
+                                    <td align="center"><</td>
+                                    <td>$a < $b</td>
+                                    <td>less than</td>
+                                </tr>
+                                <tr>
+                                    <td align="center">>=</td>
+                                    <td>$a >= $b</td>
+                                    <td>greater than or equal</td>
+                                </tr>
+                                <tr>
+                                    <td align="center"><=</td>
+                                    <td>$a <= $b</td>
+                                    <td>less than or equal</td>
+                                </tr>
+                            </tbody>
+                        </table>
                         <button type="button" id="add-trigger-btn" class="btn btn-primary btn-sm">Add Trigger</button>
                     </div>
                     <?php if (!empty($settings)): foreach($settings["triggers"] as $index => $trigger): ?>
