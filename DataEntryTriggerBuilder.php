@@ -104,15 +104,8 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
 
         return $parts;
     }
-    
-    /**
-     * Checks whether fields and events exist within project
-     * 
-     * @access private
-     * @param String $text      The line of text to validate.
-     * @return Array            An array of errors, with the line number appended to indicate where it occured.
-     */
-    public function isValidFieldOrEvent($var, $pid = null)
+
+    public function isValidField($var, $pid = null)
     {
         $var = trim($var, "'");
         
@@ -122,29 +115,38 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
         else {
             $data_dictionary = REDCap::getDataDictionary('array');
         }
-        
-        $Proj = new Project($pid);
-        $instruments = array_unique(array_column($data_dictionary, "form_name"));
-        $events = array_values($Proj->getUniqueEventNames());
 
-        /**
-         * Get REDCap completion fields
-         */
         $external_fields = array();
         foreach ($instruments as $unique_name)
         {   
             $external_fields[] = "{$unique_name}_complete";
         }
+        
+        return in_array($var, $external_fields) || !empty($data_dictionary[$var]);
+    }
 
-        if (!in_array($var, $external_fields) && !in_array($var, $instruments))
-        {
-            $dictionary = $data_dictionary[$var];
-            if (!in_array($var, $events) && empty($dictionary))
-            {
-                return false;
-            }
+    public function isValidEvent($var, $pid = null)
+    {
+        $var = trim($var, "'");
+        $Proj = new Project($pid);
+        $events = array_values($Proj->getUniqueEventNames());
+        return in_array($var, $events);
+    }
+
+    public function isValidInstrument($var, $pid = null)
+    {
+        $var = trim($var, "'");
+        
+        if ($pid != null) {
+            $data_dictionary = REDCap::getDataDictionary($pid, 'array');
         }
-        return true;
+        else {
+            $data_dictionary = REDCap::getDataDictionary('array');
+        }
+
+        $instruments = array_unique(array_column($data_dictionary, "form_name"));
+        
+        return in_array($var, $instruments);
     }
 
     /**
@@ -297,7 +299,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                         $part[strlen($part) - 1] != "\"" &&
                         !is_numeric($part) && 
                         !empty($part) && 
-                        ($this->isValidFieldOrEvent($part) == false))
+                        ($this->isValidField($part) == false && $this->isValidEvent($part) == false))
                     {
                         $errors[] = "<strong>$part</strong> is not a valid event/field in this project";
                     }

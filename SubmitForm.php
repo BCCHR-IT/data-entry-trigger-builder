@@ -5,24 +5,24 @@ $data_entry_trigger_builder = new BCCHR\DataEntryTriggerBuilder\DataEntryTrigger
 $settings = $_POST;
 
 $dest_project_pid = $settings["dest-project"];
-if (!empty($settings["linkSourceEvent"]) && !$data_entry_trigger_builder->isValidFieldOrEvent($settings["linkSourceEvent"]))
+if (!empty($settings["linkSourceEvent"]) && !$data_entry_trigger_builder->isValidEvent($settings["linkSourceEvent"]))
 {
-    $errors["linkSourceEvent"] = "Invalid field/event/instrument!";
+    $errors["linkSourceEvent"] = "Invalid event!";
 }
 
-if (!$data_entry_trigger_builder->isValidFieldOrEvent($settings["linkSource"]))
+if (!$data_entry_trigger_builder->isValidField($settings["linkSource"]))
 {
-    $errors["linkSource"] = "Invalid field/event/instrument!";
+    $errors["linkSource"] = "Invalid field!";
 }
 
-if (!empty($settings["linkDestEvent"]) && !$data_entry_trigger_builder->isValidFieldOrEvent($settings["linkDestEvent"], $dest_project_pid)) 
+if (!empty($settings["linkDestEvent"]) && !$data_entry_trigger_builder->isValidEvent($settings["linkDestEvent"], $dest_project_pid)) 
 {
-    $errors["linkDestEvent"] = "Invalid field/event/instrument!";
+    $errors["linkDestEvent"] = "Invalid event!";
 }
 
-if (!$data_entry_trigger_builder->isValidFieldOrEvent($settings["linkDest"], $dest_project_pid)) 
+if (!$data_entry_trigger_builder->isValidField($settings["linkDest"], $dest_project_pid)) 
 {
-    $errors["linkDest"] = "Invalid field/event/instrument!";
+    $errors["linkDest"] = "Invalid field!";
 }
 
 foreach($settings["triggers"] as $index => $trigger)
@@ -41,7 +41,7 @@ foreach($settings["pipingSourceEvents"] as $index => $fields)
 {
     foreach($fields as $i => $field)
     {
-        if(!$data_entry_trigger_builder->isValidFieldOrEvent($field))
+        if(!$data_entry_trigger_builder->isValidEvent($field))
         {
             $errors["pipingSourceEvents"][$index][$i] = "$field is an invalid event!";
         }
@@ -52,7 +52,7 @@ foreach($settings["pipingSourceFields"] as $index => $fields)
 {
     foreach($fields as $i => $field)
     {
-        if(!$data_entry_trigger_builder->isValidFieldOrEvent($field))
+        if(!$data_entry_trigger_builder->isValidField($field))
         {
             $errors["pipingSourceFields"][$index][$i] = "$field is an invalid field!";
         }
@@ -63,7 +63,7 @@ foreach($settings["pipingDestEvents"] as $index => $fields)
 {
     foreach($fields as $i => $field)
     {
-        if(!$data_entry_trigger_builder->isValidFieldOrEvent($field, $dest_project_pid))
+        if(!$data_entry_trigger_builder->isValidEvent($field, $dest_project_pid))
         {
             $errors["pipingDestEvents"][$index][$i] = "$field is an invalid event!";
         }
@@ -74,7 +74,7 @@ foreach($settings["pipingDestFields"] as $index => $fields)
 {
     foreach($fields as $i => $field)
     {
-        if(!$data_entry_trigger_builder->isValidFieldOrEvent($field, $dest_project_pid))
+        if(!$data_entry_trigger_builder->isValidField($field, $dest_project_pid))
         {
             $errors["pipingDestFields"][$index][$i] = "$field is an invalid field!";
         }
@@ -85,7 +85,7 @@ foreach($settings["setDestEvents"] as $index => $fields)
 {
     foreach($fields as $i => $field)
     {
-        if(!$data_entry_trigger_builder->isValidFieldOrEvent($field, $dest_project_pid))
+        if(!$data_entry_trigger_builder->isValidEvent($field, $dest_project_pid))
         {
             $errors["setDestEvents"][$index][$i] = "$field is an invalid event!";
         }
@@ -96,7 +96,7 @@ foreach($settings["setDestFields"] as $index => $fields)
 {
     foreach($fields as $i => $field)
     {
-        if(!$data_entry_trigger_builder->isValidFieldOrEvent($field, $dest_project_pid))
+        if(!$data_entry_trigger_builder->isValidField($field, $dest_project_pid))
         {
             $errors["setDestFields"][$index][$i] = "$field is an invalid field!";
         }
@@ -107,7 +107,7 @@ foreach($settings["sourceInstrEvents"] as $index => $fields)
 {
     foreach($fields as $i => $field)
     {
-        if(!$data_entry_trigger_builder->isValidFieldOrEvent($field, $dest_project_pid))
+        if(!$data_entry_trigger_builder->isValidEvent($field, $dest_project_pid))
         {
             $errors["sourceInstrEvents"][$index][$i] = "$field is an invalid event!";
         }
@@ -118,7 +118,7 @@ foreach($settings["sourceInstr"] as $index => $fields)
 {
     foreach($fields as $i => $field)
     {
-        if(!$data_entry_trigger_builder->isValidFieldOrEvent($field, $dest_project_pid))
+        if(!$data_entry_trigger_builder->isValidInstrument($field, $dest_project_pid))
         {
             $errors["sourceInstr"][$index][$i] = "$field is an invalid instrument!";
         }
