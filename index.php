@@ -22,6 +22,7 @@ if ($settings == null)
     $dest_fields = $data_entry_trigger_builder->retrieveProjectMetadata($settings["dest-project"]);
 }
 
+$Proj = new Project();
 ?>
 <html>
     <head>
@@ -66,6 +67,19 @@ if ($settings == null)
         <script src="<?php print $module->getUrl("functions.js");?>" type="text/javascript"></script>
     </head>
     <body>
+        <?php if ($Proj->project['status'] > 0): ?> 
+            <div style="position: sticky; top: 0; width: 100%; background-color:#ff9800; padding:5px; text-align:center">
+                <h5><b>This project is currently in production, be careful with your changes!</b></h5>
+                <?php 
+                    // if (!empty($settings["dest-project"])) { 
+                    //     $DestProj = new Project($settings["dest-project"]); 
+                    //     if ($DestProj->project['status'] > 0) {
+                    //         print "<h5><b>The destination project is currently in production.</h5><b>";
+                    //     }
+                    // }
+                ?>
+            </div>
+        <?php endif; ?>
         <div class="container jumbotron">
             <h2>Data Entry Trigger Builder</h2>
             <p>*This module will work will classical and longitudinal projects, but is currently incompatible with repeatable events.</p>
@@ -101,6 +115,14 @@ if ($settings == null)
                             }
                         ?>
                     </select>
+                    <?php 
+                    if (!empty($settings["dest-project"])) { 
+                        $DestProj = new Project($settings["dest-project"]); 
+                        if ($DestProj->project['status'] > 0) {
+                            print "<p><b><i>This project is currently in production.</i></p></b>";
+                        }
+                    }
+                    ?>
                 </div>
                 <hr>
                 <div id="main-form" <?php if (empty($settings)) :?> style="display:none" <?php endif;?>>
@@ -212,7 +234,7 @@ if ($settings == null)
                                     <span class="fa fa-trash-alt delete-trigger-btn"></span>
                                 </div>
                             </div>
-                            <input name="triggers[]" type="text" class="form-control det-trigger-input" value="<?php print $trigger; ?>" required>
+                            <input name="triggers[]" type="text" class="form-control det-trigger-input" value="<?php print str_replace("\"", "'", $trigger); ?>" required>
                         </div>
                         <p>
                             Copy the following instruments/fields from source project to linked project when the above condition is true: 
@@ -471,6 +493,8 @@ if ($settings == null)
         </div>
     </body>
 </html>
+
+
 <?php
 require_once "script.php";
 /**
