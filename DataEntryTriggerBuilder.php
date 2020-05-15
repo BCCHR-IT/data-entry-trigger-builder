@@ -105,6 +105,13 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
         return $parts;
     }
 
+    /**
+     * Checks whether a field exists within a project.
+     * 
+     * @param String $var       The field to validate
+     * @param String $pid       The project id the field supposedly belongs to. Use current project if null.
+     * @return Boolean          true if field exists, false otherwise.
+     */
     public function isValidField($var, $pid = null)
     {
         $var = trim($var, "'");
@@ -117,6 +124,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
         }
 
         $external_fields = array();
+        $instruments = array_unique(array_column($data_dictionary, "form_name"));
         foreach ($instruments as $unique_name)
         {   
             $external_fields[] = "{$unique_name}_complete";
@@ -125,6 +133,13 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
         return in_array($var, $external_fields) || !empty($data_dictionary[$var]);
     }
 
+    /**
+     * Checks whether a event exists within a project.
+     * 
+     * @param String $var       The event to validate
+     * @param String $pid       The project id the event supposedly belongs to. Use current project if null.
+     * @return Boolean          true if event exists, false otherwise.
+     */
     public function isValidEvent($var, $pid = null)
     {
         $var = trim($var, "'");
@@ -133,6 +148,13 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
         return in_array($var, $events);
     }
 
+    /**
+     * Checks whether a instrument exists within a project.
+     * 
+     * @param String $var       The instrument to validate
+     * @param String $pid       The project id the instrument supposedly belongs to. Use current project if null.
+     * @return Boolean          true if instrument exists, false otherwise.
+     */
     public function isValidInstrument($var, $pid = null)
     {
         $var = trim($var, "'");
@@ -590,7 +612,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                     $trigger_source_fields = $piping_source_fields[$index];
                     $trigger_dest_fields = $piping_dest_fields[$index];
                     $trigger_source_events = $piping_source_events[$index];
-                    $trigger_dest_events = $piping_source_events[$index];
+                    $trigger_dest_events = $piping_dest_events[$index];
 
                     foreach($trigger_dest_fields as $i => $dest_field)
                     {
@@ -696,10 +718,26 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                     if (!empty($link_source_event))
                     {
                         $key = array_search($link_source_event, array_column($record_data, "redcap_event_name"));
-                        $data = $record_data[$key];
-                        $link_dest_value = $data[$link_source];
+                    }
+                    else
+                    {
+                        $key = "event_1_arm_1";
                     }
 
+                    $data = $record_data[$key];
+                    $link_dest_value = $data[$link_source];
+
+                    // Set linking id
+                    if (!empty($link_dest_event))	
+                    {	
+                        $dest_record_data[$link_dest_event][$link_dest_field] = $link_dest_value;	
+                    }	
+                    else	
+                    {	
+                        $dest_record_data["event_1_arm_1"][$link_dest_field] = $link_dest_value;	
+                    }
+
+                    // Retrieve record id
                     $existing_record = REDCap::getData($dest_project, "json", null, $dest_record_id, $link_dest_event, null, false, false, false, "[$link_dest_field] = $link_dest_value");
                     $existing_record = json_decode($existing_record, true);
                     if (sizeof($existing_record) == 0)
@@ -716,6 +754,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                     $dest_record = $record_data[0][$link_source];
                 }
                 
+                // Set record_id
                 foreach ($dest_record_data as $i => $data)
                 {
                     $dest_record_data[$i][$dest_record_id] = $dest_record;
@@ -764,9 +803,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
      */
     public function redcap_module_link_check_display($project_id, $link)
     {
-        $user_id = strtolower(USERID);
-        $rights = REDCap::getUserRights($user_id);
-        if ($rights[$user_id]["design"] == 1)
+        if (SUPER_USER)
         {
             return $link;
         }
