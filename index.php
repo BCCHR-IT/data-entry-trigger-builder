@@ -63,13 +63,17 @@ $Proj = new Project();
             .error-msg {
                 color: red
             }
+            .saved {
+                color: #007bff
+            }
         </style>
         <script src="<?php print $module->getUrl("functions.js");?>" type="text/javascript"></script>
     </head>
     <body>
-        <?php if ($Proj->project['status'] > 0): ?> 
+        <?php if ($Proj->project['status'] > 0 || !empty($settings)): ?> 
             <div style="position: sticky; top: 0; width: 100%; background-color:#ff9800; padding:5px; text-align:center">
-                <h5><b>This project is currently in production, be careful with your changes!</b></h5>
+                <?php if ($Proj->project['status'] > 0): ?><h6><b>This project is currently in production, be careful with your changes!</b></h6><?php endif; ?>
+                <?php if (!empty($settings)): ?><h6><b>WARNING: Any changes made to the REDCap project, after the DET has been created, has the potential to break it. After you’ve updated your project, please make sure to update the DET in accordance with your changes.</b></h6><?php endif; ?>
                 <?php 
                     // if (!empty($settings["dest-project"])) { 
                     //     $DestProj = new Project($settings["dest-project"]); 
@@ -83,6 +87,9 @@ $Proj = new Project();
         <div class="container jumbotron">
             <h2>Data Entry Trigger Builder</h2>
             <p>*This module will work will classical and longitudinal projects, but is currently incompatible with repeatable events.</p>
+            <?php if (!empty($settings)): ?>
+            <p><b>DET was last changed on <span class="saved"><?php print $data_entry_trigger_builder->getProjectSetting("saved_timestamp");?></span> by <span class="saved"><?php print $data_entry_trigger_builder->getProjectSetting("saved_by");?></span></b></p>
+            <?php endif; ?>
             <hr/>
             <h5>Import/Export Your DET Settings</h5>
             <p>If you've created a JSON string containing your DET settings, you may import them into the module, or you may export your current DET settings (If they exist).</p>
@@ -105,11 +112,11 @@ $Proj = new Project();
                                 if ($project["project_id"] != $_GET["pid"]) {
                                     if (!empty($settings["dest-project"]) && $project["project_id"] == $settings["dest-project"])
                                     {
-                                        print "<option value='". $project["project_id"] . "' selected>" . $project["app_title"] . "</option>";
+                                        print "<option value='". $project["project_id"] . "' selected>" . $project["project_id"] . " - " . $project["app_title"] . "</option>";
                                     }
                                     else
                                     {
-                                        print "<option value='". $project["project_id"] . "'>" . $project["app_title"] . "</option>";
+                                        print "<option value='". $project["project_id"] . "'>" . $project["project_id"] . " - " . $project["app_title"] . "</option>";
                                     }
                                 }
                             }
@@ -175,6 +182,7 @@ $Proj = new Project();
                             <li>E.g., [event_name][instrument_name_complete] = "2" && [event_name][variable_name] = "1"</li>
                             <li>E.g., [event_name][instrument_name_complete] = "2" || [event_name][variable_name] = "1"</li>
                         </ul>
+                        <p>Remember to add spaces between all your REDCap variables, and logical quantifiers</p>
                         <p>The following qualifiers are of valid use within the module:</p>
                         <table border="1" style="margin-bottom:10px">
                             <colgroup>

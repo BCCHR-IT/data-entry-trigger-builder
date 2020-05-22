@@ -137,5 +137,7 @@ if (!empty($errors))
 else
 {
     $data_entry_trigger_builder->setProjectSetting("det_settings", json_encode($settings));
+    $data_entry_trigger_builder->setProjectSetting("saved_timestamp", date("Y-m-d H:i:s"));
+    $data_entry_trigger_builder->setProjectSetting("saved_by", USERID);
     print json_encode(array("success" => true));
 }
