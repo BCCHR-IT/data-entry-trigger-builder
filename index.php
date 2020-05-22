@@ -86,7 +86,7 @@ $Proj = new Project();
         <?php endif; ?>
         <div class="container jumbotron">
             <h2>Data Entry Trigger Builder</h2>
-            <p>*This module will work will classical and longitudinal projects, but is currently incompatible with repeatable events.</p>
+            <p>*This module will work will classical and longitudinal projects, but is currently incompatible with repeatable events, and multiple arms.</p>
             <?php if (!empty($settings)): ?>
             <p><b>DET was last changed on <span class="saved"><?php print $data_entry_trigger_builder->getProjectSetting("saved_timestamp");?></span> by <span class="saved"><?php print $data_entry_trigger_builder->getProjectSetting("saved_by");?></span></b></p>
             <?php endif; ?>
