@@ -768,8 +768,6 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                 // Save DET data in destination project;
                 $save_response = REDCap::saveData($dest_project, "json", json_encode($dest_record_data), $overwrite_data);
 
-                REDCap::logEvent("DET: Attempted to import", json_encode($dest_record_data), null, $record, $event_id, $project_id);
-
                 if (!empty($save_response["errors"]))
                 {
                     REDCap::logEvent("DET: Errors", json_encode($save_response["errors"]), null, $record, $event_id, $project_id);
