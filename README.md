@@ -45,3 +45,11 @@
 # Warnings
 
 1. Any changes made to the REDCap project, after the DET has been created, has the potential to break it. After you’ve updated your project, please make sure to update the DET in accordance with your changes.
+
+# Limitations
+
+1. Is not compatible with repeatable instruments.
+2. Is not compatible with DAGs.
+3. Can only be used within the same instance of REDCap. 
+4. Can have a maximum of 10 triggers, with unlimited data to pipe.
+5. Is not compatible with mult-arm projects at the moment.
