@@ -100,6 +100,13 @@ $Proj = new Project();
             <p style="color:red"><b><?php print $import_err_msg; ?></b></p>
             <?php endif;?>
             <hr/>
+            <?php if (!empty($settings)): ?>
+            <h5>Download Release Notes</h5>
+            <form id="download-form" action="<?php print $module->getUrl("downloadReleaseNotes.php");?>" method="post">
+                <button id="download-release-notes-btn" type="submit" class="btn btn-primary" style="margin-top:20px">Download Release Notes</button>
+            </form>
+            <hr/>
+            <?php endif;?>
             <form id="det-form" method="post">
                 <h5>Select a Linked Project</h5>
                 <div class="form-group">
@@ -501,8 +508,6 @@ $Proj = new Project();
         </div>
     </body>
 </html>
-
-
 <?php
 require_once "script.php";
 /**
