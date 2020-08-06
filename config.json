@@ -18,14 +18,6 @@
             }
         ]
     },
-    "system-settings": [
-        {
-            "key": "dets-folder",
-            "name": "Folder to store DETs",
-            "required": true,
-            "type": "text"
-        }
-    ],
     "permissions": [
         "redcap_save_record"
     ],
