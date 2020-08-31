@@ -66,6 +66,9 @@ $Proj = new Project();
             .saved {
                 color: #007bff
             }
+            textarea {
+                resize: vertical;
+            }
         </style>
         <script src="<?php print $module->getUrl("functions.js");?>" type="text/javascript"></script>
     </head>
@@ -249,7 +252,7 @@ $Proj = new Project();
                                     <span class="fa fa-trash-alt delete-trigger-btn"></span>
                                 </div>
                             </div>
-                            <input name="triggers[]" type="text" class="form-control det-trigger-input" value="<?php print str_replace("\"", "'", $trigger); ?>" required>
+                            <textarea rows="1" name="triggers[]" class="form-control det-trigger-input" required><?php print str_replace("\"", "'", $trigger); ?></textarea>
                         </div>
                         <p>
                             Copy the following instruments/fields from source project to linked project when the above condition is true: 

@@ -122,7 +122,7 @@ function addTrigger()
                             "<span class='fa fa-trash-alt delete-trigger-btn'></span>" +
                         "</div>" +
                     "</div>" +
-                    "<input name='triggers[]' type='text' class='form-control det-trigger-input' required>" +
+                    "<textarea rows='1' name='triggers[]' class='form-control det-trigger-input' required></textarea>" +
                 "</div>" +
                 "<p>" +
                     "Copy the following instruments/fields from source project to linked project when the above condition is true:" + 
