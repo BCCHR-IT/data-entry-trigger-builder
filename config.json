@@ -18,6 +18,15 @@
             }
         ]
     },
+    "system-settings": [
+        {
+            "key": "temp-folder",
+            "name": "Directory path to folder to temporarily store release notes. *Don't add a slash at the end",
+            "required": true,
+            "type": "text",
+            "super-users-only": true
+        }
+    ],
     "permissions": [
         "redcap_save_record"
     ],

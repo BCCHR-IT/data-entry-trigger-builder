@@ -1205,7 +1205,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
         $section->addText("If you have any questions about this document or about the project, please contact at redcap@cfri.ca.", "generalFontStyle");
 
         // Saving the document as OOXML file...
-        $filename = '/home/rccfri/public_html/redcap/temp/release_notes.docx';
+        $filename = $this->getSystemSetting("temp-folder") . "/release_notes.docx";
         $objWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'Word2007');
         $objWriter->save($filename);
 
