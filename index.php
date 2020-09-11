@@ -95,7 +95,10 @@ $Proj = new Project();
             <?php endif; ?>
             <hr/>
             <h5>Import/Export Your DET Settings</h5>
-            <p>If you've created a JSON string containing your DET settings, you may import them into the module, or you may export your current DET settings (If they exist).</p>
+            <p>
+                If you've created a JSON string containing your DET settings, you may import them into the module, or you may export your current DET settings (If they exist).
+                 When importing settings for projects on a different REDCap instance that have the same structure, change the destination project id before import. 
+            </p>
             <p><b>IMPORTANT: Once you've imported your DET settings, you must still save them by clicking "Save DET" at the bottom of the page.</b></p>
             <button type="button" data-toggle="modal" data-target="#upload-json-modal" class="btn btn-primary btn-sm">Import DET Settings</button>
             <?php if (!empty($settings)): ?><button type="button" data-toggle="modal" data-target="#export-json-modal" class="btn btn-primary btn-sm">Export DET Settings</button><?php endif; ?>
