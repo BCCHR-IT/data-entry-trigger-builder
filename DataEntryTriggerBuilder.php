@@ -347,7 +347,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                         !empty($part) && 
                         ($this->isValidField($part) == false && $this->isValidEvent($part) == false))
                     {
-                        $errors[] = "<strong>$part</strong> is not a valid event/field in this project. If this is a checkbox field please use the following format: <strong>{field_name}</strong>___<strong>{code}</strong>";
+                        $errors[] = "<strong>$part</strong> is not a valid event/field in this project. If this is a checkbox field please use the following format (3 underscores): <strong>{field_name}</strong>___<strong>{code}</strong>";
                     }
                     break;
             }
