@@ -126,6 +126,27 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
             $data_dictionary = REDCap::getDataDictionary('array');
         }
 
+        $fields = array();
+        foreach ($data_dictionary as $field_name=>$field_attributes)
+        {
+            // If the field is a checkbox, then convert it to the accepted conditional logic formats:
+            // Either field___<code>, or field(<code>)
+            if ($field_attributes['field_type'] == "checkbox") 
+            {
+                $choices = $field_attributes["select_choices_or_calculations"];
+                $choices = explode("|", $choices);
+                foreach($choices as $choice)
+                {
+                    $code = trim(explode(",", $choice)[0]); // Option will be in format "code, display_name"
+                    $fields[] = "{$field_name}___$code";
+                }
+            }
+            else
+            {
+                $fields[] = $field_name;
+            }
+        }
+
         $external_fields = array();
         $instruments = array_unique(array_column($data_dictionary, "form_name"));
         foreach ($instruments as $unique_name)
@@ -133,7 +154,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
             $external_fields[] = "{$unique_name}_complete";
         }
         
-        return in_array($var, $external_fields) || !empty($data_dictionary[$var]);
+        return in_array($var, $external_fields) || in_array($var, $fields);
     }
 
     /**
@@ -326,7 +347,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                         !empty($part) && 
                         ($this->isValidField($part) == false && $this->isValidEvent($part) == false))
                     {
-                        $errors[] = "<strong>$part</strong> is not a valid event/field in this project";
+                        $errors[] = "<strong>$part</strong> is not a valid event/field in this project. If this is a checkbox field please use the following format: <strong>{field_name}</strong>___<strong>{code}</strong>";
                     }
                     break;
             }
