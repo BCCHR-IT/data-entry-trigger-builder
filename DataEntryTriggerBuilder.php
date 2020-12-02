@@ -625,9 +625,10 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
             $source_instruments_events = $settings["sourceInstrEvents"];
             $source_instruments = $settings["sourceInstr"];
             $overwrite_data = $settings["overwrite-data"];
+            $import_dags = $settings["import-dags"];
             
             // Get current record data
-            $record_data = json_decode(REDCap::getData("json", $record), true);
+            $record_data = json_decode(REDCap::getData("json", $record, null, null, null, false, $import_dags), true);
 
             foreach($triggers as $index => $trigger)
             {
@@ -778,10 +779,14 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                     $dest_record = $record_data[0][$link_source];
                 }
                 
-                // Set record_id
+                // Set record_id, and redcap_data_access_group if $import_dags is true
                 foreach ($dest_record_data as $i => $data)
                 {
                     $dest_record_data[$i][$dest_record_id] = $dest_record;
+                    if ($import_dags)
+                    {
+                        $dest_record_data[$i]["redcap_data_access_group"] = $record_data[0]["redcap_data_access_group"];
+                    }
                 }
 
                 $dest_record_data = array_values($dest_record_data); // Don't need the keys to push, only the values.
@@ -789,6 +794,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
             
             if (!empty($dest_record_data))
             {
+
                 // Save DET data in destination project;
                 $save_response = REDCap::saveData($dest_project, "json", json_encode($dest_record_data), $overwrite_data);
 
@@ -981,6 +987,12 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
         // Triggers
         $section->addTitle("Database Set Up", 1);
         $section->addLine($lineStyle);
+
+        if ($settings["import-dags"])
+        {
+            $section->addText("Create records in PID " . $settings["dest-project"] . " in the same data access groups (DAGs). DAG names will be the same across projects, though the IDs will be different.");
+            $section->addTextBreak();
+        }
 
         foreach($settings["triggers"] as $index => $trigger) 
         {
