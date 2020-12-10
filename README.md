@@ -34,13 +34,17 @@
 
 ![Step7](imgs/step7.jpg)
 
-8. Save your DET. If it passes validation, then it will automatically run every time data is entered via a survey or data entry. Otherwise errors will be returned to you for correction. The DET will not save until your errors are corrected.
+8. Determine whether you want to import DAGs to the destination project. This will only work if the DAGs are identical between projects. 
+
+![Step8](imgs/step9.jpg)
+
+9. Save your DET. If it passes validation, then it will automatically run every time data is entered via a survey or data entry. Otherwise errors will be returned to you for correction. The DET will not save until your errors are corrected.
 
 ![Step8](imgs/step8.jpg)
 
-9. Once your DET is created, refresh the page, then you can export the settings as a JSON string.
+10. Once your DET is created, refresh the page, then you can export the settings as a JSON string.
 
-10. The module logs all DET activity. It will log successes, warnings, and errors. You may check there whenever you want to check on the status of your DET.
+111. The module logs all DET activity. It will log successes, warnings, and errors. You may check there whenever you want to check on the status of your DET.
 
 # Warnings
 
