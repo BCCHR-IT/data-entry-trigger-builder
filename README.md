@@ -36,7 +36,7 @@
 
 8. Determine whether you want to import DAGs to the destination project. This will only work if the DAGs are identical between projects. 
 
-![Step8](imgs/step9.jpg)
+![Step9](imgs/step9.jpg)
 
 9. Save your DET. If it passes validation, then it will automatically run every time data is entered via a survey or data entry. Otherwise errors will be returned to you for correction. The DET will not save until your errors are corrected.
 
