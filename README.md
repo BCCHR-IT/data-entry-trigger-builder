@@ -36,15 +36,15 @@
 
 8. Determine whether you want to import DAGs to the destination project. This will only work if the DAGs are identical between projects. 
 
-![Step9](imgs/step9.jpg)
+![Step8](imgs/step8.JPG)
 
 9. Save your DET. If it passes validation, then it will automatically run every time data is entered via a survey or data entry. Otherwise errors will be returned to you for correction. The DET will not save until your errors are corrected.
 
-![Step8](imgs/step8.jpg)
+![Step9](imgs/step9.jpg)
 
 10. Once your DET is created, refresh the page, then you can export the settings as a JSON string.
 
-111. The module logs all DET activity. It will log successes, warnings, and errors. You may check there whenever you want to check on the status of your DET.
+11. The module logs all DET activity. It will log successes, warnings, and errors. You may check there whenever you want to check on the status of your DET.
 
 # Warnings
 
@@ -53,7 +53,6 @@
 # Limitations
 
 1. Is not compatible with repeatable instruments.
-2. Is not compatible with DAGs.
-3. Can only be used within the same instance of REDCap. 
-4. Can have a maximum of 10 triggers, with unlimited data to pipe.
-5. Is not compatible with mult-arm projects at the moment.
+2. Can only be used within the same instance of REDCap. 
+3. Can have a maximum of 10 triggers, with unlimited data to pipe.
+4. Is not compatible with mult-arm projects at the moment.
