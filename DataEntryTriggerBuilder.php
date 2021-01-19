@@ -605,9 +605,9 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
     {
         if ($project_id == $this->getProjectId())
         {
-            $settings = json_decode($this->getProjectSetting("det_settings"), true);
-
             // Get DET settings
+            $settings = json_decode($this->getProjectSetting("det_settings"), true);
+            
             $dest_project = $settings["dest-project"];
             $create_record_trigger = $settings["create-record-cond"];
             $link_source_event = $settings["linkSourceEvent"];
@@ -630,15 +630,21 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
             // Get current record data
             $record_data = json_decode(REDCap::getData("json", $record, null, null, null, false, $import_dags), true);
 
+            /**
+             * Process each trigger, and, if true, prepare associated data to move.
+             */
             foreach($triggers as $index => $trigger)
             {
                 if ($this->processTrigger($record_data, $trigger))
                 {
                     $trigger_source_fields = $piping_source_fields[$index];
-                    $trigger_dest_fields = $piping_dest_fields[$index];
                     $trigger_source_events = $piping_source_events[$index];
+                    $trigger_dest_fields = $piping_dest_fields[$index];
                     $trigger_dest_events = $piping_dest_events[$index];
 
+                    /**
+                     * Move field data from source to destination
+                     */
                     foreach($trigger_dest_fields as $i => $dest_field)
                     {
                         if (!empty($trigger_source_events[$i]))
@@ -675,9 +681,13 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                         $dest_record_data[$dest_event] = $event_data;
                     }
 
+                    /**
+                     * Set destination fields as custom value
+                     */
                     $trigger_dest_fields = $set_dest_fields[$index];
                     $trigger_dest_values = $set_dest_fields_values[$index];
                     $trigger_dest_events = $set_dest_events[$index];
+
                     foreach($trigger_dest_fields as $i => $dest_field)
                     {
                         if (!empty($trigger_dest_events[$i]))
@@ -702,8 +712,12 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                         $dest_record_data[$dest_event] = $event_data;
                     }
 
+                    /**
+                     * Move source instruments to destination instruments (Is a one-to-one relationship).
+                     */
                     $trigger_source_instruments = $source_instruments[$index];
                     $trigger_source_instruments_events = $source_instruments_events[$index];
+
                     foreach($trigger_source_instruments as $i => $source_instrument)
                     {
                         if (!empty($trigger_source_instruments_events[$i]))
@@ -739,14 +753,18 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                 $dest_record_id = $this->framework->getRecordIdField($dest_project);
                 if ($dest_record_id != $link_dest_field)
                 {
-                    // Check for existing record, otherwise create a new one. Assume linking ID is unique
+                    /**
+                     * Check for existing record, otherwise create a new one. Assume linking ID is unique.
+                     */
+
+                    // Search for the index of the linking id's event. If not found, then assume it's a classical project and that the index for the first event is 0.
                     if (!empty($link_source_event))
                     {
                         $key = array_search($link_source_event, array_column($record_data, "redcap_event_name"));
                     }
                     else
                     {
-                        $key = "event_1_arm_1";
+                        $key = 0;
                     }
 
                     $data = $record_data[$key];
@@ -794,7 +812,6 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
             
             if (!empty($dest_record_data))
             {
-
                 // Save DET data in destination project;
                 $save_response = REDCap::saveData($dest_project, "json", json_encode($dest_record_data), $overwrite_data);
 
