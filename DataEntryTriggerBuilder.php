@@ -780,16 +780,26 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                         $dest_record_data["event_1_arm_1"][$link_dest_field] = $link_dest_value;	
                     }
 
-                    // Retrieve record id
-                    $existing_record = REDCap::getData($dest_project, "json", null, $dest_record_id, $link_dest_event, null, false, false, false, "[$link_dest_field] = $link_dest_value");
-                    $existing_record = json_decode($existing_record, true);
-                    if (sizeof($existing_record) == 0)
+                    // Retrieve record id. Exit is there is no value for the linking field, as it should be filled and never change.
+                    if (empty($link_dest_value))
                     {
-                        $dest_record = $this->framework->addAutoNumberedRecord($dest_project);
+                        REDCap::logEvent("DET: Linking field value is empty, so no data moved", "Filter logic: [$link_dest_field] = ''", null, $record, $event_id, $project_id);
+                        return;
                     }
-                    else
+                    else 
                     {
-                        $dest_record = $existing_record[0][$dest_record_id];
+                        $filter_logic = "[$link_dest_field] = $link_dest_value";
+                        $existing_record = REDCap::getData($dest_project, "json", null, $dest_record_id, $link_dest_event, null, false, false, false, $filter_logic);
+                        $existing_record = json_decode($existing_record, true);
+
+                        if (sizeof($existing_record) == 0)
+                        {
+                            $dest_record = $this->framework->addAutoNumberedRecord($dest_project);
+                        }
+                        else
+                        {
+                            $dest_record = $existing_record[0][$dest_record_id];
+                        }
                     }
                 }
                 else
