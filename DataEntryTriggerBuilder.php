@@ -417,187 +417,6 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
     }
 
     /**
-     * Parses a String of branching logic into blocks of logic syntax.
-     * Assumes valid REDCap Logic syntax in trigger.
-     * 
-     * @param String $trigger_cond   A String of REDCap branching logic.
-     * @return Array    An array of syntax blocks representing the given branching logic String.
-     */
-    private function parseCondition($trigger_cond)
-    {
-        $pos = strpos($trigger_cond, "(");
-
-        /**
-         * If brackets are at the beginning of the condition then split on first
-         * && after them. If there are no && then split on the first ||.
-         */
-        if ($pos === 0)
-        {
-            for($i = 0; $i < strlen($trigger_cond); $i++)
-            {
-                if ($trigger_cond[$i] == "(")
-                {
-                    $opening_brackets[] = $i;
-                }
-                else if ($trigger_cond[$i] == ")")
-                {
-                    array_pop($opening_brackets);
-                    if (empty($opening_brackets))
-                    {
-                        $closing_offset = $i;
-                        break;
-                    }
-                }
-                $closing_offset = -1;
-            }
-
-            if ($closing_offset == strlen($trigger_cond) - 1)
-            {
-                $left_cond = substr($trigger_cond, 1);
-                $left_cond = substr($left_cond, 0, -1);
-
-                return [
-                    "left_branch" => $left_cond, 
-                    "operand" => "", 
-                    "right_branch" => ""
-                ];
-            }
-            else
-            {
-                $remainder = substr($trigger_cond, $closing_offset+2);
-            }
-        }
-        else if ($pos > 0)
-        {
-            $remainder = substr($trigger_cond, 0, $pos);
-        }
-        else if ($pos === FALSE)
-        {
-            $remainder = $trigger_cond;
-        }
-
-        $left_cond = "";
-        $operator = "";
-        $right_cond = "";
-
-        if (preg_match("/\s*(&&)/", $remainder, $operators, PREG_OFFSET_CAPTURE) === 1 || 
-            preg_match("/\s*(\|\|)/", $remainder, $operators, PREG_OFFSET_CAPTURE) === 1)
-        {
-            $relational_offset = $operators[0][1];
-            $operator = $operators[0][0];
-
-            if ($pos > 0 || $pos === FALSE)
-            {
-                $offset = $relational_offset + 1;
-            }
-            else if ($pos === 0)
-            {
-                $offset = $closing_offset + $relational_offset + 2;
-            }
-
-            $left_cond = trim(substr($trigger_cond, 0, $offset));
-            $right_cond = trim(substr($trigger_cond, $offset + strlen($operator)));
-            $operator = trim($operator);
-
-            return [
-                "left_branch" => $left_cond, 
-                "operand" => $operator, 
-                "right_branch" => $right_cond
-            ];
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-    /**
-     * Validates the given trigger.
-     * Assumes valid REDCap Logic syntax in trigger.
-     * 
-     * @return Boolean
-     */
-    private function processTrigger($record_data, $trigger)
-    {
-        $logic_operators = array("==", "=", "<>", "!=", ">", "<", ">=", ">=", "<=");
-
-        $tokens = $this->parseCondition($trigger);
-
-        /**
-         * If there's no relational operators, then split condition on 
-         * logical operator and process.
-         */
-        if ($tokens === FALSE)
-        {
-            $blocks = preg_split("/(==|=|<>|!=|>|<|>=|>=|<=)/", $trigger, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
-            
-            if (!REDCap::isLongitudinal())
-            {
-                $field = trim($blocks[0], " []'\"()");
-                $record_data = $record_data[0];
-            }
-            else
-            {
-                $split_pos = strpos($blocks[0], "][");
-
-                $event = substr($blocks[0], 0, $split_pos);
-                $field = substr($blocks[0], $split_pos+1);
-
-                $event = trim($event, " []'\"()");
-                $field = trim($field, " []'\"()");
-
-                $event_key = array_search($event, array_column($record_data, "redcap_event_name"));
-                $record_data = $record_data[$event_key];
-            }
-
-            $operator = trim($blocks[1]);
-            $value = trim($blocks[2], " '\")");
-
-            switch ($operator)
-            {
-                case "=":
-                case "==":
-                    return $record_data[$field] == $value;
-                break;
-                case "<>":
-                case "!=":
-                    return $record_data[$field] <> $value;
-                break;
-                case ">":
-                    return $record_data[$field] > $value;
-                break;
-                case "<":
-                    return $record_data[$field] < $value;
-                break;
-                case ">=":
-                    return $record_data[$field] >= $value;
-                break;
-                case "<=":
-                    return $record_data[$field] <= $value;
-                break;
-            }
-        }
-        /**
-         * Split the condition, if there are relational operators,
-         * and process left and right sides of argument on their own.
-         * && takes priority
-         */
-        else if ($tokens["operand"] == "&&")
-        {
-            return $this->processTrigger($record_data, $tokens["left_branch"]) && $this->processTrigger($record_data, $tokens["right_branch"]);
-        }
-        else if ($tokens["operand"] == "||")
-        {
-            return $this->processTrigger($record_data, $tokens["left_branch"]) || $this->processTrigger($record_data, $tokens["right_branch"]);
-        }
-        else
-        {
-            return $this->processTrigger($record_data, $tokens["left_branch"]);
-        }
-        return true;
-    }
-
-    /**
      * REDCap hook is called immediately after a record is saved. Will retrieve the DET settings,
      * & import data according to DET.
      */
@@ -610,20 +429,28 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
             
             $dest_project = $settings["dest-project"];
             $create_record_trigger = $settings["create-record-cond"];
+
             $link_source_event = $settings["linkSourceEvent"];
             $link_source = $settings["linkSource"];
+
             $link_dest_event = $settings["linkDestEvent"];
             $link_dest_field = $settings["linkDest"];
+
             $triggers = $settings["triggers"];
+
             $piping_source_events = $settings["pipingSourceEvents"];
             $piping_dest_events = $settings["pipingDestEvents"];
+
             $piping_source_fields = $settings["pipingSourceFields"];
             $piping_dest_fields = $settings["pipingDestFields"];
+
             $set_dest_events = $settings["setDestEvents"];
             $set_dest_fields = $settings["setDestFields"];
             $set_dest_fields_values = $settings["setDestFieldsValues"];
+
             $source_instruments_events = $settings["sourceInstrEvents"];
             $source_instruments = $settings["sourceInstr"];
+
             $overwrite_data = $settings["overwrite-data"];
             $import_dags = $settings["import-dags"];
             
@@ -635,10 +462,16 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
              */
             foreach($triggers as $index => $trigger)
             {
-                if ($this->processTrigger($record_data, $trigger))
+                $valid = REDCap::evaluateLogic($trigger, $project_id, $record); // REDCap class method to evaluate conditional logic.
+                if ($valid === null) // Null returned if logic is invalid. Else a boolean value.
+                {
+                    REDCap::logEvent("DET: Trigger was either syntactically incorrect, or parameters were invalid (e.g., record or event does not exist). No data moved.", "Trigger: $trigger", null, $record, $event_id, $project_id);
+                }
+                else if ($valid)
                 {
                     $trigger_source_fields = $piping_source_fields[$index];
                     $trigger_source_events = $piping_source_events[$index];
+
                     $trigger_dest_fields = $piping_dest_fields[$index];
                     $trigger_dest_events = $piping_dest_events[$index];
 
@@ -1294,9 +1127,6 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
         {
             return $link;
         }
-        else
-        {
-            return null;
-        }
+        return null;
     }
 }
