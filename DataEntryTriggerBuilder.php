@@ -139,6 +139,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                 {
                     $code = trim(explode(",", $choice)[0]); // Option will be in format "code, display_name"
                     $fields[] = "{$field_name}___$code";
+                    $fields[] = "{$field_name}($code)";
                 }
             }
             else
@@ -573,10 +574,13 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
 
                         // Fields are returned in the order they are in the REDCap project
                         $source_instrument_fields = REDCap::getFieldNames($source_instrument);
-                        $source_instrument_data = json_decode(REDCap::getData("json", $record, $source_instrument_fields, $event), true)[0];
+                        $source_instrument_data = json_decode(REDCap::getData("json", $record, $source_instrument_fields, $event), true);
 
-                        $event_data = $event_data + $source_instrument_data;
-                        $dest_record_data[$event] = $event_data;
+                        if (sizeof($source_instrument_data) > 0)
+                        {
+                            $event_data = $event_data + $source_instrument_data[0];
+                            $dest_record_data[$event] = $event_data;
+                        }
                     }
                 }
             }

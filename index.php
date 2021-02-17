@@ -186,7 +186,7 @@ $Proj = new Project();
                             <li>E.g., [event_name][variable_name] = "1"</li>
                         </ul>
                         <p>Where [event_name] = only in longitudinal projects<br/>Where [instrument_name] = form copied from source to linked project<br/>Where [variable_name] = field copied from source to linked project</p>
-                        <p><strong>NOTE:</strong> If [variable_name] is a checkbox field please use the following format (3 underscores): <strong>{field_name}</strong>___<strong>{code}</strong></p>
+                        <p><strong>NOTE:</strong> If [variable_name] is a checkbox field please use the following format: [variable_name<strong>(</strong>code<strong>)</strong>]</p>
                         <p>
                             Multiple conditions can be chained in the same trigger using AND/OR. When creating a trigger 
                             <b>AND must be written as &&</b>, and 
