@@ -11,7 +11,8 @@ use Project;
 class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule 
 {
     /**
-     * Replaces given text with replacement.
+     * Replaces all strings in $text with $replacement
+     * So "Alice says 'hello'" becomes "Alice says ''" assuming $replacement = ''.
      * 
      * @access private
      * @param String $text          The text to replace.
@@ -47,7 +48,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
     private function getSyntaxParts($syntax)
     {
         $syntax = str_replace(array("['", "']"), array("[", "]"), $syntax);
-        $syntax = $this->replaceStrings(trim($syntax), "''");         //Replace strings with ''
+        $syntax = $this->replaceStrings(trim($syntax), "''");         // Replace strings with ''
 
         $parts = array();
         $previous = array();
@@ -126,27 +127,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
             $data_dictionary = REDCap::getDataDictionary('array');
         }
 
-        $fields = array();
-        foreach ($data_dictionary as $field_name=>$field_attributes)
-        {
-            // If the field is a checkbox, then convert it to the accepted conditional logic formats:
-            // Either field___<code>, or field(<code>)
-            if ($field_attributes['field_type'] == "checkbox") 
-            {
-                $choices = $field_attributes["select_choices_or_calculations"];
-                $choices = explode("|", $choices);
-                foreach($choices as $choice)
-                {
-                    $code = trim(explode(",", $choice)[0]); // Option will be in format "code, display_name"
-                    $fields[] = "{$field_name}___$code";
-                    $fields[] = "{$field_name}($code)";
-                }
-            }
-            else
-            {
-                $fields[] = $field_name;
-            }
-        }
+        $fields = array_keys($data_dictionary);
 
         $external_fields = array();
         $instruments = array_unique(array_column($data_dictionary, "form_name"));
@@ -238,19 +219,24 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                     $previous = $parts[$index - 1];
                     $next_part = $parts[$index + 1];
                 
-                    if (($next_part !== "(" 
+                    if ($next_part !== "(" 
                         && $next_part !== ")" 
-                        && $next_part !== "["))
+                        && $next_part !== "["
+                        && !is_numeric($next_part)
+                        && $next_part[0] != "'" 
+                        && $next_part[0] != "\""
+                        && $next_part[strlen($next_part) - 1] != "'" 
+                        && $next_part[strlen($next_part) - 1] != "\"")
                     {
                         $errors[] = "Invalid <strong>$next_part</strong> after <strong>(</strong>.";
                     }
                     break;
                 case ")":
-                    // Must have either a ) or logical operator after, if not the last part of syntax
+                    // Must have either a ), ] or logical operator after, if not the last part of syntax
                     if ($index != sizeof($parts) - 1)
                     {
                         $next_part = $parts[$index + 1];
-                        if ($next_part !== ")" && !in_array($next_part, $logical_operators))
+                        if ($next_part !== ")" && $next_part !== "]" && !in_array($next_part, $logical_operators))
                         {
                             $errors[] = "Invalid <strong>$next_part</strong> after <strong>)</strong>.";
                         }
@@ -323,9 +309,10 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                     if ($index != sizeof($parts) - 1)
                     {
                         $previous_2 = $parts[$index - 2];
+                        $previous_5 = $parts[$index - 5];
                         $next_part = $parts[$index + 1];
 
-                        if ($previous_2 !== "[")
+                        if ($previous_2 !== "[" && $previous_5 !== "[") // Make sure it has an opening bracket. Proper syntax should be [, field_name, ], or [, field_name, (, code, ), ]
                         {
                             $errors[] = "Unclosed or empty <strong>]</strong> bracket.";
                         }
@@ -348,7 +335,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                         !empty($part) && 
                         ($this->isValidField($part) == false && $this->isValidEvent($part) == false))
                     {
-                        $errors[] = "<strong>$part</strong> is not a valid event/field in this project. If this is a checkbox field please use the following format (3 underscores): <strong>{field_name}</strong>___<strong>{code}</strong>";
+                        $errors[] = "<strong>$part</strong> is not a valid event/field in this project. If this is a checkbox field please use the following format (3 underscores): field_name<strong>(</strong>code<strong>)</strong>";
                     }
                     break;
             }
