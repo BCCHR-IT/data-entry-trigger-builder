@@ -335,7 +335,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                         !empty($part) && 
                         ($this->isValidField($part) == false && $this->isValidEvent($part) == false))
                     {
-                        $errors[] = "<strong>$part</strong> is not a valid event/field in this project. If this is a checkbox field please use the following format (3 underscores): field_name<strong>(</strong>code<strong>)</strong>";
+                        $errors[] = "<strong>$part</strong> is not a valid event/field in this project. If this is a checkbox field please use the following format: field_name<strong>(</strong>code<strong>)</strong>";
                     }
                     break;
             }
@@ -351,14 +351,15 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
      */
     public function getProjects()
     {
-        $sql = "select project_id, app_title from redcap_projects";
-        if ($query_result = $this->query($sql))
+        $query = $this->framework->createQuery();
+        $query->add("select project_id, app_title from redcap_projects", []);
+
+        if ($query_result = $query->execute())
         {
-            while($row = db_fetch_assoc($query_result))
+            while($row = $query_result->fetch_assoc())
             {
                 $projects[] = $row;
             }
-            $query_result->close();
         }
         return $projects;
     }
@@ -678,14 +679,15 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
     {
         $sourceProjectTitle = REDCap::getProjectTitle();
 
-        $sql = "select app_title from redcap_projects where project_id = " . $settings["dest-project"];
-        if ($query_result = $this->query($sql))
+        $query = $this->framework->createQuery();
+        $query->add("select app_title from redcap_projects where project_id = ?", [$settings["dest-project"]]);
+
+        if ($query_result = $query->execute())
         {
-            while($row = db_fetch_assoc($query_result))
+            while($row = $query_result->fetch_assoc())
             {
                 $destProjectTitle = $row["app_title"];
             }
-            $query_result->close();
         }
 
         // Creating the new document...
