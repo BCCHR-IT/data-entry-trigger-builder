@@ -89,7 +89,7 @@ $Proj = new Project();
         <?php endif; ?>
         <div class="container jumbotron">
             <h2>Data Entry Trigger Builder</h2>
-            <p>*This module will work will classical and longitudinal projects, but is currently incompatible with repeatable events, and multiple arms.</p>
+            <p><b>LIMITATIONS*: This module will work will classical and longitudinal projects, but is currently incompatible with repeatable events, and multiple arms.</b></p>
             <?php if (!empty($settings)): ?>
             <p><b>DET was last changed on <span class="saved"><?php print $data_entry_trigger_builder->getProjectSetting("saved_timestamp");?></span> by <span class="saved"><?php print $data_entry_trigger_builder->getProjectSetting("saved_by");?></span></b></p>
             <?php endif; ?>
@@ -151,6 +151,7 @@ $Proj = new Project();
                         Create subjects/push data to linked project using variables in source and linked project. 
                         When at least one of the triggers are met, then records between the source and linked project will be linked via the chosen fields.
                     </p>
+                    <p><b>IMPORTANT: When linking projects with anything other than the record ID fields, "Auto-numbering for records" must be turned on in the destination project.</b></p>
                     <div class='row link-field form-group'> 
                         <div class='col-sm-12' style="margin-bottom:10px">
                             <div class='class-sm-12'><label>Link source project field</label></div>
