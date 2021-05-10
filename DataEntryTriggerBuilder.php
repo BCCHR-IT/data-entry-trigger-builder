@@ -613,7 +613,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                     }
                     else 
                     {
-                        $filter_logic = "[$link_dest_field] = $link_dest_value";
+                        $filter_logic = "[$link_dest_field] = '$link_dest_value'";
                         $existing_record = REDCap::getData($dest_project, "json", null, $dest_record_id, $link_dest_event, null, false, false, false, $filter_logic);
                         $existing_record = json_decode($existing_record, true);
 
