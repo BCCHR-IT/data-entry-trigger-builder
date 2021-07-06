@@ -9,7 +9,8 @@ require_once APP_PATH_DOCROOT . 'ProjectGeneral/header.php';
 
 $data_entry_trigger_builder = new BCCHR\DataEntryTriggerBuilder\DataEntryTriggerBuilder();
 if (!empty($_POST["json"])) {
-    $settings = json_decode($_POST["json"], true);
+    $posted_json = htmlspecialchars($_POST["json"], ENT_QUOTES);
+    $settings = json_decode($posted_json, true);
     if ($settings == null)
     {
         $import_err_msg = "Invalid JSON! Please check your DET settings.";
