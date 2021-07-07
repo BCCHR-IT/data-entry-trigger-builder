@@ -9,7 +9,7 @@ require_once APP_PATH_DOCROOT . 'ProjectGeneral/header.php';
 
 $data_entry_trigger_builder = new BCCHR\DataEntryTriggerBuilder\DataEntryTriggerBuilder();
 if (!empty($_POST["json"])) {
-    $posted_json = htmlspecialchars($_POST["json"], ENT_QUOTES);
+    $posted_json = htmlspecialchars($_POST["json"], ENT_NOQUOTES);
     $settings = json_decode($posted_json, true);
     if ($settings == null)
     {
