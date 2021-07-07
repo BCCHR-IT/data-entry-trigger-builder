@@ -105,16 +105,16 @@
         },
         {
             "name": "phpoffice/phpword",
-            "version": "0.18.1",
+            "version": "0.18.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPOffice/PHPWord.git",
-                "reference": "06b90e39a36872c6ee73534e1a073f4b3132fc6a"
+                "reference": "aca10785cf68dc95d7f6fac4fe854979fef3f8db"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPOffice/PHPWord/zipball/06b90e39a36872c6ee73534e1a073f4b3132fc6a",
-                "reference": "06b90e39a36872c6ee73534e1a073f4b3132fc6a",
+                "url": "https://api.github.com/repos/PHPOffice/PHPWord/zipball/aca10785cf68dc95d7f6fac4fe854979fef3f8db",
+                "reference": "aca10785cf68dc95d7f6fac4fe854979fef3f8db",
                 "shasum": ""
             },
             "require": {
@@ -145,7 +145,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-develop": "0.18-dev"
+                    "dev-develop": "0.19-dev"
                 }
             },
             "autoload": {
@@ -209,7 +209,7 @@
                 "word",
                 "writer"
             ],
-            "time": "2021-03-08T01:06:35+00:00"
+            "time": "2021-06-04T20:58:45+00:00"
         }
     ],
     "packages-dev": [],
