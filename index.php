@@ -9,7 +9,7 @@ require_once APP_PATH_DOCROOT . 'ProjectGeneral/header.php';
 
 $data_entry_trigger_builder = new BCCHR\DataEntryTriggerBuilder\DataEntryTriggerBuilder();
 if (!empty($_POST["json"])) {
-    $posted_json = htmlspecialchars($_POST["json"], ENT_NOQUOTES);
+    $posted_json = $_POST["json"];
     $settings = json_decode($posted_json, true);
     if ($settings == null)
     {
@@ -159,11 +159,11 @@ $Proj = new Project();
                             <div class='row'>
                                 <?php if (REDCap::isLongitudinal()): ?>
                                     <div class='col-sm-6'>
-                                        <input id='linkSourceEvent' class="source-events-autocomplete form-control" name='linkSourceEvent' placeholder="Type to search for event" value="<?php print $settings["linkSourceEvent"]; ?>" required>
+                                        <input id='linkSourceEvent' class="source-events-autocomplete form-control" name='linkSourceEvent' placeholder="Type to search for event" value="<?php print htmlspecialchars($settings["linkSourceEvent"], ENT_QUOTES); ?>" required>
                                     </div>
                                 <?php endif;?>
                                 <div class='col-sm-6'>
-                                    <input id='linkSource' class="source-fields-autocomplete form-control" name='linkSource' placeholder="Type to search for field" value="<?php print $settings["linkSource"]; ?>" required>
+                                    <input id='linkSource' class="source-fields-autocomplete form-control" name='linkSource' placeholder="Type to search for field" value="<?php print htmlspecialchars($settings["linkSource"], ENT_QUOTES); ?>" required>
                                 </div> 
                             </div>
                         </div>
@@ -171,10 +171,10 @@ $Proj = new Project();
                             <div class='class-sm-12' id="link-source-text"><label>To linked project field</label></div>
                             <div class='row'>
                                 <div class='col-sm-6 dest-event-wrapper' <?php if(empty($settings["linkDestEvent"])) {print "style='display:none'";} ?>>
-                                    <input id='linkDestEvent' class='dest-events-autocomplete form-control' name='linkDestEvent' placeholder="Type to search for event" value="<?php print $settings["linkDestEvent"]; ?>" required>
+                                    <input id='linkDestEvent' class='dest-events-autocomplete form-control' name='linkDestEvent' placeholder="Type to search for event" value="<?php print htmlspecialchars($settings["linkDestEvent"], ENT_QUOTES); ?>" required>
                                 </div>
                                 <div id="link-source-wrapper" class='col-sm-6'>
-                                    <input id='linkDest' class='dest-fields-autocomplete form-control' name='linkDest' placeholder="Type to search for field" value="<?php print $settings["linkDest"]; ?>" required>
+                                    <input id='linkDest' class='dest-fields-autocomplete form-control' name='linkDest' placeholder="Type to search for field" value="<?php print htmlspecialchars($settings["linkDest"], ENT_QUOTES); ?>" required>
                                 </div>
                             </div>
                         </div>
@@ -247,6 +247,10 @@ $Proj = new Project();
                         <button type="button" id="add-trigger-btn" class="btn btn-primary btn-sm">Add Trigger</button>
                     </div>
                     <?php if (!empty($settings)): foreach($settings["triggers"] as $index => $trigger): ?>
+                    <?php 
+                        $index = htmlspecialchars($index, ENT_QUOTES); 
+                        $trigger = htmlspecialchars($trigger, ENT_QUOTES); 
+                    ?>
                     <div class="form-group trigger-and-data-wrapper">
                         <div class="det-trigger">
                             <div class="row">
@@ -281,23 +285,27 @@ $Proj = new Project();
                                 $pipingDestEvents = $settings["pipingDestEvents"][$index];
                                 $pipingSourceFields = $settings["pipingSourceFields"][$index];
                                 $pipingDestFields = $settings["pipingDestFields"][$index];
+
                                 foreach($pipingSourceFields as $i => $source)
                                 {
+                                    $pipingSourceEvent = htmlspecialchars($pipingSourceEvents[$i], ENT_QUOTES);
+                                    $source = htmlspecialchars($source, ENT_QUOTES);
+
                                     print "<tr class='trigger-field-row'><td>";
-                                    if (!empty($pipingSourceEvents[$i]))
+                                    if (!empty($pipingSourceEvent))
                                     {
-                                        print "[" . $pipingSourceEvents[$i] . "]";
-                                        print "<input class='pipingSourceEvents' type='hidden' name='pipingSourceEvents[$index][]' value='" . $pipingSourceEvents[$i] . "'>";
+                                        print "[" . $pipingSourceEvent . "]";
+                                        print "<input class='pipingSourceEvents' type='hidden' name='pipingSourceEvents[$index][]' value='" . $pipingSourceEvent . "'>";
                                     }
                                     print "[" . $source . "]";
                                     print "<input class='pipingSourceFields' type='hidden' name='pipingSourceFields[$index][]' value='" . $source . "'></td><td>";
                                     if (!empty($pipingDestEvents[$i]))
                                     {
-                                        print "[" . $pipingDestEvents[$i] . "]";
-                                        print "<input class='pipingDestEvents' type='hidden' name='pipingDestEvents[$index][]' value='" . $pipingDestEvents[$i] . "'>";
+                                        print "[" . $pipingSourceEvent . "]";
+                                        print "<input class='pipingDestEvents' type='hidden' name='pipingDestEvents[$index][]' value='" . $pipingSourceEvent . "'>";
                                     }
-                                    print "[" . $pipingDestFields[$i] . "]";
-                                    print "<input class='pipingDestFields' type='hidden' name='pipingDestFields[$index][]' value='" . $pipingDestFields[$i] . "'>";
+                                    print "[" . $pipingSourceEvent . "]";
+                                    print "<input class='pipingDestFields' type='hidden' name='pipingDestFields[$index][]' value='" . $pipingSourceEvent . "'>";
                                     print "</td><td><span class='fa fa-pencil-alt' onclick='fillPipingFieldForm(this)'></span></td>";
                                     print "<td><span class='fa fa-trash-alt delete-trigger-field'></span></td>";
                                     print "</tr>";
@@ -306,18 +314,23 @@ $Proj = new Project();
                                 $setDestEvents = $settings["setDestEvents"][$index];
                                 $setDestFields = $settings["setDestFields"][$index];
                                 $setDestFieldsValues = $settings["setDestFieldsValues"][$index];
+
                                 foreach($setDestFields as $i => $source)
                                 {
+                                    $setDestFieldsValue = htmlspecialchars($setDestFieldsValues[$i], ENT_QUOTES);
+                                    $setDestEvent = htmlspecialchars($setDestEvents[$i], ENT_QUOTES);
+                                    $source = htmlspecialchars($source, ENT_QUOTES);
+
                                     print "<tr class='trigger-field-row'><td>";
-                                    if (!empty($setDestFieldsValues[$i]))
+                                    if (!empty($setDestFieldsValue))
                                     {
-                                        print "'" . $setDestFieldsValues[$i] . "'";
-                                        print "<input class='setDestFieldsValues' type='hidden' name='setDestFieldsValues[$index][]' value='" . $setDestFieldsValues[$i] . "'></td><td>";
+                                        print "'" . $setDestFieldsValue . "'";
+                                        print "<input class='setDestFieldsValues' type='hidden' name='setDestFieldsValues[$index][]' value='" . $setDestFieldsValue . "'></td><td>";
                                     }
-                                    if (!empty($setDestEvents[$i]))
+                                    if (!empty($setDestEvent))
                                     {
-                                        print "[" . $setDestEvents[$i] . "]";
-                                        print "<input class='setDestEvents' type='hidden' name='setDestEvents[$index][]' value='" . $setDestEvents[$i] . "'>";
+                                        print "[" . $setDestEvent . "]";
+                                        print "<input class='setDestEvents' type='hidden' name='setDestEvents[$index][]' value='" . $setDestEvent . "'>";
                                     }
                                     print "[" . $source . "]";
                                     print "<input class='setDestFields' type='hidden' name='setDestFields[$index][]' value='" . $source . "'>";
@@ -328,19 +341,23 @@ $Proj = new Project();
 
                                 $sourceInstr = $settings["sourceInstr"][$index];
                                 $sourceInstrEvents = $settings["sourceInstrEvents"][$index];
+
                                 foreach($sourceInstr as $i => $source)
                                 {
+                                    $sourceInstrEvent = htmlspecialchars($sourceInstrEvents[$i], ENT_QUOTES);
+                                    $source = htmlspecialchars($source, ENT_QUOTES);
+
                                     print "<tr class='trigger-field-row'><td>";
-                                    if (!empty($sourceInstrEvents[$i]))
+                                    if (!empty($sourceInstrEvent))
                                     {
-                                        print "[" . $sourceInstrEvents[$i] . "]";
-                                        print "<input class='sourceInstrEvents' type='hidden' name='sourceInstrEvents[$index][]' value='" . $sourceInstrEvents[$i] . "'>";
+                                        print "[" . $sourceInstrEvent . "]";
+                                        print "<input class='sourceInstrEvents' type='hidden' name='sourceInstrEvents[$index][]' value='" . $sourceInstrEvent . "'>";
                                     }
                                     print "[" . $source . "]";
                                     print "<input class='sourceInstr' type='hidden' name='sourceInstr[$index][]' value='" . $source . "'></td><td>";
-                                    if (!empty($sourceInstrEvents[$i]))
+                                    if (!empty($sourceInstrEvent))
                                     {
-                                        print "[" . $sourceInstrEvents[$i] . "]";
+                                        print "[" . $sourceInstrEvent . "]";
                                     }
                                     print "[" . $source . "]";
                                     print "</td><td><span class='fa fa-pencil-alt' onclick='fillInstrForm(this)'></span></td>";
@@ -521,7 +538,7 @@ $Proj = new Project();
                             <div class="row">
                                 <div class="col-sm-12">
                                     <div style="background-color:lightgrey; border: 1px solid black; color:deeppink; padding: 5px">
-                                        <?php print json_encode($settings, JSON_PRETTY_PRINT); ?>
+                                        <?php print htmlspecialchars(json_encode($settings, JSON_PRETTY_PRINT), ENT_QUOTES); ?>
                                     </div>
                                 </div>
                             </div>
