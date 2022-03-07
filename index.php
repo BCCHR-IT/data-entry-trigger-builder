@@ -75,7 +75,7 @@ $Proj = new Project();
     </head>
     <body>
         <?php if ($Proj->project['status'] > 0 || !empty($settings)): ?> 
-            <div style="position: sticky; top: 0; width: 100%; background-color:#ff9800; padding:5px; text-align:center">
+            <div style="position: sticky; top: 0; width: 100%; background-color:#ff9800; padding:5px; text-align:center; z-index:1;">
                 <?php if ($Proj->project['status'] > 0): ?><h6><b>This project is currently in production, be careful with your changes!</b></h6><?php endif; ?>
                 <?php if (!empty($settings)): ?><h6><b>WARNING: Any changes made to the REDCap project, after the DET has been created, has the potential to break it. After you’ve updated your project, please make sure to update the DET in accordance with your changes.</b></h6><?php endif; ?>
                 <?php 
@@ -290,6 +290,8 @@ $Proj = new Project();
                                 {
                                     $pipingSourceEvent = htmlspecialchars($pipingSourceEvents[$i], ENT_QUOTES);
                                     $source = htmlspecialchars($source, ENT_QUOTES);
+                                    $pipingDestEvent = htmlspecialchars($pipingDestEvents[$i], ENT_QUOTES);
+                                    $dest = htmlspecialchars($pipingDestFields[$i], ENT_QUOTES);
 
                                     print "<tr class='trigger-field-row'><td>";
                                     if (!empty($pipingSourceEvent))
@@ -301,11 +303,11 @@ $Proj = new Project();
                                     print "<input class='pipingSourceFields' type='hidden' name='pipingSourceFields[$index][]' value='" . $source . "'></td><td>";
                                     if (!empty($pipingDestEvents[$i]))
                                     {
-                                        print "[" . $pipingSourceEvent . "]";
-                                        print "<input class='pipingDestEvents' type='hidden' name='pipingDestEvents[$index][]' value='" . $pipingSourceEvent . "'>";
+                                        print "[" . $pipingDestEvent . "]";
+                                        print "<input class='pipingDestEvents' type='hidden' name='pipingDestEvents[$index][]' value='" . $pipingDestEvent . "'>";
                                     }
-                                    print "[" . $pipingSourceEvent . "]";
-                                    print "<input class='pipingDestFields' type='hidden' name='pipingDestFields[$index][]' value='" . $pipingSourceEvent . "'>";
+                                    print "[" . $dest . "]";
+                                    print "<input class='pipingDestFields' type='hidden' name='pipingDestFields[$index][]' value='" . $dest . "'>";
                                     print "</td><td><span class='fa fa-pencil-alt' onclick='fillPipingFieldForm(this)'></span></td>";
                                     print "<td><span class='fa fa-trash-alt delete-trigger-field'></span></td>";
                                     print "</tr>";
@@ -474,7 +476,7 @@ $Proj = new Project();
                         </div>
                         <div class="modal-body">
                             <div class='row'>
-                                <div class="col-sm-12"><label>There must be a one-to-one relationship in the linked project</label></div>
+                                <div class="col-sm-12"><label>There must be a one-to-one relationship in the linked project. When moving data from a classical to a longitudinal project, the data will import into the first event.</label></div>
                             </div>
                             <div class="row">
                                 <?php if (REDCap::isLongitudinal()): ?>

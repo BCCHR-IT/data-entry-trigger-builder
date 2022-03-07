@@ -135,8 +135,23 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
         {   
             $external_fields[] = "{$unique_name}_complete";
         }
-        
-        return in_array($var, $external_fields) || in_array($var, $fields);
+
+        $checkbox_values = array();
+        foreach($data_dictionary as $field_name => $data)
+        {
+            if ($data["field_type"] = "checkbox")
+            {
+                $choices = explode("|", $data["select_choices_or_calculations"]);
+                foreach($choices as $choice)
+                {
+                    $choice = trim($choice);
+                    $code = trim(substr($choice, 0, strpos($choice, ",")));
+                    $checkbox_values[] = "{$field_name}___{$code}";
+                }
+            }
+        }
+
+        return in_array($var, $external_fields) || in_array($var, $fields)  || in_array($var, $checkbox_values);
     }
 
     /**
@@ -379,14 +394,26 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
             $Proj = new Project($pid);
             $events = array_values($Proj->getUniqueEventNames());
             $isLongitudinal = $Proj->longitudinal;
+
             /**
-             * We can pipe over any data except descriptive fields. 
+             * We can pipe over any data except descriptive, file, and signature fields. 
              * 
              * NOTE: For calculation fields only the raw data can be imported/exported.
              */
             foreach($metadata as $field_name => $data)
             {
-                if ($data["field_type"] != "descriptive" && $data["field_type"] != "calc")
+                if ($data["field_type"] = "checkbox")
+                {
+                    $choices = explode("|", $data["select_choices_or_calculations"]);
+                    foreach($choices as $choice)
+                    {
+                        $choice = trim($choice);
+                        $code = trim(substr($choice, 0, strpos($choice, ",")));
+                        $fields[] = "{$field_name}___{$code}";
+                    }
+
+                }
+                if ($data["field_type"] != "descriptive" && $data["field_type"] != "signature" && $data["field_type"] != "file")
                 {
                     $fields[] = $field_name;
                 }
@@ -484,14 +511,18 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                         {
                             $dest_event = $trigger_dest_events[$i];
                         }
-                        else
+                        else // Assume classic project
                         {
-                            $dest_event = "event_1_arm_1"; // Assume classic project and use event_1_arm_1
+                            $dest_event = "classic";
                         }
                         
-                        if (empty($dest_record_data[$dest_event])) // Create entry for event if it doesn't already exist.
+                        if ($dest_event != "classic" && empty($dest_record_data[$dest_event]))
                         {
                             $event_data = ["redcap_event_name" => $dest_event];
+                        }
+                        else if ($dest_event == "classic" && empty($dest_record_data[$dest_event]))
+                        {
+                            $event_data = [];
                         }
                         else
                         {
@@ -516,14 +547,18 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                         {
                             $dest_event = $trigger_dest_events[$i];
                         }
-                        else
+                        else // Assume classic project
                         {
-                            $dest_event = "event_1_arm_1";
+                            $dest_event = "classic";
                         }
 
-                        if (empty($dest_record_data[$dest_event]))
+                        if ($dest_event != "classic" && empty($dest_record_data[$dest_event]))
                         {
                             $event_data = ["redcap_event_name" => $dest_event];
+                        }
+                        else if ($dest_event == "classic" && empty($dest_record_data[$dest_event]))
+                        {
+                            $event_data = [];
                         }
                         else
                         {
@@ -545,29 +580,34 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                         if (!empty($trigger_source_instruments_events[$i]))
                         {
                             $event = $trigger_source_instruments_events[$i];
+                            $dest_evet = $event;
                         }
-                        else
+                        else // Assume classic project. Data will move into the first event of the destination project.
                         {
-                            $event = "event_1_arm_1";
+                            $event = "classic";
+                            $Proj = new Project($dest_project);
+                            $dest_events = $Proj->getUniqueEventNames();
+                            $first_event_id = min(array_keys($dest_events));
+                            $dest_event = $dest_events[$first_event_id];
                         }
 
-                        if (empty($dest_record_data[$event]))
+                        if (empty($dest_record_data[$dest_event]))
                         {
-                            $event_data = ["redcap_event_name" => $event];
+                            $event_data = ["redcap_event_name" => $dest_event];
                         }
                         else
                         {
-                            $event_data = $dest_record_data[$event];
+                            $event_data = $dest_record_data[$dest_event];
                         }
 
                         // Fields are returned in the order they are in the REDCap project
                         $source_instrument_fields = REDCap::getFieldNames($source_instrument);
-                        $source_instrument_data = json_decode(REDCap::getData("json", $record, $source_instrument_fields, $event), true);
+                        $source_instrument_data = json_decode(REDCap::getData("json", $record, $source_instrument_fields, $event == "classic" ? null : $event), true);
 
                         if (sizeof($source_instrument_data) > 0)
                         {
                             $event_data = $event_data + $source_instrument_data[0];
-                            $dest_record_data[$event] = $event_data;
+                            $dest_record_data[$dest_event] = $event_data;
                         }
                     }
                 }
