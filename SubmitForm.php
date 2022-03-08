@@ -131,7 +131,7 @@ if (!empty($trigger_errors))
     $errors["trigger_errors"] = $trigger_errors;
 }
 
-if (!empty($settings["surveyUrlEvent"]) && !$data_entry_trigger_builder->isValidEvent($settings["surveyUrlEvent"]))
+if (!empty($settings["surveyUrlEvent"]) && !$data_entry_trigger_builder->isValidEvent($settings["surveyUrlEvent"], $dest_project_pid))
 {
     $errors["surveyUrlEvent"] = "Invalid event!";
 }
@@ -141,7 +141,7 @@ if (!$data_entry_trigger_builder->isValidInstrument($settings["surveyUrl"], $des
     $errors["surveyUrl"] = "Invalid instrument!";
 }
 
-if (!empty($settings["saveUrlEvent"]) && !$data_entry_trigger_builder->isValidEvent($settings["saveUrlEvent"], $dest_project_pid)) 
+if (!empty($settings["saveUrlEvent"]) && !$data_entry_trigger_builder->isValidEvent($settings["saveUrlEvent"])) 
 {
     $errors["saveUrlEvent"] = "Invalid event!";
 }

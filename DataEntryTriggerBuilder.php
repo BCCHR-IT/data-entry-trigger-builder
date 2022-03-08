@@ -390,7 +390,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
         if (!empty($pid))
         {
             $metadata = REDCap::getDataDictionary($pid, "array");
-            $instruments = array_unique(array_column($metadata, "form_name"));
+            $instruments = array_values(array_unique(array_column($metadata, "form_name")));
             $Proj = new Project($pid);
             $events = array_values($Proj->getUniqueEventNames());
             $isLongitudinal = $Proj->longitudinal;
