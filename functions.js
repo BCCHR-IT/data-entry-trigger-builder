@@ -264,19 +264,14 @@ function updateAutocompleteItems(data)
         $(".dest-events-autocomplete").autocomplete({source: destEvents});
         $(".dest-events-autocomplete").prop("required", true);
         $(".dest-event-wrapper").show();
-
-        $("#surveyUrl").autocomplete({source: destInstruments});
-        $("#surveyUrl").prop("required", true);
     }
     else {
         $(".dest-events-autocomplete").val("");
         $(".dest-events-autocomplete").prop("required", false);
         $(".dest-event-wrapper").hide();
-
-        $("#surveyUrl").val("");
-        $("#surveyUrl").prop("required", false);
     }
     $(".dest-fields-autocomplete").autocomplete({source: destFields});
+    $("#surveyUrl").autocomplete({source: destInstruments});
 }
 
 function addError(id, error)
