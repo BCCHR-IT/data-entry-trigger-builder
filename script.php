@@ -92,7 +92,6 @@
                 success: function (data) {
                     updateAutocompleteItems(data);
                     $(".dest-fields-autocomplete").autocomplete({source: destFields});
-                    $("#surveyUrl").val("");
                 },
                 error: function (data, status, error) {
                     console.log("Returned with status " + status + " - " + error);

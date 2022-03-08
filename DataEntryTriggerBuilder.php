@@ -724,7 +724,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                     
                     if (is_null($survey_url))
                     {
-                        REDCap::logEvent("DET: Errors", "Survey url couldn't be generated. Please check your parameters for REDCap::getSurveyLink()\nProject = $dest_project\nRecord = $dest_record\nInstrument = $survey_url_instrument\nEvent = " . (empty($survey_url_event) ? null : $survey_url_event), null, $record, $event_id, $project_id);
+                        REDCap::logEvent("DET: Errors", "Survey url couldn't be generated. Please check your parameters for REDCap::getSurveyLink()\n\nProject = $dest_project\nRecord = $dest_record\nInstrument = $survey_url_instrument\nEvent = " . (empty($survey_url_event) ? null : $survey_url_event), null, $record, $event_id, $project_id);
                     }
                     else
                     {
