@@ -5,6 +5,7 @@ $data_entry_trigger_builder = new BCCHR\DataEntryTriggerBuilder\DataEntryTrigger
 $settings = $_POST;
 
 $dest_project_pid = $settings["dest-project"];
+
 if (!empty($settings["linkSourceEvent"]) && !$data_entry_trigger_builder->isValidEvent($settings["linkSourceEvent"]))
 {
     $errors["linkSourceEvent"] = "Invalid event!";
@@ -128,6 +129,26 @@ foreach($settings["sourceInstr"] as $index => $fields)
 if (!empty($trigger_errors))
 {
     $errors["trigger_errors"] = $trigger_errors;
+}
+
+if (!empty($settings["surveyUrlEvent"]) && !$data_entry_trigger_builder->isValidEvent($settings["surveyUrlEvent"]))
+{
+    $errors["surveyUrlEvent"] = "Invalid event!";
+}
+
+if (!$data_entry_trigger_builder->isValidInstrument($settings["surveyUrl"], $dest_project_pid))
+{
+    $errors["surveyUrl"] = "Invalid instrument!";
+}
+
+if (!empty($settings["saveUrlEvent"]) && !$data_entry_trigger_builder->isValidEvent($settings["saveUrlEvent"], $dest_project_pid)) 
+{
+    $errors["saveUrlEvent"] = "Invalid event!";
+}
+
+if (!$data_entry_trigger_builder->isValidField($settings["saveUrlField"], $dest_project_pid)) 
+{
+    $errors["saveUrlField"] = "Invalid field!";
 }
 
 if (!empty($errors))

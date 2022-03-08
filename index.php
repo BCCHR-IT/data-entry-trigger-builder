@@ -372,6 +372,37 @@ $Proj = new Project();
                     </div>
                     <?php endforeach; endif;?>
                     <hr>
+                    <h5>Generate Survey URLs</h5>
+                    <p>If specified, the destination project will generate a survey url for the participant to redirect to.</p>
+                    <div class="row">
+                        <div class="form-check col-6">
+                            <label>Specify the destination instrument the module will generate a survey url from.</label>
+                            <div class="row">
+                                <?php if (REDCap::isLongitudinal()): ?>
+                                <div class='col-sm-6 ui-front'>
+                                    <input class='source-events-autocomplete form-control' id="surveyUrlEvent" name="surveyUrlEvent" value="<?php print htmlspecialchars($settings["surveyUrlEvent"], ENT_QUOTES); ?>" placeholder="Type to search for event">
+                                </div>
+                                <?php endif;?>
+                                <div class='col-sm-6 ui-front'>
+                                    <input class='source-instr-autocomplete form-control' id="surveyUrl" name="surveyUrl" value="<?php print htmlspecialchars($settings["surveyUrl"], ENT_QUOTES); ?>" placeholder="Type to search for instrument">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-check col-6">
+                            <label>Specify the source field the survey url will be saved to, so the user can be redirected.</label>
+                            <div class="row">
+                                <?php if (REDCap::isLongitudinal()): ?>
+                                <div class='col-sm-6'>
+                                    <input id='saveUrlEvent' class="source-events-autocomplete form-control" name='saveUrlEvent' value="<?php print htmlspecialchars($settings["saveUrlEvent"], ENT_QUOTES); ?>" placeholder="Type to search for event" value="" required>
+                                </div>
+                                <?php endif;?>
+                                <div class='col-sm-6'>
+                                    <input id='saveUrlField' class="source-fields-autocomplete form-control" name='saveUrlField' value="<?php print htmlspecialchars($settings["saveUrlField"], ENT_QUOTES); ?>" placeholder="Type to search for field" value="" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
                     <h5>Confirm the following</h5>
                     <div class="row">
                         <div class="form-check col-6">

@@ -139,7 +139,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
         $checkbox_values = array();
         foreach($data_dictionary as $field_name => $data)
         {
-            if ($data["field_type"] = "checkbox")
+            if ($data["field_type"] == "checkbox")
             {
                 $choices = explode("|", $data["select_choices_or_calculations"]);
                 foreach($choices as $choice)
@@ -707,6 +707,42 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                 if (!empty($save_response["ids"]))
                 {
                     REDCap::logEvent("DET: Modified/Saved the following records", json_encode($save_response["ids"]), null, null, null, $dest_project);
+                }
+
+                /**
+                 * If data was saved without errors then generate survey link and save it to the source project 
+                 **/
+
+                if (empty($save_response["errors"]))
+                {
+                    $survey_url_event = $settings["surveyUrlEvent"];
+                    $survey_url_instrument = $settings["surveyUrl"];
+                    $save_url_event = $settings["saveUrlEvent"];
+                    $save_url_field = $settings["saveUrlField"];
+
+                    $survey_url = REDCap::getSurveyLink($dest_record, $survey_url_instrument, empty($survey_url_event) ? null : $survey_url_event, 1, $dest_project);
+                    
+                    if (is_null($survey_url))
+                    {
+                        REDCap::logEvent("DET: Errors", "Survey url couldn't be generate. Please check your parameters for REDCap::getSurveyLink()", null, $record, $event_id, $project_id);
+                    }
+                    else
+                    {
+                        $record_id_field = REDCap::getRecordIdField();
+
+                        $save_url_data = [
+                            $record_id_field => $record,
+                            $save_url_field => $survey_url,
+                            "redcap_event_name" => empty($save_url_event) ? "" : $save_url_event
+                        ];
+
+                        $save_response = REDCap::saveData($project_id, "json", json_encode(array($save_url_data)));
+
+                        if (!empty($save_response["errors"]))
+                        {
+                            REDCap::logEvent("DET: Errors", "Unable to save survey url to $save_url_field. Received the following errors: " . json_encode($save_response["errors"]), null, $record, $event_id, $project_id);
+                        }
+                    }
                 }
             }
         }

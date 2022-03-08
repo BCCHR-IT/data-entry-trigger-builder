@@ -218,6 +218,26 @@
                             $(triggers[index]).after("<p class='error-msg'><i>" + msg + "</i></p>")
                         }
                     }
+
+                    if (errors.surveyUrlEvent) 
+                    {
+                        addError('surveyUrlEvent', errors.surveyUrlEvent);
+                    }
+
+                    if (errors.surveyUrl)
+                    {
+                        addError('surveyUrl', errors.surveyUrl);
+                    }
+
+                    if (errors.saveUrlEvent) 
+                    {
+                        addError('saveUrlEvent', errors.saveUrlEvent);
+                    }
+
+                    if (errors.saveUrlField)
+                    {
+                        addError('saveUrlField', errors.saveUrlField);
+                    }
                 }
                 else
                 {
