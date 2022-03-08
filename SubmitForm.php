@@ -146,7 +146,7 @@ if (!empty($settings["saveUrlEvent"]) && !$data_entry_trigger_builder->isValidEv
     $errors["saveUrlEvent"] = "Invalid event!";
 }
 
-if (!$data_entry_trigger_builder->isValidField($settings["saveUrlField"], $dest_project_pid)) 
+if (!$data_entry_trigger_builder->isValidField($settings["saveUrlField"])) 
 {
     $errors["saveUrlField"] = "Invalid field!";
 }

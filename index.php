@@ -393,11 +393,11 @@ $Proj = new Project();
                             <div class="row">
                                 <?php if (REDCap::isLongitudinal()): ?>
                                 <div class='col-sm-6'>
-                                    <input id='saveUrlEvent' class="source-events-autocomplete form-control" name='saveUrlEvent' value="<?php print htmlspecialchars($settings["saveUrlEvent"], ENT_QUOTES); ?>" placeholder="Type to search for event" value="" required>
+                                    <input id='saveUrlEvent' class="source-events-autocomplete form-control" name='saveUrlEvent' value="<?php print htmlspecialchars($settings["saveUrlEvent"], ENT_QUOTES); ?>" placeholder="Type to search for event">
                                 </div>
                                 <?php endif;?>
                                 <div class='col-sm-6'>
-                                    <input id='saveUrlField' class="source-fields-autocomplete form-control" name='saveUrlField' value="<?php print htmlspecialchars($settings["saveUrlField"], ENT_QUOTES); ?>" placeholder="Type to search for field" value="" required>
+                                    <input id='saveUrlField' class="source-fields-autocomplete form-control" name='saveUrlField' value="<?php print htmlspecialchars($settings["saveUrlField"], ENT_QUOTES); ?>" placeholder="Type to search for field">
                                 </div>
                             </div>
                         </div>
