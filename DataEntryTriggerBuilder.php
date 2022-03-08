@@ -383,7 +383,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
      * Retrieves a project's fields
      * 
      * @param String $pid   A project's id in REDCap.
-     * @return String       A JSON encoded string that contains all the instruments and fields for a project. 
+     * @return String       A JSON encoded string that contains all the event, instruments, and fields for a project. 
      */
     public function retrieveProjectMetadata($pid)
     {
@@ -427,7 +427,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                 $fields[] = $instrument . "_complete";
             }
 
-            return ["fields" => $fields, "events" => $events, "isLongitudinal" => $isLongitudinal];
+            return ["fields" => $fields, "events" => $events, "isLongitudinal" => $isLongitudinal, "instruments" => $instruments];
         }
         return FALSE;
     }
@@ -724,7 +724,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                     
                     if (is_null($survey_url))
                     {
-                        REDCap::logEvent("DET: Errors", "Survey url couldn't be generate. Please check your parameters for REDCap::getSurveyLink()", null, $record, $event_id, $project_id);
+                        REDCap::logEvent("DET: Errors", "Survey url couldn't be generated. Please check your parameters for REDCap::getSurveyLink()\nProject = $dest_project\nRecord = $dest_record\nInstrument = $survey_url_instrument\nEvent = " . (empty($survey_url_event) ? null : $survey_url_event), null, $record, $event_id, $project_id);
                     }
                     else
                     {

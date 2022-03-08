@@ -378,13 +378,11 @@ $Proj = new Project();
                         <div class="form-check col-6">
                             <label>Specify the destination instrument the module will generate a survey url from.</label>
                             <div class="row">
-                                <?php if (REDCap::isLongitudinal()): ?>
-                                <div class='col-sm-6 ui-front'>
-                                    <input class='source-events-autocomplete form-control' id="surveyUrlEvent" name="surveyUrlEvent" value="<?php print htmlspecialchars($settings["surveyUrlEvent"], ENT_QUOTES); ?>" placeholder="Type to search for event">
+                                <div class='col-sm-6 ui-front dest-event-wrapper' <?php if(empty($settings["surveyUrlEvent"])) {print "style='display:none'";} ?>>
+                                    <input class='dest-events-autocomplete form-control' id="surveyUrlEvent" name="surveyUrlEvent" value="<?php print htmlspecialchars($settings["surveyUrlEvent"], ENT_QUOTES); ?>" placeholder="Type to search for event">
                                 </div>
-                                <?php endif;?>
                                 <div class='col-sm-6 ui-front'>
-                                    <input class='source-instr-autocomplete form-control' id="surveyUrl" name="surveyUrl" value="<?php print htmlspecialchars($settings["surveyUrl"], ENT_QUOTES); ?>" placeholder="Type to search for instrument">
+                                    <input class='form-control' id="surveyUrl" name="surveyUrl" value="<?php print htmlspecialchars($settings["surveyUrl"], ENT_QUOTES); ?>" placeholder="Type to search for instrument">
                                 </div>
                             </div>
                         </div>

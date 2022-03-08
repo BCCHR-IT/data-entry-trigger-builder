@@ -256,17 +256,25 @@ function updateAutocompleteItems(data)
     var metadata = JSON.parse(data);
     destFields = metadata.fields;
     destEvents = metadata.events;
+    destInstruments = metadata.instruments;
+
     var isLongitudinal = metadata.isLongitudinal;
 
     if (isLongitudinal) {
         $(".dest-events-autocomplete").autocomplete({source: destEvents});
         $(".dest-events-autocomplete").prop("required", true);
         $(".dest-event-wrapper").show();
+
+        $("#surveyUrl").autocomplete({source: destInstruments});
+        $("#surveyUrl").prop("required", true);
     }
     else {
         $(".dest-events-autocomplete").val("");
         $(".dest-events-autocomplete").prop("required", false);
         $(".dest-event-wrapper").hide();
+
+        $("#surveyUrl").val("");
+        $("#surveyUrl").prop("required", false);
     }
     $(".dest-fields-autocomplete").autocomplete({source: destFields});
 }
