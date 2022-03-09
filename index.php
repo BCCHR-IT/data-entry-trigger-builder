@@ -373,7 +373,7 @@ $Proj = new Project();
                     <?php endforeach; endif;?>
                     <hr>
                     <h5>Generate Survey URLs</h5>
-                    <p>If specified, the destination project will generate a survey url for the participant to redirect to.</p>
+                    <p>If specified, the destination project will generate a survey url for the participant to redirect to. If at least one trigger is met, a survey url will generate.</p>
                     <div class="row">
                         <div class="form-check col-6">
                             <label>Specify the destination instrument the module will generate a survey url from.</label>
