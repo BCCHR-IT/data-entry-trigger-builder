@@ -720,11 +720,25 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                     $save_url_event = $settings["saveUrlEvent"];
                     $save_url_field = $settings["saveUrlField"];
 
-                    $survey_url = REDCap::getSurveyLink($dest_record, $survey_url_instrument, empty($survey_url_event) ? null : $survey_url_event, 1, $dest_project);
+                    if (!empty($survey_url_event))
+                    {
+                        if (!isset($Proj))
+                        {
+                            $Proj = new Project($dest_project);
+                            $dest_events = $Proj->getUniqueEventNames();
+                        }
+                        $survey_event_id = array_search($survey_url_event, $dest_events);
+                    }
+                    else
+                    {
+                        $survey_event_id = null;
+                    }
+
+                    $survey_url = REDCap::getSurveyLink($dest_record, $survey_url_instrument, $survey_event_id, 1, $dest_project);
                     
                     if (is_null($survey_url))
                     {
-                        REDCap::logEvent("DET: Errors", "Survey url couldn't be generated. Please check your parameters for REDCap::getSurveyLink()\n\nProject = $dest_project\nRecord = $dest_record\nInstrument = $survey_url_instrument\nEvent = " . (empty($survey_url_event) ? null : $survey_url_event), null, $record, $event_id, $project_id);
+                        REDCap::logEvent("DET: Errors", "Survey url couldn't be generated. Please check your parameters for REDCap::getSurveyLink()\n\nProject = $dest_project\nRecord = $dest_record\nInstrument = $survey_url_instrument\nEvent ID = " . (is_null($survey_event_id) ? "null" : $survey_event_id), null, $record, $event_id, $project_id);
                     }
                     else
                     {
