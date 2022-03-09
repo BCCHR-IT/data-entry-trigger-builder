@@ -270,6 +270,7 @@ function updateAutocompleteItems(data)
         $(".dest-events-autocomplete").prop("required", false);
         $(".dest-event-wrapper").hide();
     }
+    $("#surveyUrlEvent").prop("required", false); // This field should always be optional
     $(".dest-fields-autocomplete").autocomplete({source: destFields});
     $("#surveyUrl").autocomplete({source: destInstruments});
 }
