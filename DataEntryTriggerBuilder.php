@@ -139,7 +139,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
         $checkbox_values = array();
         foreach($data_dictionary as $field_name => $data)
         {
-            if ($data["field_type"] = "checkbox")
+            if ($data["field_type"] == "checkbox")
             {
                 $choices = explode("|", $data["select_choices_or_calculations"]);
                 foreach($choices as $choice)
