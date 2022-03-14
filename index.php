@@ -190,7 +190,7 @@ $Proj = new Project();
                                     <input type="checkbox" name="prefixOrPostfix" class="form-check-input" value="pre"><label class="form-check-label">Prefix</label>
                                     <br>
                                     <input type="checkbox" name="prefixOrPostfix" class="form-check-input" value="post"><label class="form-check-label">Postfix</label>
-                                    <?php else if ($settings["prefixOrPostfix"] == "pre"): ?>
+                                    <?php elseif ($settings["prefixOrPostfix"] == "pre"): ?>
                                     <input type="checkbox" name="prefixOrPostfix" class="form-check-input" value="pre"><label class="form-check-label" checked>Prefix</label>
                                     <br>
                                     <input type="checkbox" name="prefixOrPostfix" class="form-check-input" value="post"><label class="form-check-label">Postfix</label>
