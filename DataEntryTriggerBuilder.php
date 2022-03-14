@@ -635,6 +635,14 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                     $data = $record_data[$key];
                     $link_dest_value = $data[$link_source];
 
+                    if (!empty($settings["prefixPostfixStr"]))
+                    {
+                        if ($settings["prefixOrPostfix"] === "post")
+                            $link_dest_value .= $settings["prefixPostfixStr"];
+                        else
+                            $link_dest_value = $link_dest_value . $settings["prefixPostfixStr"];
+                    }
+
                     // Set linking id
                     if (!empty($link_dest_event))	
                     {	
@@ -645,7 +653,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                         $dest_record_data["event_1_arm_1"][$link_dest_field] = $link_dest_value;	
                     }
 
-                    // Retrieve record id. Exit is there is no value for the linking field, as it should be filled and never change.
+                    // Retrieve record id. Exit if there is no value for the linking field, as it should be filled and never change.
                     if (empty($link_dest_value))
                     {
                         REDCap::logEvent("DET: Linking field value is empty, so no data moved", "Filter logic: [$link_dest_field] = ''", null, $record, $event_id, $project_id);
@@ -670,6 +678,13 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                 else
                 {
                     $dest_record = $record_data[0][$link_source];
+                    if (!empty($settings["prefixPostfixStr"]))
+                    {
+                        if ($settings["prefixOrPostfix"] === "post")
+                            $dest_record .= $settings["prefixPostfixStr"];
+                        else
+                            $dest_record = $dest_record . $settings["prefixPostfixStr"];
+                    }
                 }
                 
                 // Set record_id, and redcap_data_access_group if $import_dags is true
