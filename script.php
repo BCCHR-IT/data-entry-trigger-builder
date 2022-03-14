@@ -283,4 +283,14 @@
     $('#add-field-btn, #add-instr-btn').click(function () {
         updateTable(this);
     })
+
+    /**
+     * Code to make sure only one option of the prefix/postfic choice is selected
+     **/
+     $('input[name="prefixOrPostfix"]').click(function () {
+        if ($(this).val() == "pre")
+            $('input[name="prefixOrPostfix"][value="post"]').attr('checked', false);
+        else 
+            $('input[name="prefixOrPostfix"][value="pre"]').attr('checked', false);
+     })
 </script>

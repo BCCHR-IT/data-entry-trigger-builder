@@ -167,7 +167,7 @@ $Proj = new Project();
                                 </div> 
                             </div>
                         </div>
-                        <div class='col-sm-12'>
+                        <div class='col-sm-12' style="margin-bottom:20px">
                             <div class='class-sm-12' id="link-source-text"><label>To linked project field</label></div>
                             <div class='row'>
                                 <div class='col-sm-6 dest-event-wrapper' <?php if(empty($settings["linkDestEvent"])) {print "style='display:none'";} ?>>
@@ -175,6 +175,30 @@ $Proj = new Project();
                                 </div>
                                 <div id="link-source-wrapper" class='col-sm-6'>
                                     <input id='linkDest' class='dest-fields-autocomplete form-control' name='linkDest' placeholder="Type to search for field" value="<?php print htmlspecialchars($settings["linkDest"], ENT_QUOTES); ?>" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='col-sm-12'>
+                            <h6>Adding Pre/Postfixes to Record IDs (Optional)</h6>
+                            <div class='class-sm-12'><label>Add a static prefix or a postfix to source linking field when moving data. Enter what you'd like to append, and select whether its a prefix or postfix.</label></div>
+                            <div class='row'>
+                                <div class='col-sm-6'>
+                                    <input id='prefixPostfixStr' class='form-control' name='prefixPostfixStr' placeholder="Enter your prefix/postfix" value="<?php print htmlspecialchars($settings["prefixPostfixStr"], ENT_QUOTES); ?>">
+                                </div>
+                                <div class='col-sm-6'>
+                                    <?php if (empty($settings["prefixOrPostfix"])): ?>
+                                    <input type="checkbox" name="prefixOrPostfix" class="form-check-input" value="pre"><label class="form-check-label">Prefix</label>
+                                    <br>
+                                    <input type="checkbox" name="prefixOrPostfix" class="form-check-input" value="post"><label class="form-check-label">Postfix</label>
+                                    <?php else if ($settings["prefixOrPostfix"] == "pre"): ?>
+                                    <input type="checkbox" name="prefixOrPostfix" class="form-check-input" value="pre"><label class="form-check-label" checked>Prefix</label>
+                                    <br>
+                                    <input type="checkbox" name="prefixOrPostfix" class="form-check-input" value="post"><label class="form-check-label">Postfix</label>
+                                    <?php else: ?>
+                                    <input type="checkbox" name="prefixOrPostfix" class="form-check-input" value="pre"><label class="form-check-label">Prefix</label>
+                                    <br>
+                                    <input type="checkbox" name="prefixOrPostfix" class="form-check-input" value="post"><label class="form-check-label" checked>Postfix</label>
+                                    <?php endif;?>
                                 </div>
                             </div>
                         </div>
