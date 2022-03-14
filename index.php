@@ -97,8 +97,7 @@ $Proj = new Project();
             <hr/>
             <h5>Import/Export Your DET Settings</h5>
             <p>
-                If you've created a JSON string containing your DET settings, you may import them into the module, or you may export your current DET settings (If they exist).
-                 When importing settings for projects on a different REDCap instance that have the same structure, change the destination project id before import. 
+                If you've created a JSON string containing your DET settings, you may import them into the module, or you may export your current DET settings (If they exist). When importing settings for projects on a different REDCap instance that have the same structure, change the destination project id before import. 
             </p>
             <p><b>IMPORTANT: Once you've imported your DET settings, you must still save them by clicking "Save DET" at the bottom of the page.</b></p>
             <button type="button" data-toggle="modal" data-target="#upload-json-modal" class="btn btn-primary btn-sm">Import DET Settings</button>
@@ -179,8 +178,8 @@ $Proj = new Project();
                             </div>
                         </div>
                         <div class='col-sm-12'>
-                            <h6>Adding Pre/Postfixes to Record IDs (Optional)</h6>
-                            <div class='class-sm-12'><label>Add a static prefix or a postfix to source linking field when moving data. Enter what you'd like to append, and select whether its a prefix or postfix. If no option is selected, then a prefix is used.</label></div>
+                            <h6>Add Pre/Postfix to Linked Field (Optional)</h6>
+                            <div class='class-sm-12'><label>Add a static prefix or a postfix to the linked source field when moving data. Enter what you'd like to append, and select whether its a prefix or postfix. If no option is selected, then a prefix is used.</label></div>
                             <div class='row'>
                                 <div class='col-sm-6'>
                                     <input id='prefixPostfixStr' class='form-control' name='prefixPostfixStr' placeholder="Enter your prefix/postfix" value="<?php print htmlspecialchars($settings["prefixPostfixStr"], ENT_QUOTES); ?>">
