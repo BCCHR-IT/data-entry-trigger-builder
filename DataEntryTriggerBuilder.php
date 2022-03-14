@@ -637,10 +637,10 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
 
                     if (!empty($settings["prefixPostfixStr"]))
                     {
-                        if ($settings["prefixOrPostfix"] === "post")
+                        if ($settings["prefixOrPostfix"] == "post")
                             $link_dest_value .= $settings["prefixPostfixStr"];
                         else
-                            $link_dest_value = $link_dest_value . $settings["prefixPostfixStr"];
+                            $link_dest_value = $settings["prefixPostfixStr"] . $link_dest_value;
                     }
 
                     // Set linking id
@@ -680,10 +680,10 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                     $dest_record = $record_data[0][$link_source];
                     if (!empty($settings["prefixPostfixStr"]))
                     {
-                        if ($settings["prefixOrPostfix"] === "post")
+                        if ($settings["prefixOrPostfix"] == "post")
                             $dest_record .= $settings["prefixPostfixStr"];
                         else
-                            $dest_record = $dest_record . $settings["prefixPostfixStr"];
+                            $dest_record = $settings["prefixPostfixStr"] . $dest_record;
                     }
                 }
                 
