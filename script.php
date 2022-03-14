@@ -289,8 +289,8 @@
      **/
      $('input[name="prefixOrPostfix"]').click(function () {
         if ($(this).val() == "pre")
-            $('input[name="prefixOrPostfix"][value="post"]').attr('checked', false);
+            $('input[name="prefixOrPostfix"][value="post"]').prop('checked', false);
         else 
-            $('input[name="prefixOrPostfix"][value="pre"]').attr('checked', false);
+            $('input[name="prefixOrPostfix"][value="pre"]').prop('checked', false);
      })
 </script>
