@@ -579,21 +579,30 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                     {
                         if (!empty($trigger_source_instruments_events[$i]))
                         {
-                            $event = $trigger_source_instruments_events[$i];
-                            $dest_evet = $event;
+                            $dest_evet = $trigger_source_instruments_events[$i];
                         }
-                        else // Assume classic project. Data will move into the first event of the destination project.
+                        else // Assume source is classic project. Data will move into the first event of the destination project.
                         {
-                            $event = "classic";
                             $Proj = new Project($dest_project);
                             $dest_events = $Proj->getUniqueEventNames();
-                            $first_event_id = min(array_keys($dest_events));
-                            $dest_event = $dest_events[$first_event_id];
+                            if (sizeof($dest_events) == 1) // Destination is also a classic project
+                            {
+                                $dest_event = "classic";
+                            }
+                            else
+                            {
+                                $first_event_id = min(array_keys($dest_events));
+                                $dest_event = $dest_events[$first_event_id];
+                            }
                         }
 
-                        if (empty($dest_record_data[$dest_event]))
+                        if ($dest_event != "classic" && empty($dest_record_data[$dest_event]))
                         {
                             $event_data = ["redcap_event_name" => $dest_event];
+                        }
+                        else if ($dest_event == "classic" && empty($dest_record_data[$dest_event]))
+                        {
+                            $event_data = [];
                         }
                         else
                         {
@@ -602,7 +611,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
 
                         // Fields are returned in the order they are in the REDCap project
                         $source_instrument_fields = REDCap::getFieldNames($source_instrument);
-                        $source_instrument_data = json_decode(REDCap::getData("json", $record, $source_instrument_fields, $event == "classic" ? null : $event), true);
+                        $source_instrument_data = json_decode(REDCap::getData("json", $record, $source_instrument_fields, $dest_event == "classic" ? null : $dest_event), true);
 
                         if (sizeof($source_instrument_data) > 0)
                         {
@@ -642,7 +651,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                     }	
                     else	
                     {	
-                        $dest_record_data["event_1_arm_1"][$link_dest_field] = $link_dest_value;	
+                        $dest_record_data["classic"][$link_dest_field] = $link_dest_value;
                     }
 
                     // Retrieve record id. Exit is there is no value for the linking field, as it should be filled and never change.
