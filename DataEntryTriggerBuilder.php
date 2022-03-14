@@ -640,9 +640,9 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                     {	
                         $dest_record_data[$link_dest_event][$link_dest_field] = $link_dest_value;	
                     }	
-                    else	
+                    else // Assume classic project	
                     {	
-                        $dest_record_data["event_1_arm_1"][$link_dest_field] = $link_dest_value;	
+                        $dest_record_data[0][$link_dest_field] = $link_dest_value;	
                     }
 
                     // Retrieve record id. Exit is there is no value for the linking field, as it should be filled and never change.
