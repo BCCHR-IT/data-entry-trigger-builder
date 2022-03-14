@@ -180,7 +180,7 @@ $Proj = new Project();
                         </div>
                         <div class='col-sm-12'>
                             <h6>Adding Pre/Postfixes to Record IDs (Optional)</h6>
-                            <div class='class-sm-12'><label>Add a static prefix or a postfix to source linking field when moving data. Enter what you'd like to append, and select whether its a prefix or postfix.</label></div>
+                            <div class='class-sm-12'><label>Add a static prefix or a postfix to source linking field when moving data. Enter what you'd like to append, and select whether its a prefix or postfix. If no option is selected, then a prefix is used.</label></div>
                             <div class='row'>
                                 <div class='col-sm-6'>
                                     <input id='prefixPostfixStr' class='form-control' name='prefixPostfixStr' placeholder="Enter your prefix/postfix" value="<?php print htmlspecialchars($settings["prefixPostfixStr"], ENT_QUOTES); ?>">
