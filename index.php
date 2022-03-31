@@ -501,10 +501,10 @@ $Proj = new Project();
                                 <div class="col-sm-5"><label>To destination</label></div>
                             </div>
                             <div class='row' style='margin-top:20px'>
-                                <div class='col-sm-6 ui-front dest-event-wrapper'>
+                                <div class='col-sm-6 ui-front dest-event-wrapper' style='z-index: 0'>
                                     <input class='dest-events-autocomplete form-control' id="dest-event-select" placeholder="Type to search for event">
                                 </div>
-                                <div class='col-sm-6 ui-front'>
+                                <div class='col-sm-6 ui-front' style='z-index: 0'>
                                     <input class='dest-fields-autocomplete form-control' id="dest-field-select" placeholder="Type to search for field">
                                 </div>
                             </div>
