@@ -12,6 +12,10 @@
 
 ![Step3](imgs/step3.jpg)
 
+(OPTIONAL) Decide whether you want to append a static prefix, or postfix to the linking value.
+
+![PrefixPostfix](imgs/addPrefixPostfix.png)
+
 4. Add a trigger to move data. Multiple conditions can be chained in one trigger using && (AND), or || (OR). See the table attached to the module,  for allowed qualifiers. 
 
 ![Step4](imgs/step4.jpg)
@@ -30,21 +34,25 @@
 
 ![Step6](imgs/step6.jpg)
 
-7. Determine whether you want blank fields to overwrite data in the destination project.
+7. (OPTIONAL) Determine whether the module will pull the url for a survey into your source project, and where to save it.
+
+![GenerateSurveyUrl](imgs/generateSurveyUrl.png)
+
+8. Determine whether you want blank fields to overwrite data in the destination project.
 
 ![Step7](imgs/step7.jpg)
 
-8. Determine whether you want to import DAGs to the destination project. This will only work if the DAGs are identical between projects. 
+9. Determine whether you want to import DAGs to the destination project. This will only work if the DAGs are identical between projects. 
 
 ![Step8](imgs/step8.jpg)
 
-9. Save your DET. If it passes validation, then it will automatically run every time data is entered via a survey or data entry. Otherwise errors will be returned to you for correction. The DET will not save until your errors are corrected.
+10. Save your DET. If it passes validation, then it will automatically run every time data is entered via a survey or data entry. Otherwise errors will be returned to you for correction. The DET will not save until your errors are corrected.
 
-10. Once your DET is created, refresh the page, then you can export the settings as a JSON string.
+11. Once your DET is created, refresh the page, then you can export the settings as a JSON string.
 
 ![Step9](imgs/step9.JPG)
 
-11. The module logs all DET activity. It will log successes, warnings, and errors. You may check there whenever you want to check on the status of your DET.
+12. The module logs all DET activity. It will log successes, warnings, and errors. You may check there whenever you want to check on the status of your DET.
 
 # Warnings
 
