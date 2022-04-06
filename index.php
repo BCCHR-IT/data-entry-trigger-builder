@@ -75,7 +75,7 @@ $Proj = new Project();
     </head>
     <body>
         <?php if ($Proj->project['status'] > 0 || !empty($settings)): ?> 
-            <div style="position: sticky; top: 0; width: 100%; background-color:#ff9800; padding:5px; text-align:center; z-index:1;">
+            <div style="position: sticky; top: 0; width: 100%; background-color:#ff9800; padding:5px; text-align:center; z-index:200;">
                 <?php if ($Proj->project['status'] > 0): ?><h6><b>This project is currently in production, be careful with your changes!</b></h6><?php endif; ?>
                 <?php if (!empty($settings)): ?><h6><b>WARNING: Any changes made to the REDCap project, after the DET has been created, has the potential to break it. After you’ve updated your project, please make sure to update the DET in accordance with your changes.</b></h6><?php endif; ?>
                 <?php 
@@ -459,6 +459,26 @@ $Proj = new Project();
                                 <input type="radio" name="import-dags" class="form-check-input" value="1" required><label class="form-check-label">Yes</label>
                                 <br>
                                 <input type="radio" name="import-dags" class="form-check-input" value="0" checked required><label class="form-check-label">No</label>
+                                <?php endif; ?>
+                            <?php endif;?>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top:20px">
+                        <div class="form-check col-6">
+                            <div class="row"><label>Create a new record, regardless of whether data is moved. If 'yes' is chosen, then an empty record is created when at least one of the triggers is met.</label></div>
+                            <?php if (empty($settings)): ?>
+                                <input type="radio" name="create-empty-record" class="form-check-input" value="1" required><label class="form-check-label">Yes</label>
+                                <br>
+                                <input type="radio" name="create-empty-record" class="form-check-input" value="0" required><label class="form-check-label">No</label>
+                            <?php else:?>
+                                <?php if ($settings["create-empty-record"] == "1"):?>
+                                <input type="radio" name="create-empty-record" class="form-check-input" value="1" checked required><label class="form-check-label">Yes</label>
+                                <br>
+                                <input type="radio" name="create-empty-record" class="form-check-input" value="0" required><label class="form-check-label">No</label>
+                                <?php else:?>
+                                <input type="radio" name="create-empty-record" class="form-check-input" value="1" required><label class="form-check-label">Yes</label>
+                                <br>
+                                <input type="radio" name="create-empty-record" class="form-check-input" value="0" checked required><label class="form-check-label">No</label>
                                 <?php endif; ?>
                             <?php endif;?>
                         </div>

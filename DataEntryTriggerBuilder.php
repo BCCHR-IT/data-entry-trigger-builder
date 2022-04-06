@@ -485,6 +485,8 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                 }
                 else if ($valid)
                 {
+                    $at_least_one_trigger_valid = $valid;
+
                     $trigger_source_fields = $piping_source_fields[$index];
                     $trigger_source_events = $piping_source_events[$index];
 
@@ -622,7 +624,8 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                 }
             }
 
-            if (!empty($dest_record_data)) {
+            if (!empty($dest_record_data) || ($settings["create-empty-record"] == 1 && $at_least_one_trigger_valid))
+            {
                 // Check if the linking id field is the same as the record id field.
                 $dest_record_id = $this->framework->getRecordIdField($dest_project);
                 if ($dest_record_id != $link_dest_field)
@@ -696,6 +699,14 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                     }
                 }
                 
+                // Create a record to move if empty
+                if ($settings["create-empty-record"] == 1 && empty($dest_record_data))
+                {
+                    $dest_record_data[] = [
+                        $dest_record_id => $dest_record
+                    ];
+                }
+
                 // Set record_id, and redcap_data_access_group if $import_dags is true
                 foreach ($dest_record_data as $i => $data)
                 {
