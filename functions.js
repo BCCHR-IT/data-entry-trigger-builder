@@ -197,7 +197,7 @@ function fillPipingFieldForm(elem)
         $('#event-select').val(row.find(".pipingSourceEvents").val());
     }
 
-    if (row.find(".pipingDestEvents"))
+    if (row.find(".pipingDestEvents") && $('#dest-event-select').is(':visible'))
     {
         $('#dest-event-select').val(row.find(".pipingDestEvents").val());
     }
@@ -215,7 +215,7 @@ function fillFieldForm(elem)
     $('#field-value').val(row.find(".setDestFieldsValues").val());
     $('#dest-field-select').val(row.find(".setDestFields").val());
 
-    if (row.find(".setDestEvents"))
+    if (row.find(".setDestEvents") && $('#dest-event-select').is(':visible'))
     {
         $('#dest-event-select').val(row.find(".setDestEvents").val());
     }
@@ -235,7 +235,7 @@ function fillInstrForm(elem)
         $('#instr-event-select').val(row.find(".sourceInstrEvents").val()); 
     }
 
-    if (row.find(".destInstrEvents"))
+    if (row.find(".destInstrEvents") && $('#dest-event-instrument').is(':visible'))
     {
         $('#dest-event-instrument').val(row.find(".destInstrEvents").val());
     }
