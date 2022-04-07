@@ -64,8 +64,12 @@ function createInstrRow()
     var sourceInstrElem = "<input class='sourceInstr' type='hidden' name='sourceInstr[" + index + "][]' value='" + $('#instr-select').val() + "'/>";
 
     if ($('#dest-event-instrument').val() && $('#dest-event-instrument').val() != '') {
-            var destEvent = '[' + $('#dest-event-instrument').val() + ']';
-            var destEventElem = "<input class='destInstrEvents' type='hidden' name='destInstrEvents[" + index + "][]' value='" + $('#dest-event-instrument').val() + "'/>";
+        var destEvent = '[' + $('#dest-event-instrument').val() + ']';
+        var destEventElem = "<input class='destInstrEvents' type='hidden' name='destInstrEvents[" + index + "][]' value='" + $('#dest-event-instrument').val() + "'/>";
+    }
+    else {
+        var = "<i>Data is moving to a classic project, so there are no events</i>";
+        var destEventElem = "";
     }
 
     var html = "<tr class='trigger-field-row'>" +

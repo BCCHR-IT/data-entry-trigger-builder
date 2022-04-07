@@ -389,7 +389,7 @@ $Proj = new Project();
                                     }
                                     else 
                                     {
-                                        print "<i>The first event of the destination project</i>";
+                                        print "<i>Data is moving to a classic project, so there are no events</i>";
                                     }
                                     print "</td><td><span class='fa fa-pencil-alt' onclick='fillInstrForm(this)'></span></td>";
                                     print "<td><span class='fa fa-trash-alt delete-trigger-field'></span></td>";
@@ -534,7 +534,7 @@ $Proj = new Project();
                         </div>
                         <div class="modal-body">
                             <div class='row'>
-                                <div class="col-sm-12"><label>All fields of the chosen instrument must exist in the destination project. When moving data from a classical to a longitudinal project, the data will import into the first event.</label></div>
+                                <div class="col-sm-12"><label>All fields of the chosen instrument must exist in the destination project.</label></div>
                             </div>
                             <div class="row">
                                 <?php if (REDCap::isLongitudinal()): ?>
