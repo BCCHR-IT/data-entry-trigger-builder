@@ -387,7 +387,10 @@ $Proj = new Project();
                                         print "[" . $destInstrEvent . "]";
                                         print "<input class='destInstrEvents' type='hidden' name='destInstrEvents[$index][]' value='" . $destInstrEvent . "'>";
                                     }
-                                    print "[" . $source . "]";
+                                    else 
+                                    {
+                                        print "<i>The first event of the destination project</i>"
+                                    }
                                     print "</td><td><span class='fa fa-pencil-alt' onclick='fillInstrForm(this)'></span></td>";
                                     print "<td><span class='fa fa-trash-alt delete-trigger-field'></span></td>";
                                     print "</tr>";
