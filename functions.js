@@ -68,7 +68,7 @@ function createInstrRow()
         var destEventElem = "<input class='destInstrEvents' type='hidden' name='destInstrEvents[" + index + "][]' value='" + $('#dest-event-instrument').val() + "'/>";
     }
     else {
-        var = "<i>Data is moving to a classic project, so there are no events</i>";
+        var destEvent = "<i>Data is moving to a classic project, so there are no events</i>";
         var destEventElem = "";
     }
 
