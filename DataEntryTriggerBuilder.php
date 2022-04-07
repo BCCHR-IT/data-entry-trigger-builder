@@ -624,7 +624,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                 }
             }
 
-            if (!empty($dest_record_data) || ($settings["create-empty-record"] == 1 && $at_least_one_trigger_valid))
+            if (!empty(array_filter($dest_record_data)) || ($settings["create-empty-record"] == 1 && $at_least_one_trigger_valid))
             {
                 // Check if the linking id field is the same as the record id field.
                 $dest_record_id = $this->framework->getRecordIdField($dest_project);
@@ -700,7 +700,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                 }
                 
                 // Create a record to move if empty
-                if ($settings["create-empty-record"] == 1 && empty($dest_record_data))
+                if ($settings["create-empty-record"] == 1 && empty(array_filter($dest_record_data)))
                 {
                     $dest_record_data[] = [
                         $dest_record_id => $dest_record
@@ -720,7 +720,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                 $dest_record_data = array_values($dest_record_data); // Don't need the keys to push, only the values.
             }
             
-            if (!empty($dest_record_data))
+            if (!empty(array_filter($dest_record_data)))
             {
                 // Save DET data in destination project;
                 $save_response = REDCap::saveData($dest_project, "json", json_encode($dest_record_data), $overwrite_data);
