@@ -366,11 +366,13 @@ $Proj = new Project();
 
                                 $sourceInstr = $settings["sourceInstr"][$index];
                                 $sourceInstrEvents = $settings["sourceInstrEvents"][$index];
+                                $destInstrEvents = $settings["destInstrEvents"][$index];
 
                                 foreach($sourceInstr as $i => $source)
                                 {
                                     $sourceInstrEvent = htmlspecialchars($sourceInstrEvents[$i], ENT_QUOTES);
                                     $source = htmlspecialchars($source, ENT_QUOTES);
+                                    $destInstrEvent = htmlspecialchars($destInstrEvents[$i], ENT_QUOTES);
 
                                     print "<tr class='trigger-field-row'><td>";
                                     if (!empty($sourceInstrEvent))
@@ -380,9 +382,10 @@ $Proj = new Project();
                                     }
                                     print "[" . $source . "]";
                                     print "<input class='sourceInstr' type='hidden' name='sourceInstr[$index][]' value='" . $source . "'></td><td>";
-                                    if (!empty($sourceInstrEvent))
+                                    if (!empty($destInstrEvent))
                                     {
-                                        print "[" . $sourceInstrEvent . "]";
+                                        print "[" . $destInstrEvent . "]";
+                                        print "<input class='destInstrEvents' type='hidden' name='destInstrEvents[$index][]' value='" . $destInstrEvent . "'>";
                                     }
                                     print "[" . $source . "]";
                                     print "</td><td><span class='fa fa-pencil-alt' onclick='fillInstrForm(this)'></span></td>";
