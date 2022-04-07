@@ -466,6 +466,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
 
             $source_instruments_events = $settings["sourceInstrEvents"];
             $source_instruments = $settings["sourceInstr"];
+            $dest_instruments_events = $settings["destInstrEvents"];
 
             $overwrite_data = $settings["overwrite-data"];
             $import_dags = $settings["import-dags"];
@@ -576,26 +577,17 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                      */
                     $trigger_source_instruments = $source_instruments[$index];
                     $trigger_source_instruments_events = $source_instruments_events[$index];
+                    $trigger_dest_instruments_events = $dest_instruments_events[$index];
 
                     foreach($trigger_source_instruments as $i => $source_instrument)
                     {
-                        if (!empty($trigger_source_instruments_events[$i]))
+                        if (!empty($trigger_dest_instruments_events[$i]))
                         {
-                            $dest_evet = $trigger_source_instruments_events[$i];
+                            $dest_event = $trigger_dest_instruments_events[$i];
                         }
-                        else // Assume source is classic project. Data will move into the first event of the destination project.
+                        else // Assume destination is classic project.
                         {
-                            $Proj = new Project($dest_project);
-                            $dest_events = $Proj->getUniqueEventNames();
-                            if (sizeof($dest_events) == 1) // Destination is also a classic project
-                            {
-                                $dest_event = "classic";
-                            }
-                            else
-                            {
-                                $first_event_id = min(array_keys($dest_events));
-                                $dest_event = $dest_events[$first_event_id];
-                            }
+                            $dest_event = "classic";
                         }
 
                         if ($dest_event != "classic" && empty($dest_record_data[$dest_event]))
@@ -613,7 +605,8 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
 
                         // Fields are returned in the order they are in the REDCap project
                         $source_instrument_fields = REDCap::getFieldNames($source_instrument);
-                        $source_instrument_data = json_decode(REDCap::getData("json", $record, $source_instrument_fields, $dest_event == "classic" ? null : $dest_event), true);
+                        $source_event = !empty($trigger_source_instruments_events[$i]) ? $trigger_source_instruments_events[$i] : null;
+                        $source_instrument_data = json_decode(REDCap::getData("json", $record, $source_instrument_fields, $source_event), true);
 
                         if (sizeof($source_instrument_data) > 0)
                         {

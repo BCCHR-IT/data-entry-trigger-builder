@@ -63,9 +63,18 @@ function createInstrRow()
     var sourceInstr = '[' + $('#instr-select').val() + ']';
     var sourceInstrElem = "<input class='sourceInstr' type='hidden' name='sourceInstr[" + index + "][]' value='" + $('#instr-select').val() + "'/>";
 
+    if ($('#dest-event-instrument').val() && $('#dest-event-instrument').val() != '') {
+        var destEvent = '[' + $('#dest-event-instrument').val() + ']';
+        var destEventElem = "<input class='destInstrEvents' type='hidden' name='destInstrEvents[" + index + "][]' value='" + $('#dest-event-instrument').val() + "'/>";
+    }
+    else {
+        var destEvent = "<i>Data is moving to a classic project, so there are no events</i>";
+        var destEventElem = "";
+    }
+
     var html = "<tr class='trigger-field-row'>" +
                     "<td>" + sourceEvent + sourceInstr + sourceEventElem + sourceInstrElem + "</td>" +
-                    "<td>" + sourceEvent + sourceInstr + "</td>" +
+                    "<td>" + destEvent + destEventElem + "</td>" +
                     "</td><td><span class='fa fa-pencil-alt' onclick='fillInstrForm(this)'></span></td>" +
                     "<td><span class='fa fa-trash-alt delete-trigger-field'></span></td>" + 
                 "</tr>"
@@ -171,6 +180,7 @@ function clearInstrForm()
 {
     $('#instr-event-select').val("");
     $('#instr-select').val("");
+    $('#dest-event-instrument').val("");
 }
 
 function fillPipingFieldForm(elem)
@@ -187,7 +197,7 @@ function fillPipingFieldForm(elem)
         $('#event-select').val(row.find(".pipingSourceEvents").val());
     }
 
-    if (row.find(".pipingDestEvents"))
+    if (row.find(".pipingDestEvents") && $('#dest-event-select').is(':visible'))
     {
         $('#dest-event-select').val(row.find(".pipingDestEvents").val());
     }
@@ -205,7 +215,7 @@ function fillFieldForm(elem)
     $('#field-value').val(row.find(".setDestFieldsValues").val());
     $('#dest-field-select').val(row.find(".setDestFields").val());
 
-    if (row.find(".setDestEvents"))
+    if (row.find(".setDestEvents") && $('#dest-event-select').is(':visible'))
     {
         $('#dest-event-select').val(row.find(".setDestEvents").val());
     }
@@ -223,6 +233,11 @@ function fillInstrForm(elem)
     if (row.find(".sourceInstrEvents"))
     {
         $('#instr-event-select').val(row.find(".sourceInstrEvents").val()); 
+    }
+
+    if (row.find(".destInstrEvents") && $('#dest-event-instrument').is(':visible'))
+    {
+        $('#dest-event-instrument').val(row.find(".destInstrEvents").val());
     }
 
     $('#add-instr-btn').text("Update");
@@ -244,7 +259,9 @@ function validateFieldForm()
 
 function validateInstrumentForm()
 {
-    if (($('#instr-event-select') && $('#instr-event-select').val() == '') || $('#instr-select').val() == '')
+    if (($('#instr-event-select') && $('#instr-event-select').val() == '') || 
+        $('#instr-select').val() == '' ||
+        ($('#dest-event-instrument').is(':visible') && $('#dest-event-instrument').val() == ''))
     {
         return false;
     }
@@ -264,11 +281,13 @@ function updateAutocompleteItems(data)
         $(".dest-events-autocomplete").autocomplete({source: destEvents});
         $(".dest-events-autocomplete").prop("required", true);
         $(".dest-event-wrapper").show();
+        $("#add-instr-label-event-div").show();
     }
     else {
         $(".dest-events-autocomplete").val("");
         $(".dest-events-autocomplete").prop("required", false);
         $(".dest-event-wrapper").hide();
+        $("#add-instr-label-event-div").hide();
     }
     $("#surveyUrlEvent").prop("required", false); // This field should always be optional
     $(".dest-fields-autocomplete").autocomplete({source: destFields});

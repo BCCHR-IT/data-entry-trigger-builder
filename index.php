@@ -366,11 +366,13 @@ $Proj = new Project();
 
                                 $sourceInstr = $settings["sourceInstr"][$index];
                                 $sourceInstrEvents = $settings["sourceInstrEvents"][$index];
+                                $destInstrEvents = $settings["destInstrEvents"][$index];
 
                                 foreach($sourceInstr as $i => $source)
                                 {
                                     $sourceInstrEvent = htmlspecialchars($sourceInstrEvents[$i], ENT_QUOTES);
                                     $source = htmlspecialchars($source, ENT_QUOTES);
+                                    $destInstrEvent = htmlspecialchars($destInstrEvents[$i], ENT_QUOTES);
 
                                     print "<tr class='trigger-field-row'><td>";
                                     if (!empty($sourceInstrEvent))
@@ -380,11 +382,15 @@ $Proj = new Project();
                                     }
                                     print "[" . $source . "]";
                                     print "<input class='sourceInstr' type='hidden' name='sourceInstr[$index][]' value='" . $source . "'></td><td>";
-                                    if (!empty($sourceInstrEvent))
+                                    if (!empty($destInstrEvent))
                                     {
-                                        print "[" . $sourceInstrEvent . "]";
+                                        print "[" . $destInstrEvent . "]";
+                                        print "<input class='destInstrEvents' type='hidden' name='destInstrEvents[$index][]' value='" . $destInstrEvent . "'>";
                                     }
-                                    print "[" . $source . "]";
+                                    else 
+                                    {
+                                        print "<i>Data is moving to a classic project, so there are no events</i>";
+                                    }
                                     print "</td><td><span class='fa fa-pencil-alt' onclick='fillInstrForm(this)'></span></td>";
                                     print "<td><span class='fa fa-trash-alt delete-trigger-field'></span></td>";
                                     print "</tr>";
@@ -548,7 +554,7 @@ $Proj = new Project();
                         </div>
                         <div class="modal-body">
                             <div class='row'>
-                                <div class="col-sm-12"><label>There must be a one-to-one relationship in the linked project. When moving data from a classical to a longitudinal project, the data will import into the first event.</label></div>
+                                <div class="col-sm-12"><label>All fields of the chosen instrument must exist in the destination project.</label></div>
                             </div>
                             <div class="row">
                                 <?php if (REDCap::isLongitudinal()): ?>
@@ -558,6 +564,15 @@ $Proj = new Project();
                                 <?php endif;?>
                                 <div class='col-sm-6 ui-front'>
                                     <input class='source-instr-autocomplete form-control' id="instr-select" placeholder="Type to search for instrument">
+                                </div>
+                            </div>
+                            <br/>
+                            <div class='row' id="add-instr-label-event-div">
+                                <div class="col-sm-12"><label>To event</label></div>
+                            </div>
+                            <div class='row' style='margin-top:20px'>
+                                <div class='col-sm-6 ui-front dest-event-wrapper' style='z-index: 0'>
+                                    <input class='dest-events-autocomplete form-control' id="dest-event-instrument" placeholder="Type to search for event">
                                 </div>
                             </div>
                         </div>

@@ -108,7 +108,7 @@ foreach($settings["sourceInstrEvents"] as $index => $fields)
 {
     foreach($fields as $i => $field)
     {
-        if(!$data_entry_trigger_builder->isValidEvent($field, $dest_project_pid))
+        if(!$data_entry_trigger_builder->isValidEvent($field))
         {
             $errors["sourceInstrEvents"][$index][$i] = "$field is an invalid event!";
         }
@@ -119,9 +119,20 @@ foreach($settings["sourceInstr"] as $index => $fields)
 {
     foreach($fields as $i => $field)
     {
-        if(!$data_entry_trigger_builder->isValidInstrument($field, $dest_project_pid))
+        if(!$data_entry_trigger_builder->isValidInstrument($field))
         {
             $errors["sourceInstr"][$index][$i] = "$field is an invalid instrument!";
+        }
+    }
+}
+
+foreach($settings["destInstrEvents"] as $index => $fields)
+{
+    foreach($fields as $i => $field)
+    {
+        if(!$data_entry_trigger_builder->isValidEvent($field, $dest_project_pid))
+        {
+            $errors["destInstrEvents"][$index][$i] = "$field is an invalid event!";
         }
     }
 }
