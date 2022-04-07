@@ -528,7 +528,7 @@ $Proj = new Project();
                         </div>
                         <div class="modal-body">
                             <div class='row'>
-                                <div class="col-sm-12"><label>There must be a one-to-one relationship in the linked project. When moving data from a classical to a longitudinal project, the data will import into the first event.</label></div>
+                                <div class="col-sm-12"><label>All fields of the chosen instrument must exist in the destination project. When moving data from a classical to a longitudinal project, the data will import into the first event.</label></div>
                             </div>
                             <div class="row">
                                 <?php if (REDCap::isLongitudinal()): ?>
@@ -538,6 +538,15 @@ $Proj = new Project();
                                 <?php endif;?>
                                 <div class='col-sm-6 ui-front'>
                                     <input class='source-instr-autocomplete form-control' id="instr-select" placeholder="Type to search for instrument">
+                                </div>
+                            </div>
+                            <br/>
+                            <div class='row'>
+                                <div class="col-sm-12"><label>To event</label></div>
+                            </div>
+                            <div class='row' style='margin-top:20px'>
+                                <div class='col-sm-6 ui-front dest-event-wrapper' style='z-index: 0'>
+                                    <input class='dest-events-autocomplete form-control' id="dest-event-instrument" placeholder="Type to search for event">
                                 </div>
                             </div>
                         </div>

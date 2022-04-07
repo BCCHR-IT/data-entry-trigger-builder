@@ -63,9 +63,14 @@ function createInstrRow()
     var sourceInstr = '[' + $('#instr-select').val() + ']';
     var sourceInstrElem = "<input class='sourceInstr' type='hidden' name='sourceInstr[" + index + "][]' value='" + $('#instr-select').val() + "'/>";
 
+    if ($('#dest-event-instrument').val() && $('#dest-event-instrument').val() != '') {
+            var destEvent = '[' + $('#dest-event-instrument').val() + ']';
+            var destEventElem = "<input class='destInstrEvents' type='hidden' name='destInstrEvents[" + index + "][]' value='" + $('#dest-event-instrument').val() + "'/>";
+    }
+
     var html = "<tr class='trigger-field-row'>" +
                     "<td>" + sourceEvent + sourceInstr + sourceEventElem + sourceInstrElem + "</td>" +
-                    "<td>" + sourceEvent + sourceInstr + "</td>" +
+                    "<td>" + destEvent + destEventElem + "</td>" +
                     "</td><td><span class='fa fa-pencil-alt' onclick='fillInstrForm(this)'></span></td>" +
                     "<td><span class='fa fa-trash-alt delete-trigger-field'></span></td>" + 
                 "</tr>"
@@ -171,6 +176,7 @@ function clearInstrForm()
 {
     $('#instr-event-select').val("");
     $('#instr-select').val("");
+    $('#dest-event-instrument').val("");
 }
 
 function fillPipingFieldForm(elem)
@@ -225,6 +231,11 @@ function fillInstrForm(elem)
         $('#instr-event-select').val(row.find(".sourceInstrEvents").val()); 
     }
 
+    if (row.find(".destInstrEvents"))
+    {
+        $('#dest-event-instrument').val(row.find(".destInstrEvents").val());
+    }
+
     $('#add-instr-btn').text("Update");
     $('#add-instr-modal').modal('show');
 }
@@ -244,7 +255,9 @@ function validateFieldForm()
 
 function validateInstrumentForm()
 {
-    if (($('#instr-event-select') && $('#instr-event-select').val() == '') || $('#instr-select').val() == '')
+    if (($('#instr-event-select') && $('#instr-event-select').val() == '') || 
+        $('#instr-select').val() == '' ||
+        ($('#dest-event-instrument').is(':visible') && $('#dest-event-instrument').val() == ''))
     {
         return false;
     }
