@@ -281,11 +281,13 @@ function updateAutocompleteItems(data)
         $(".dest-events-autocomplete").autocomplete({source: destEvents});
         $(".dest-events-autocomplete").prop("required", true);
         $(".dest-event-wrapper").show();
+        $("#add-instr-label-event-div").show();
     }
     else {
         $(".dest-events-autocomplete").val("");
         $(".dest-events-autocomplete").prop("required", false);
         $(".dest-event-wrapper").hide();
+        $("#add-instr-label-event-div").hide();
     }
     $("#surveyUrlEvent").prop("required", false); // This field should always be optional
     $(".dest-fields-autocomplete").autocomplete({source: destFields});

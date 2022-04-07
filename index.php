@@ -547,7 +547,7 @@ $Proj = new Project();
                                 </div>
                             </div>
                             <br/>
-                            <div class='row'>
+                            <div class='row' id="add-instr-label-div">
                                 <div class="col-sm-12"><label>To event</label></div>
                             </div>
                             <div class='row' style='margin-top:20px'>
