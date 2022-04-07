@@ -427,7 +427,7 @@ $Proj = new Project();
                     <h5>Confirm the following</h5>
                     <div class="row">
                         <div class="form-check col-6">
-                            <div class="row"><label>Overwrite data in destination project every time data is saved. This determines<br/>whether to push blank data over to the destination project.</label></div>
+                            <div class="row"><label>Overwrite data in destination project every time data is saved? This determines<br/>whether to push blank data over to the destination project.</label></div>
                             <?php if (empty($settings)): ?>
                                 <input type="radio" name="overwrite-data" class="form-check-input" value="overwrite" required><label class="form-check-label">Yes</label>
                                 <br>
@@ -445,7 +445,7 @@ $Proj = new Project();
                             <?php endif;?>
                         </div>
                         <div class="form-check col-6">
-                            <div class="row"><label>Import data access groups (DAGs) every time data is saved. The module can only<br/>import DAGs if they have a one-to-one relationship with the destination project.</label></div>
+                            <div class="row"><label>Import data access groups (DAGs) every time data is saved? The module can only<br/>import DAGs if they have a one-to-one relationship with the destination project.</label></div>
                             <?php if (empty($settings)): ?>
                                 <input type="radio" name="import-dags" class="form-check-input" value="1" required><label class="form-check-label">Yes</label>
                                 <br>
@@ -465,7 +465,7 @@ $Proj = new Project();
                     </div>
                     <div class="row" style="margin-top:20px">
                         <div class="form-check col-6">
-                            <div class="row"><label>Create a new record, regardless of whether data is moved. If 'yes' is chosen, then an empty record is created when at least one of the triggers is met.</label></div>
+                            <div class="row"><label>Create empty records? If 'yes' is chosen, then an empty record is created when at least one of the triggers is met. Use this option when you don't want any data moved with the triggers.</label></div>
                             <?php if (empty($settings)): ?>
                                 <input type="radio" name="create-empty-record" class="form-check-input" value="1" required><label class="form-check-label">Yes</label>
                                 <br>
