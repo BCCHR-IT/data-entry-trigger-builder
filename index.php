@@ -179,25 +179,23 @@ $Proj = new Project();
                         </div>
                         <div class="col-sm-6" style="margin-bottom:20px">
                             <h6>Create Empty Records</h6>
-                            <div class="class-sm-12"><label>If 'yes' is chosen, then an empty record is created when at least one of the triggers is met. Use this option when you don't want any data moved with the triggers.</label></div>
-                            <div class="row">
-                                <div class="form-check col-sm-12">
-                                    <?php if (empty($settings)): ?>
-                                        <input type="radio" name="create-empty-record" class="form-check-input" value="1" required><label class="form-check-label">Yes</label>
-                                        <br>
-                                        <input type="radio" name="create-empty-record" class="form-check-input" value="0" required><label class="form-check-label">No</label>
+                            <div class="class-sm-12"><label>If 'yes' is chosen, then an empty record is created when at least one of the triggers below is met. Use this option when you don't want any data moved with the triggers.</label></div>
+                            <div class="form-check col-sm-12">
+                                <?php if (empty($settings)): ?>
+                                    <input type="radio" name="create-empty-record" class="form-check-input" value="1" required><label class="form-check-label">Yes</label>
+                                    <br>
+                                    <input type="radio" name="create-empty-record" class="form-check-input" value="0" required><label class="form-check-label">No</label>
+                                <?php else:?>
+                                    <?php if ($settings["create-empty-record"] == "1"):?>
+                                    <input type="radio" name="create-empty-record" class="form-check-input" value="1" checked required><label class="form-check-label">Yes</label>
+                                    <br>
+                                    <input type="radio" name="create-empty-record" class="form-check-input" value="0" required><label class="form-check-label">No</label>
                                     <?php else:?>
-                                        <?php if ($settings["create-empty-record"] == "1"):?>
-                                        <input type="radio" name="create-empty-record" class="form-check-input" value="1" checked required><label class="form-check-label">Yes</label>
-                                        <br>
-                                        <input type="radio" name="create-empty-record" class="form-check-input" value="0" required><label class="form-check-label">No</label>
-                                        <?php else:?>
-                                        <input type="radio" name="create-empty-record" class="form-check-input" value="1" required><label class="form-check-label">Yes</label>
-                                        <br>
-                                        <input type="radio" name="create-empty-record" class="form-check-input" value="0" checked required><label class="form-check-label">No</label>
-                                        <?php endif; ?>
-                                    <?php endif;?>
-                                </div>
+                                    <input type="radio" name="create-empty-record" class="form-check-input" value="1" required><label class="form-check-label">Yes</label>
+                                    <br>
+                                    <input type="radio" name="create-empty-record" class="form-check-input" value="0" checked required><label class="form-check-label">No</label>
+                                    <?php endif; ?>
+                                <?php endif;?>
                             </div>
                         </div>
                         <div class='col-sm-6'>
