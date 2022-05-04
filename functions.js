@@ -135,19 +135,18 @@ function addTrigger()
                 "</div>" +
                 "<h7>Record Linkage</h7>" +
                 "<p>" + 
-                    "Create subjects/push data to linked project using variables in source and linked project." +  
-                    "When at least one of the triggers are met, then records between the source and linked project will be linked via the chosen fields." + 
+                    "Create subjects/push data to linked project using variables in source and linked project. When the trigger is met, then records between the source and linked project will be linked via the chosen fields." + 
                 "</p>" + 
-                "<p><b>IMPORTANT: When linking projects with anything other than the record ID fields, \"Auto-numbering for records\" must be turned on in the destination project.</b></p>" + 
+                "<p><b>IMPORTANT: When linking projects with anything other than the record ID fields, 'Auto-numbering for records' must be turned on in the destination project.</b></p>" + 
                 "<div class='row link-field form-group'>"
                     "<div class='col-sm-12' style='margin-bottom:10px'>" + 
                         "<div class='class-sm-12'><label>Link source project field</label></div>" + 
                         "<div class='row'>" + 
                             "<div class='col-sm-6'>" +
-                                "<input id='linkSourceEvent' class='source-events-autocomplete form-control' name='linkSourceEvent' placeholder='Type to search for event' value='<?php print htmlspecialchars($settings['linkSourceEvent'], ENT_QUOTES); ?>' required>" +
+                                "<input id='linkSourceEvent' class='source-events-autocomplete form-control' name='linkSourceEvent' placeholder='Type to search for event' required>" +
                             "</div>" +
                             "<div class='col-sm-6'>" + 
-                                "<input id='linkSource' class='source-fields-autocomplete form-control' name='linkSource' placeholder='Type to search for field' value='<?php print htmlspecialchars($settings['linkSource'], ENT_QUOTES); ?>' required>" +
+                                "<input id='linkSource' class='source-fields-autocomplete form-control' name='linkSource' placeholder='Type to search for field' required>" +
                             "</div>"
                         "</div>" +
                     "</div>" +
