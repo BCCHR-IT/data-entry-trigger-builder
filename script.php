@@ -289,8 +289,8 @@
      **/
      $('#det-form').on('click', '.prefixOrPostfix', function () {
         if ($(this).val() == "pre")
-            $('.prefixOrPostfix[value="post"]').prop('checked', false);
+            $(this).siblings('.prefixOrPostfix[value="post"]').prop('checked', false);
         else 
-            $('.prefixOrPostfix[value="pre"]').prop('checked', false);
+            $(this).siblings('.prefixOrPostfix[value="pre"]').prop('checked', false);
      });
 </script>
