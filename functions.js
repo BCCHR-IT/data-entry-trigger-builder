@@ -133,11 +133,11 @@ function addTrigger()
                     "</div>" +
                     "<textarea rows='1' name='triggers[]' class='form-control det-trigger-input' required></textarea>" +
                 "</div>" +
-                "<h6>Record Linkage</h6>" +
+                "<h6 style='margin-top:10px'>Record Linkage</h6>" +
                 "<p>" + 
                     "Create subjects/push data to linked project using variables in source and linked project. When the trigger is met, then records between the source and linked project will be linked via the chosen fields." + 
+                    "<b> When linking projects with anything other than the record ID fields, 'Auto-numbering for records' must be turned on in the destination project.</b>" +
                 "</p>" + 
-                "<p><b>IMPORTANT: When linking projects with anything other than the record ID fields, 'Auto-numbering for records' must be turned on in the destination project.</b></p>" + 
                 "<div class='row link-field form-group'>" + 
                     "<div class='col-sm-12' style='margin-bottom:10px'>" + 
                         "<div class='class-sm-12'><label>Link source project field</label></div>" + 
@@ -163,7 +163,7 @@ function addTrigger()
                     "</div>" + 
                     "<div class='col-sm-6' style='margin-bottom:20px'>" + 
                         "<h6>Create Empty Records</h6>" + 
-                        "<div class='class-sm-12'><label>If 'yes' is chosen, then an empty record is created when at least one of the triggers below is met. Use this option when you don't want any data moved with the triggers.</label></div>" + 
+                        "<div class='class-sm-12'><label>If 'yes' is chosen, then an empty record is created when the trigger is met. Use this option when you don't want any data moved with the triggers.</label></div>" + 
                         "<div class='form-check col-sm-12'>" + 
                             "<input type='radio' name='create-empty-record' class='form-check-input' value='1' required><label class='form-check-label'>Yes</label>" + 
                             "<br>" + 
@@ -185,7 +185,7 @@ function addTrigger()
                         "</div>" +
                     "</div>" +
                 "</div>" +
-                "<h6>Copy the following instruments/fields from source project to linked project when the above condition is true:</h6>" +
+                "<h6>Copy the data below from source project to linked project when the trigger is met:</h6>" +
                 "<button type='button' data-toggle='modal' data-target='#add-field-modal' class='btn btn-primary btn-xs add-field-btn'>Add Field</button> " + 
                 "<button type='button' data-toggle='modal' data-target='#add-instr-modal' class='btn btn-primary btn-xs add-instr-btn'>Add Instrument</button>" +
                 "<br/><br/>" + 
