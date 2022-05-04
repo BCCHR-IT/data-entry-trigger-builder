@@ -147,7 +147,7 @@ function addTrigger()
                             "</div>" +
                             "<div class='col-sm-6'>" + 
                                 "<input id='linkSource' class='source-fields-autocomplete form-control' name='linkSource' placeholder='Type to search for field' required>" +
-                            "</div>"
+                            "</div>" + 
                         "</div>" +
                     "</div>" +
                     "<div class='col-sm-12' style='margin-bottom:20px'>" + 
