@@ -133,7 +133,7 @@ function addTrigger()
                     "</div>" +
                     "<textarea rows='1' name='triggers[]' class='form-control det-trigger-input' required></textarea>" +
                 "</div>" +
-                "<h7>Record Linkage</h7>" +
+                "<h6>Record Linkage</h6>" +
                 "<p>" + 
                     "Create subjects/push data to linked project using variables in source and linked project. When the trigger is met, then records between the source and linked project will be linked via the chosen fields." + 
                 "</p>" + 
@@ -185,7 +185,7 @@ function addTrigger()
                         "</div>" +
                     "</div>" +
                 "</div>" +
-                "<h7>Copy the following instruments/fields from source project to linked project when the above condition is true:</h7>" +
+                "<h6>Copy the following instruments/fields from source project to linked project when the above condition is true:</h6>" +
                 "<button type='button' data-toggle='modal' data-target='#add-field-modal' class='btn btn-primary btn-xs add-field-btn'>Add Field</button> " + 
                 "<button type='button' data-toggle='modal' data-target='#add-instr-modal' class='btn btn-primary btn-xs add-instr-btn'>Add Instrument</button>" +
                 "<br/><br/>" + 
