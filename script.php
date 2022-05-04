@@ -67,24 +67,8 @@
     $("#destination-project-select").change(function () {
         // Reset form by removing all triggers.
         $('.trigger-and-data-wrapper').remove();
-        
-        $.ajax({
-            url: "<?php print $module->getUrl("getDestinationFields.php") ?>",
-            type: "POST",
-            data: {
-                pid: $(this).val()
-            },
-            success: function (data) {
-                updateAutocompleteItems(data);
-                $(".dest-fields-autocomplete").val("");
-                $("#surveyUrl").val("");
-            },
-            error: function (data, status, error) {
-                console.log("Returned with status " + status + " - " + error);
-            }
-        });
 
-        // Show the main form are if it's not already visible
+        // Show the main form area if it's not already visible
         $('#main-form').show();
     });
 
@@ -260,8 +244,7 @@
         $(".source-instr-autocomplete").autocomplete({source: sourceInstr});
 
         /**
-            Call to retrieve destination project's fields and instruments when 
-            destination project changes, and update autcomplete items
+            Call to retrieve destination project's fields and instruments and update autcomplete items
         */
         $.ajax({
             url: "<?php print $module->getUrl("getDestinationFields.php") ?>",
