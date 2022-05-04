@@ -70,6 +70,10 @@ $Proj = new Project();
             textarea {
                 resize: vertical;
             }
+            .trigger-and-data-wrapper {
+                border: 1px solid lightgrey;
+                padding: 10px;
+            }
         </style>
         <script src="<?php print $module->getUrl("functions.js");?>" type="text/javascript"></script>
     </head>

@@ -217,7 +217,7 @@ function addTrigger()
                         "</div>" + 
                     "</div>" + 
                     "<div class='form-check col-6'>" + 
-                        "<label>Specify the source field the survey url will be saved to, so the user can be redirected.</label>" + 
+                        "<label>Specify the source field the survey url will be saved to, for redirection</label>" + 
                         "<div class='row'>" + 
                             "<div class='col-sm-6'>" + 
                                 "<input id='saveUrlEvent' class='source-events-autocomplete form-control' name='saveUrlEvent' placeholder='Type to search for event'>" + 
