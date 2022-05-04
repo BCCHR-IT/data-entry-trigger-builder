@@ -138,7 +138,7 @@ function addTrigger()
                     "Create subjects/push data to linked project using variables in source and linked project. When the trigger is met, then records between the source and linked project will be linked via the chosen fields." + 
                 "</p>" + 
                 "<p><b>IMPORTANT: When linking projects with anything other than the record ID fields, 'Auto-numbering for records' must be turned on in the destination project.</b></p>" + 
-                "<div class='row link-field form-group'>"
+                "<div class='row link-field form-group'>" + 
                     "<div class='col-sm-12' style='margin-bottom:10px'>" + 
                         "<div class='class-sm-12'><label>Link source project field</label></div>" + 
                         "<div class='row'>" + 

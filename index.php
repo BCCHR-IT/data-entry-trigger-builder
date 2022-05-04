@@ -115,6 +115,7 @@ $Proj = new Project();
             <?php endif;?>
             <form id="det-form" method="post">
                 <h5>Select a Linked Project</h5>
+                <p>The module will move the data into the chosen project.</p>
                 <div class="form-group">
                     <select name="dest-project" id="destination-project-select" class="form-control selectpicker" data-live-search="true" required>
                         <option value="" disabled <?php if (empty($settings)) { print "selected"; }?>>Select a project</option>
