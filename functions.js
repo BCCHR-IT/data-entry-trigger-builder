@@ -203,20 +203,20 @@ function addTrigger()
                     "</tbody>" +
                 "</table>" +
                 "<h6>Generate Survey URLs (Optional)</h6>" + 
-                "<p>If specified, the destination project will generate a survey url for the participant to redirect to. If the trigger is met, a survey url will generate.</p>" + 
+                "<p>If specified, the destination project will generate a survey url for the participant to redirect to. If the trigger is met, a survey url will generate after the data is moved.</p>" + 
                 "<div class='row'>" + 
-                    "<div class='form-check col-6'>" + 
+                    "<div class='form-group col-6'>" + 
                         "<label>Specify the destination instrument the module will generate a survey url from.</label>" + 
                         "<div class='row'>" + 
                             "<div class='col-sm-6 ui-front dest-event-wrapper'>" +
-                                "<input class='dest-events-autocomplete form-control' name='surveyUrlEvent[" + trigNum + "]' placeholder='Type to search for event'>" + 
+                                "<input class='surveyUrlEvent dest-events-autocomplete form-control' name='surveyUrlEvent[" + trigNum + "]' placeholder='Type to search for event'>" + 
                             "</div>" +
                             "<div class='col-sm-6 ui-front'>" + 
-                                "<input class='form-control' name='surveyUrl[" + trigNum + "]' placeholder='Type to search for instrument'>" + 
+                                "<input class='surveyUrl form-control' name='surveyUrl[" + trigNum + "]' placeholder='Type to search for instrument'>" + 
                             "</div>" + 
                         "</div>" + 
                     "</div>" + 
-                    "<div class='form-check col-6'>" + 
+                    "<div class='form-group col-6'>" + 
                         "<label>Specify the source field the survey url will be saved to, for redirection</label>" + 
                         "<div class='row'>" + 
                             "<div class='col-sm-6'>" + 
@@ -367,9 +367,9 @@ function updateAutocompleteItems(data)
         $(".dest-event-wrapper").hide();
         $("#add-instr-label-event-div").hide();
     }
-    $("#surveyUrlEvent").prop("required", false); // This field should always be optional
+    $(".surveyUrlEvent").prop("required", false); // This field should always be optional
     $(".dest-fields-autocomplete").autocomplete({source: destFields});
-    $("#surveyUrl").autocomplete({source: destInstruments});
+    $(".surveyUrl").autocomplete({source: destInstruments});
 }
 
 function addError(id, error)

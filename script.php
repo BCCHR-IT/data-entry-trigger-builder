@@ -3,45 +3,6 @@
     $instrument_names = REDCap::getInstrumentNames();
 ?>
 <script>
-    /** 
-     * Code to populate the populate
-     * the autocomplete fields for the 
-     * source project
-     */
-    <?php if (REDCap::isLongitudinal()): ?>
-        var sourceEvents = [
-            <?php
-            foreach ($metadata["events"] as $event)
-            {
-                print "'$event',";
-            }
-            ?>
-        ]
-        $(".source-events-autocomplete" ).autocomplete({source: sourceEvents});
-    <?php else: ?>
-        var sourceEvents = [];
-    <?php endif;?>
-                
-    var sourceFields = [
-        <?php
-        foreach ($metadata["fields"] as $field)
-        {
-            print "'$field',";
-        }
-        ?>
-    ]
-    $(".source-fields-autocomplete").autocomplete({source: sourceFields});
-
-    var sourceInstr = [
-        <?php
-        foreach ($instrument_names as $unique_name => $label)
-        {
-            print "'$unique_name',";
-        }
-        ?>
-    ]
-    $(".source-instr-autocomplete").autocomplete({source: sourceInstr});
-
     /**
      * When user goes to add a field or instrument
      * update .table-id item, hidden in each modal,
@@ -91,7 +52,6 @@
                 },
                 success: function (data) {
                     updateAutocompleteItems(data);
-                    $(".dest-fields-autocomplete").autocomplete({source: destFields});
                 },
                 error: function (data, status, error) {
                     console.log("Returned with status " + status + " - " + error);
@@ -278,6 +238,44 @@
 
     $('#add-trigger-btn').click(function() {
         addTrigger();
+
+        // Bind autocomplete functionality
+
+        /** 
+         * Code to populate the populate
+         * the autocomplete fields for the 
+         * source project
+         */
+        var sourceEvents = [];
+
+        <?php if (REDCap::isLongitudinal()): ?>
+        sourceEvents = [<?php foreach ($metadata["events"] as $event) { print "'$event',"; }?>];
+        $(".source-events-autocomplete" ).autocomplete({source: sourceEvents});
+        <?php endif;?>
+                    
+        var sourceFields = [<?php foreach ($metadata["fields"] as $field) { print "'$field',"; } ?>];
+        $(".source-fields-autocomplete").autocomplete({source: sourceFields});
+
+        var sourceInstr = [<?php foreach ($instrument_names as $unique_name => $label) { print "'$unique_name',"; } ?>];
+        $(".source-instr-autocomplete").autocomplete({source: sourceInstr});
+
+        /**
+            Call to retrieve destination project's fields and instruments when 
+            destination project changes, and update autcomplete items
+        */
+        $.ajax({
+            url: "<?php print $module->getUrl("getDestinationFields.php") ?>",
+            type: "POST",
+            data: {
+                pid: $("#destination-project-select").val()
+            },
+            success: function (data) {
+                updateAutocompleteItems(data);
+            },
+            error: function (data, status, error) {
+                console.log("Returned with status " + status + " - " + error);
+            }
+        });
     });
 
     $('#add-field-btn, #add-instr-btn').click(function () {
@@ -285,7 +283,7 @@
     });
 
     /**
-     * Code to make sure only one option of the prefix/postfic choice is selected
+     * Code to make sure only one option of the prefix/postfix choice is selected
      **/
      $('#det-form').on('click', '.prefixOrPostfix', function () {
         if ($(this).val() == "pre")
