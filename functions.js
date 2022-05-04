@@ -201,7 +201,33 @@ function addTrigger()
                     "</thead>" +
                     "<tbody>" +
                     "</tbody>" +
-                "</table>" + 
+                "</table>" +
+                "<h6>Generate Survey URLs (Optional)</h6>" + 
+                "<p>If specified, the destination project will generate a survey url for the participant to redirect to. If at least one trigger is met, a survey url will generate.</p>" + 
+                "<div class='row'>"
+                    "<div class='form-check col-6'>"
+                        "<label>Specify the destination instrument the module will generate a survey url from.</label>" + 
+                        "<div class='row'>" + 
+                            "<div class='col-sm-6 ui-front dest-event-wrapper'>" +
+                                "<input class='dest-events-autocomplete form-control' id='surveyUrlEvent' name='surveyUrlEvent' placeholder='Type to search for event'>" + 
+                            "</div>" +
+                            "<div class='col-sm-6 ui-front'>" + 
+                                "<input class='form-control' id='surveyUrl' name='surveyUrl' placeholder='Type to search for instrument'>" + 
+                            "</div>" + 
+                        "</div>" + 
+                    "</div>" + 
+                    "<div class='form-check col-6'>"
+                        "<label>Specify the source field the survey url will be saved to, so the user can be redirected.</label>" + 
+                        "<div class='row'>" + 
+                            "<div class='col-sm-6'>" + 
+                                "<input id='saveUrlEvent' class='source-events-autocomplete form-control' name='saveUrlEvent' placeholder='Type to search for event'>" + 
+                            "</div>" + 
+                            "<div class='col-sm-6'>" +
+                                "<input id='saveUrlField' class='source-fields-autocomplete form-control' name='saveUrlField' placeholder='Type to search for field'>" + 
+                            "</div>" + 
+                        "</div>" + 
+                    "</div>" + 
+                "</div>" + 
             "</div>";
     
     if (triggers.length == 0)

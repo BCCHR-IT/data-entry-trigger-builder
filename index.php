@@ -424,6 +424,7 @@ $Proj = new Project();
                         </table>
                     </div>
                     <?php endforeach; endif;?>
+                    <!--
                     <hr>
                     <h5>Generate Survey URLs (Optional)</h5>
                     <p>If specified, the destination project will generate a survey url for the participant to redirect to. If at least one trigger is met, a survey url will generate.</p>
@@ -453,6 +454,7 @@ $Proj = new Project();
                             </div>
                         </div>
                     </div>
+                    -->
                     <hr>
                     <h5>Confirm the following</h5>
                     <div class="row">
