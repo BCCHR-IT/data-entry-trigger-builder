@@ -133,9 +133,60 @@ function addTrigger()
                     "</div>" +
                     "<textarea rows='1' name='triggers[]' class='form-control det-trigger-input' required></textarea>" +
                 "</div>" +
-                "<p>" +
-                    "Copy the following instruments/fields from source project to linked project when the above condition is true:" + 
-                "</p>" +
+                "<h7>Record Linkage</h7>" +
+                "<p>" + 
+                    "Create subjects/push data to linked project using variables in source and linked project." +  
+                    "When at least one of the triggers are met, then records between the source and linked project will be linked via the chosen fields." + 
+                "</p>" + 
+                "<p><b>IMPORTANT: When linking projects with anything other than the record ID fields, \"Auto-numbering for records\" must be turned on in the destination project.</b></p>" + 
+                "<div class='row link-field form-group'>"
+                    "<div class='col-sm-12' style='margin-bottom:10px'>" + 
+                        "<div class='class-sm-12'><label>Link source project field</label></div>" + 
+                        "<div class='row'>" + 
+                            "<div class='col-sm-6'>" +
+                                "<input id='linkSourceEvent' class='source-events-autocomplete form-control' name='linkSourceEvent' placeholder='Type to search for event' value='<?php print htmlspecialchars($settings['linkSourceEvent'], ENT_QUOTES); ?>' required>" +
+                            "</div>" +
+                            "<div class='col-sm-6'>" + 
+                                "<input id='linkSource' class='source-fields-autocomplete form-control' name='linkSource' placeholder='Type to search for field' value='<?php print htmlspecialchars($settings['linkSource'], ENT_QUOTES); ?>' required>" +
+                            "</div>"
+                        "</div>" +
+                    "</div>" +
+                    "<div class='col-sm-12' style='margin-bottom:20px'>" + 
+                        "<div class='class-sm-12' id='link-source-text'><label>To linked project field</label></div>" + 
+                        "<div class='row'>" + 
+                            "<div class='col-sm-6 dest-event-wrapper'>" + 
+                                "<input id='linkDestEvent' class='dest-events-autocomplete form-control' name='linkDestEvent' placeholder='Type to search for event' required>" +
+                            "</div>" + 
+                            "<div id='link-source-wrapper' class='col-sm-6'>" + 
+                                "<input id='linkDest' class='dest-fields-autocomplete form-control' name='linkDest' placeholder='Type to search for field' required>" +
+                            "</div>" +
+                        "</div>" + 
+                    "</div>" + 
+                    "<div class='col-sm-6' style='margin-bottom:20px'>" + 
+                        "<h6>Create Empty Records</h6>" + 
+                        "<div class='class-sm-12'><label>If 'yes' is chosen, then an empty record is created when at least one of the triggers below is met. Use this option when you don't want any data moved with the triggers.</label></div>" + 
+                        "<div class='form-check col-sm-12'>" + 
+                            "<input type='radio' name='create-empty-record' class='form-check-input' value='1' required><label class='form-check-label'>Yes</label>" + 
+                            "<br>" + 
+                            "<input type='radio' name='create-empty-record' class='form-check-input' value='0' required><label class='form-check-label'>No</label>" + 
+                        "</div>" + 
+                    "</div>" + 
+                    "<div class='col-sm-6'>" + 
+                        "<h6>Add Pre/Postfix to Linked Field (Optional)</h6>" + 
+                        "<div class='class-sm-12'><label>Add a static prefix or a postfix to the linked source field when moving data. Enter what you'd like to append, and select whether its a prefix or postfix. If no option is selected, then a prefix is used.</label></div>" +
+                        "<div class='row'>" + 
+                            "<div class='col-sm-6'>" +
+                                "<input id='prefixPostfixStr' class='form-control' name='prefixPostfixStr' placeholder='Enter your prefix/postfix'>" +
+                            "</div>" + 
+                            "<div class='col-sm-6'>" + 
+                                "<input type='checkbox' name='prefixOrPostfix' class='form-check-input' value='pre'><label class='form-check-label'>Prefix</label>" + 
+                                "<br>" +
+                                "<input type='checkbox' name='prefixOrPostfix' class='form-check-input' value='post'><label class='form-check-label'>Postfix</label>" +
+                            "</div>" +
+                        "</div>" +
+                    "</div>" +
+                "</div>" +
+                "<h7>Copy the following instruments/fields from source project to linked project when the above condition is true:</h7>" +
                 "<button type='button' data-toggle='modal' data-target='#add-field-modal' class='btn btn-primary btn-xs add-field-btn'>Add Field</button> " + 
                 "<button type='button' data-toggle='modal' data-target='#add-instr-modal' class='btn btn-primary btn-xs add-instr-btn'>Add Instrument</button>" +
                 "<br/><br/>" + 

@@ -146,6 +146,7 @@ $Proj = new Project();
                 </div>
                 <hr>
                 <div id="main-form" <?php if (empty($settings)) :?> style="display:none" <?php endif;?>>
+                    <!--
                     <h5>Record Linkage</h5>
                     <p>
                         Create subjects/push data to linked project using variables in source and linked project. 
@@ -224,6 +225,7 @@ $Proj = new Project();
                         </div>
                     </div>
                     <hr>
+                    -->
                     <h5>Triggers (Max. 10)</h5>
                     <div id="trigger-instr" style="margin-bottom:20px">
                         <label>Push data from the source project to the linked project, when the following conditions are met:</label>
