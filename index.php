@@ -151,86 +151,6 @@ $Proj = new Project();
                 </div>
                 <hr>
                 <div id="main-form" <?php if (empty($settings)) :?> style="display:none" <?php endif;?>>
-                    <!--
-                    <h5>Record Linkage</h5>
-                    <p>
-                        Create subjects/push data to linked project using variables in source and linked project. 
-                        When at least one of the triggers are met, then records between the source and linked project will be linked via the chosen fields.
-                    </p>
-                    <p><b>IMPORTANT: When linking projects with anything other than the record ID fields, "Auto-numbering for records" must be turned on in the destination project.</b></p>
-                    <div class='row link-field form-group'> 
-                        <div class='col-sm-12' style="margin-bottom:10px">
-                            <div class='class-sm-12'><label>Link source project field</label></div>
-                            <div class='row'>
-                                <?php if (REDCap::isLongitudinal()): ?>
-                                    <div class='col-sm-6'>
-                                        <input id='linkSourceEvent' class="source-events-autocomplete form-control" name='linkSourceEvent' placeholder="Type to search for event" value="<?php print htmlspecialchars($settings["linkSourceEvent"], ENT_QUOTES); ?>" required>
-                                    </div>
-                                <?php endif;?>
-                                <div class='col-sm-6'>
-                                    <input id='linkSource' class="source-fields-autocomplete form-control" name='linkSource' placeholder="Type to search for field" value="<?php print htmlspecialchars($settings["linkSource"], ENT_QUOTES); ?>" required>
-                                </div> 
-                            </div>
-                        </div>
-                        <div class='col-sm-12' style="margin-bottom:20px">
-                            <div class='class-sm-12' id="link-source-text"><label>To linked project field</label></div>
-                            <div class='row'>
-                                <div class='col-sm-6 dest-event-wrapper' <?php if(empty($settings["linkDestEvent"])) {print "style='display:none'";} ?>>
-                                    <input id='linkDestEvent' class='dest-events-autocomplete form-control' name='linkDestEvent' placeholder="Type to search for event" value="<?php print htmlspecialchars($settings["linkDestEvent"], ENT_QUOTES); ?>" required>
-                                </div>
-                                <div id="link-source-wrapper" class='col-sm-6'>
-                                    <input id='linkDest' class='dest-fields-autocomplete form-control' name='linkDest' placeholder="Type to search for field" value="<?php print htmlspecialchars($settings["linkDest"], ENT_QUOTES); ?>" required>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-6" style="margin-bottom:20px">
-                            <h6>Create Empty Records</h6>
-                            <div class="class-sm-12"><label>If 'yes' is chosen, then an empty record is created when at least one of the triggers below is met. Use this option when you don't want any data moved with the triggers.</label></div>
-                            <div class="form-check col-sm-12">
-                                <?php if (empty($settings)): ?>
-                                    <input type="radio" name="create-empty-record" class="form-check-input" value="1" required><label class="form-check-label">Yes</label>
-                                    <br>
-                                    <input type="radio" name="create-empty-record" class="form-check-input" value="0" required><label class="form-check-label">No</label>
-                                <?php else:?>
-                                    <?php if ($settings["create-empty-record"] == "1"):?>
-                                    <input type="radio" name="create-empty-record" class="form-check-input" value="1" checked required><label class="form-check-label">Yes</label>
-                                    <br>
-                                    <input type="radio" name="create-empty-record" class="form-check-input" value="0" required><label class="form-check-label">No</label>
-                                    <?php else:?>
-                                    <input type="radio" name="create-empty-record" class="form-check-input" value="1" required><label class="form-check-label">Yes</label>
-                                    <br>
-                                    <input type="radio" name="create-empty-record" class="form-check-input" value="0" checked required><label class="form-check-label">No</label>
-                                    <?php endif; ?>
-                                <?php endif;?>
-                            </div>
-                        </div>
-                        <div class='col-sm-6'>
-                            <h6>Add Pre/Postfix to Linked Field (Optional)</h6>
-                            <div class='class-sm-12'><label>Add a static prefix or a postfix to the linked source field when moving data. Enter what you'd like to append, and select whether its a prefix or postfix. If no option is selected, then a prefix is used.</label></div>
-                            <div class='row'>
-                                <div class='col-sm-6'>
-                                    <input id='prefixPostfixStr' class='form-control' name='prefixPostfixStr' placeholder="Enter your prefix/postfix" value="<?php print htmlspecialchars($settings["prefixPostfixStr"], ENT_QUOTES); ?>">
-                                </div>
-                                <div class='col-sm-6'>
-                                    <?php if (empty($settings["prefixOrPostfix"])): ?>
-                                    <input type="checkbox" name="prefixOrPostfix" class="form-check-input" value="pre"><label class="form-check-label">Prefix</label>
-                                    <br>
-                                    <input type="checkbox" name="prefixOrPostfix" class="form-check-input" value="post"><label class="form-check-label">Postfix</label>
-                                    <?php elseif ($settings["prefixOrPostfix"] == "pre"): ?>
-                                    <input type="checkbox" name="prefixOrPostfix" class="form-check-input" value="pre" checked><label class="form-check-label">Prefix</label>
-                                    <br>
-                                    <input type="checkbox" name="prefixOrPostfix" class="form-check-input" value="post"><label class="form-check-label">Postfix</label>
-                                    <?php else: ?>
-                                    <input type="checkbox" name="prefixOrPostfix" class="form-check-input" value="pre"><label class="form-check-label">Prefix</label>
-                                    <br>
-                                    <input type="checkbox" name="prefixOrPostfix" class="form-check-input" value="post" checked><label class="form-check-label">Postfix</label>
-                                    <?php endif;?>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <hr>
-                    -->
                     <h5>Triggers (Max. 10)</h5>
                     <div id="trigger-instr" style="margin-bottom:20px">
                         <label>Push data from the source project to the linked project, when the following conditions are met:</label>
@@ -428,37 +348,6 @@ $Proj = new Project();
                         </table>
                     </div>
                     <?php endforeach; endif;?>
-                    <!--
-                    <hr>
-                    <h5>Generate Survey URLs (Optional)</h5>
-                    <p>If specified, the destination project will generate a survey url for the participant to redirect to. If at least one trigger is met, a survey url will generate.</p>
-                    <div class="row">
-                        <div class="form-check col-6">
-                            <label>Specify the destination instrument the module will generate a survey url from.</label>
-                            <div class="row">
-                                <div class='col-sm-6 ui-front dest-event-wrapper' <?php if(empty($settings["surveyUrlEvent"])) {print "style='display:none'";} ?>>
-                                    <input class='dest-events-autocomplete form-control' id="surveyUrlEvent" name="surveyUrlEvent" value="<?php print htmlspecialchars($settings["surveyUrlEvent"], ENT_QUOTES); ?>" placeholder="Type to search for event">
-                                </div>
-                                <div class='col-sm-6 ui-front'>
-                                    <input class='form-control' id="surveyUrl" name="surveyUrl" value="<?php print htmlspecialchars($settings["surveyUrl"], ENT_QUOTES); ?>" placeholder="Type to search for instrument">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-check col-6">
-                            <label>Specify the source field the survey url will be saved to, so the user can be redirected.</label>
-                            <div class="row">
-                                <?php if (REDCap::isLongitudinal()): ?>
-                                <div class='col-sm-6'>
-                                    <input id='saveUrlEvent' class="source-events-autocomplete form-control" name='saveUrlEvent' value="<?php print htmlspecialchars($settings["saveUrlEvent"], ENT_QUOTES); ?>" placeholder="Type to search for event">
-                                </div>
-                                <?php endif;?>
-                                <div class='col-sm-6'>
-                                    <input id='saveUrlField' class="source-fields-autocomplete form-control" name='saveUrlField' value="<?php print htmlspecialchars($settings["saveUrlField"], ENT_QUOTES); ?>" placeholder="Type to search for field">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    -->
                     <hr>
                     <h5>Confirm the following</h5>
                     <div class="row">

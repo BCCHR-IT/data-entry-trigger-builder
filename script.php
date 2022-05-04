@@ -274,23 +274,23 @@
         clearFieldForm();
         $('#add-field-btn').text("Add");
         $('#add-instr-btn').text("Add");
-    })
+    });
 
     $('#add-trigger-btn').click(function() {
         addTrigger();
-    })
+    });
 
     $('#add-field-btn, #add-instr-btn').click(function () {
         updateTable(this);
-    })
+    });
 
     /**
      * Code to make sure only one option of the prefix/postfic choice is selected
      **/
-     $('input[name="prefixOrPostfix"]').click(function () {
+     $('#det-form').on('click', '.prefixOrPostfix', function () {
         if ($(this).val() == "pre")
-            $('input[name="prefixOrPostfix"][value="post"]').prop('checked', false);
+            $('.prefixOrPostfix[value="post"]').prop('checked', false);
         else 
-            $('input[name="prefixOrPostfix"][value="pre"]').prop('checked', false);
-     })
+            $('.prefixOrPostfix[value="pre"]').prop('checked', false);
+     });
 </script>
