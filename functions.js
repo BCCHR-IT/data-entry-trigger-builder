@@ -172,7 +172,7 @@ function addTrigger()
                     "</div>" + 
                     "<div class='col-sm-6'>" + 
                         "<h6>Add Pre/Postfix to Linked Field (Optional)</h6>" + 
-                        "<div class='class-sm-12'><label>Add a static prefix or a postfix to the linked source field when moving data. Enter what you'd like to append, and select whether its a prefix or postfix. If no option is selected, then a prefix is used.</label></div>" +
+                        "<div class='class-sm-12'><label>Add a static prefix or postfix to the linked source field when moving data. If neither prefix or postfix is selected, then a prefix is used.</label></div>" +
                         "<div class='row'>" + 
                             "<div class='col-sm-6'>" +
                                 "<input id='prefixPostfixStr' class='form-control' name='prefixPostfixStr' placeholder='Enter your prefix/postfix'>" +
@@ -185,7 +185,8 @@ function addTrigger()
                         "</div>" +
                     "</div>" +
                 "</div>" +
-                "<h6>Copy the data below from source project to linked project when the trigger is met:</h6>" +
+                "<h6>Data Movement</h6>" + 
+                "<p>Copy the data below from source project to linked project when the trigger is met:</p>" +
                 "<button type='button' data-toggle='modal' data-target='#add-field-modal' class='btn btn-primary btn-xs add-field-btn'>Add Field</button> " + 
                 "<button type='button' data-toggle='modal' data-target='#add-instr-modal' class='btn btn-primary btn-xs add-instr-btn'>Add Instrument</button>" +
                 "<br/><br/>" + 
