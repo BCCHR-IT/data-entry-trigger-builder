@@ -313,7 +313,7 @@ function fillInstrForm(elem)
         $('#instr-event-select').val(row.find(".sourceInstrEvents").val()); 
     }
 
-    if (row.find(".destInstrEvents") && $('#dest-event-instrument').is(':visible'))
+    if (row.find(".destInstrEvents"))
     {
         $('#dest-event-instrument').val(row.find(".destInstrEvents").val());
     }

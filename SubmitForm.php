@@ -11,7 +11,7 @@ foreach($settings["triggers"] as $index => $trigger_obj)
     $err = $data_entry_trigger_builder->validateSyntax($trigger_obj["trigger"]);
     if (!empty($err))
     {
-        $errors[$index]["trigger_errors"] = $trigger_errors;
+        $errors[$index]["trigger_errors"] = $err;
     }
 
     if (!empty($trigger_obj["linkSourceEvent"]) && !$data_entry_trigger_builder->isValidEvent($trigger_obj["linkSourceEvent"]))
