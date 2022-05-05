@@ -430,7 +430,7 @@ $Proj = new Project();
                                         <input class='dest-events-autocomplete form-control' id="surveyUrlEvent" name="surveyUrlEvent" value="<?php print htmlspecialchars($trigger_obj["surveyUrlEvent"], ENT_QUOTES); ?>" placeholder="Type to search for event">
                                     </div>
                                     <div class='col-sm-6 ui-front'>
-                                        <input class='form-control' id="surveyUrl" name="surveyUrl" value="<?php print htmlspecialchars($settings["surveyUrl"], ENT_QUOTES); ?>" placeholder="Type to search for instrument">
+                                        <input class='form-control' id="surveyUrl" name="surveyUrl" value="<?php print htmlspecialchars($trigger_obj["surveyUrl"], ENT_QUOTES); ?>" placeholder="Type to search for instrument">
                                     </div>
                                 </div>
                             </div>
