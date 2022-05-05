@@ -16,7 +16,7 @@ foreach($settings["triggers"] as $index => $trigger_obj)
 
     if (!empty($trigger_obj["linkSourceEvent"]) && !$data_entry_trigger_builder->isValidEvent($trigger_obj["linkSourceEvent"]))
     {
-        $errors[$index][$index]["linkSourceEvent"] = "Invalid event!";
+        $errors[$index]["linkSourceEvent"] = "Invalid event!";
     }
 
     if (!$data_entry_trigger_builder->isValidField($trigger_obj["linkSource"]))
