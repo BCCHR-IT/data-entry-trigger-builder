@@ -435,7 +435,7 @@ $Proj = new Project();
                                 </div>
                             </div>
                             <div class="form-group col-6">
-                                <label>Specify the source field the survey url will be saved to, for redirection</label>
+                                <label>Specify the source field the survey url will be saved to, for redirection.</label>
                                 <div class="row">
                                     <?php if (REDCap::isLongitudinal()): ?>
                                     <div class='col-sm-6'>
