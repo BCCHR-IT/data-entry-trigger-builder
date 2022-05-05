@@ -94,7 +94,7 @@ $Proj = new Project();
         <?php endif; ?>
         <div class="container jumbotron">
             <h2>Data Entry Trigger Builder</h2>
-            <p><b>LIMITATIONS*: This module will work will classical and longitudinal projects, but is currently incompatible with repeatable events, and multiple arms.</b></p>
+            <p><b>LIMITATIONS*: This module will work will classical and longitudinal projects, but is currently incompatible with repeatable events.</b></p>
             <?php if (!empty($settings)): ?>
             <p><b>DET was last changed on <span class="saved"><?php print $data_entry_trigger_builder->getProjectSetting("saved_timestamp");?></span> by <span class="saved"><?php print $data_entry_trigger_builder->getProjectSetting("saved_by");?></span></b></p>
             <?php endif; ?>
@@ -217,10 +217,10 @@ $Proj = new Project();
                         </table>
                         <button type="button" id="add-trigger-btn" class="btn btn-primary btn-sm">Add Trigger</button>
                     </div>
-                    <?php if (!empty($settings)): foreach($settings["triggers"] as $index => $trigger): ?>
+                    <?php if (!empty($settings)): foreach($settings["triggers"] as $index => $trigger_obj): ?>
                     <?php 
                         $index = htmlspecialchars($index, ENT_QUOTES); 
-                        $trigger = htmlspecialchars($trigger, ENT_QUOTES); 
+                        $trigger = htmlspecialchars($trigger_obj["trigger"], ENT_QUOTES); 
                     ?>
                     <div class="form-group trigger-and-data-wrapper">
                         <div class="det-trigger">
@@ -235,9 +235,83 @@ $Proj = new Project();
                             </div>
                             <textarea rows="1" name="triggers[]" class="form-control det-trigger-input" required><?php print str_replace("\"", "'", $trigger); ?></textarea>
                         </div>
+                        <h6>Record Linkage</h6>
                         <p>
-                            Copy the following instruments/fields from source project to linked project when the above condition is true: 
+                            Create subjects/push data to linked project using variables in source and linked project. When the trigger is met, then records between the source and linked project will be linked via the chosen fields. <b>When linking projects with anything other than the record ID fields, 'Auto-numbering for records' must be turned on in the destination project.</b>
                         </p>
+                        <div class='row link-field form-group'> 
+                            <div class='col-sm-12' style="margin-bottom:10px">
+                                <div class='class-sm-12'><label>Link source project field</label></div>
+                                <div class='row'>
+                                    <?php if (REDCap::isLongitudinal()): ?>
+                                        <div class='col-sm-6'>
+                                            <input id='linkSourceEvent' class="source-events-autocomplete form-control" name='linkSourceEvent' placeholder="Type to search for event" value="<?php print htmlspecialchars($trigger_obj["linkSourceEvent"], ENT_QUOTES); ?>" required>
+                                        </div>
+                                    <?php endif;?>
+                                    <div class='col-sm-6'>
+                                        <input id='linkSource' class="source-fields-autocomplete form-control" name='linkSource' placeholder="Type to search for field" value="<?php print htmlspecialchars($trigger_obj["linkSource"], ENT_QUOTES); ?>" required>
+                                    </div> 
+                                </div>
+                            </div>
+                            <div class='col-sm-12' style="margin-bottom:20px">
+                                <div class='class-sm-12' id="link-source-text"><label>To linked project field</label></div>
+                                <div class='row'>
+                                    <div class='col-sm-6 dest-event-wrapper' <?php if(empty($trigger_obj["linkDestEvent"])) {print "style='display:none'";} ?>>
+                                        <input id='linkDestEvent' class='dest-events-autocomplete form-control' name='linkDestEvent' placeholder="Type to search for event" value="<?php print htmlspecialchars($trigger_obj["linkDestEvent"], ENT_QUOTES); ?>" required>
+                                    </div>
+                                    <div id="link-source-wrapper" class='col-sm-6'>
+                                        <input id='linkDest' class='dest-fields-autocomplete form-control' name='linkDest' placeholder="Type to search for field" value="<?php print htmlspecialchars($trigger_obj["linkDest"], ENT_QUOTES); ?>" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6" style="margin-bottom:20px">
+                                <h6>Create Empty Records</h6>
+                                <div class="class-sm-12"><label>If 'yes' is chosen, then an empty record is created when the trigger is met. Use this option when you don't want any data moved with the triggers.</label></div>
+                                <div class="form-check col-sm-12">
+                                    <?php if (empty($settings)): ?>
+                                        <input type="radio" name="create-empty-record" class="form-check-input" value="1" required><label class="form-check-label">Yes</label>
+                                        <br>
+                                        <input type="radio" name="create-empty-record" class="form-check-input" value="0" required><label class="form-check-label">No</label>
+                                    <?php else:?>
+                                        <?php if ($trigger_obj["create-empty-record"] == "1"):?>
+                                        <input type="radio" name="create-empty-record" class="form-check-input" value="1" checked required><label class="form-check-label">Yes</label>
+                                        <br>
+                                        <input type="radio" name="create-empty-record" class="form-check-input" value="0" required><label class="form-check-label">No</label>
+                                        <?php else:?>
+                                        <input type="radio" name="create-empty-record" class="form-check-input" value="1" required><label class="form-check-label">Yes</label>
+                                        <br>
+                                        <input type="radio" name="create-empty-record" class="form-check-input" value="0" checked required><label class="form-check-label">No</label>
+                                        <?php endif; ?>
+                                    <?php endif;?>
+                                </div>
+                            </div>
+                            <div class='col-sm-6'>
+                                <h6>Add Pre/Postfix to Linked Field (Optional)</h6>
+                                <div class='class-sm-12'><label>Add a static prefix or postfix to the linked source field when moving data. If neither prefix or postfix is selected, then a prefix is used.</label></div>
+                                <div class='row'>
+                                    <div class='col-sm-6'>
+                                        <input id='prefixPostfixStr' class='form-control' name='prefixPostfixStr' placeholder="Enter your prefix/postfix" value="<?php print htmlspecialchars($trigger_obj["prefixPostfixStr"], ENT_QUOTES); ?>">
+                                    </div>
+                                    <div class='col-sm-6'>
+                                        <?php if (empty($trigger_obj["prefixOrPostfix"])): ?>
+                                        <input type="checkbox" name="prefixOrPostfix" class="form-check-input" value="pre"><label class="form-check-label">Prefix</label>
+                                        <br>
+                                        <input type="checkbox" name="prefixOrPostfix" class="form-check-input" value="post"><label class="form-check-label">Postfix</label>
+                                        <?php elseif ($trigger_obj["prefixOrPostfix"] == "pre"): ?>
+                                        <input type="checkbox" name="prefixOrPostfix" class="form-check-input" value="pre" checked><label class="form-check-label">Prefix</label>
+                                        <br>
+                                        <input type="checkbox" name="prefixOrPostfix" class="form-check-input" value="post"><label class="form-check-label">Postfix</label>
+                                        <?php else: ?>
+                                        <input type="checkbox" name="prefixOrPostfix" class="form-check-input" value="pre"><label class="form-check-label">Prefix</label>
+                                        <br>
+                                        <input type="checkbox" name="prefixOrPostfix" class="form-check-input" value="post" checked><label class="form-check-label">Postfix</label>
+                                        <?php endif;?>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <h6>Data Movement</h6>
+                        <p>Copy the following instruments/fields from source project to linked project when the trigger is met:</p>
                         <button type="button" data-toggle="modal" data-target="#add-field-modal" class="btn btn-primary btn-xs add-field-btn">Add Field</button>
                         <button type="button" data-toggle="modal" data-target="#add-instr-modal" class="btn btn-primary btn-xs add-instr-btn">Add Instrument</button>
                         <br/><br/>
@@ -252,10 +326,10 @@ $Proj = new Project();
                             </thead>
                             <tbody>
                             <?php
-                                $pipingSourceEvents = $settings["pipingSourceEvents"][$index];
-                                $pipingDestEvents = $settings["pipingDestEvents"][$index];
-                                $pipingSourceFields = $settings["pipingSourceFields"][$index];
-                                $pipingDestFields = $settings["pipingDestFields"][$index];
+                                $pipingSourceEvents = $trigger_obj["pipingSourceEvents"];
+                                $pipingDestEvents = $trigger_obj["pipingDestEvents"];
+                                $pipingSourceFields = $trigger_obj["pipingSourceFields"];
+                                $pipingDestFields = $trigger_obj["pipingDestFields"];
 
                                 foreach($pipingSourceFields as $i => $source)
                                 {
@@ -284,9 +358,9 @@ $Proj = new Project();
                                     print "</tr>";
                                 }
 
-                                $setDestEvents = $settings["setDestEvents"][$index];
-                                $setDestFields = $settings["setDestFields"][$index];
-                                $setDestFieldsValues = $settings["setDestFieldsValues"][$index];
+                                $setDestEvents = $trigger_obj["setDestEvents"];
+                                $setDestFields = $trigger_obj["setDestFields"];
+                                $setDestFieldsValues = $trigger_obj["setDestFieldsValues"];
 
                                 foreach($setDestFields as $i => $source)
                                 {
@@ -312,9 +386,9 @@ $Proj = new Project();
                                     print "</tr>";
                                 }
 
-                                $sourceInstr = $settings["sourceInstr"][$index];
-                                $sourceInstrEvents = $settings["sourceInstrEvents"][$index];
-                                $destInstrEvents = $settings["destInstrEvents"][$index];
+                                $sourceInstr = $trigger_obj["sourceInstr"];
+                                $sourceInstrEvents = $trigger_obj["sourceInstrEvents"];
+                                $destInstrEvents = $trigger_obj["destInstrEvents"];
 
                                 foreach($sourceInstr as $i => $source)
                                 {
@@ -346,6 +420,34 @@ $Proj = new Project();
                             ?>
                             </tbody>
                         </table>
+                        <h6>Generate Survey URLs (Optional)</h6>
+                        <p>If specified, the destination project will generate a survey url for the participant to redirect to. If the trigger is met, a survey url will generate after the data is moved.</p>
+                        <div class="row">
+                            <div class="form-group col-6">
+                                <label>Specify the destination instrument the module will generate a survey url from.</label>
+                                <div class="row">
+                                    <div class='col-sm-6 ui-front dest-event-wrapper' <?php if(empty($trigger_obj["surveyUrlEvent"])) {print "style='display:none'";} ?>>
+                                        <input class='dest-events-autocomplete form-control' id="surveyUrlEvent" name="surveyUrlEvent" value="<?php print htmlspecialchars($trigger_obj["surveyUrlEvent"], ENT_QUOTES); ?>" placeholder="Type to search for event">
+                                    </div>
+                                    <div class='col-sm-6 ui-front'>
+                                        <input class='form-control' id="surveyUrl" name="surveyUrl" value="<?php print htmlspecialchars($settings["surveyUrl"], ENT_QUOTES); ?>" placeholder="Type to search for instrument">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group col-6">
+                                <label>Specify the source field the survey url will be saved to, for redirection</label>
+                                <div class="row">
+                                    <?php if (REDCap::isLongitudinal()): ?>
+                                    <div class='col-sm-6'>
+                                        <input id='saveUrlEvent' class="source-events-autocomplete form-control" name='saveUrlEvent' value="<?php print htmlspecialchars($trigger_obj["saveUrlEvent"], ENT_QUOTES); ?>" placeholder="Type to search for event">
+                                    </div>
+                                    <?php endif;?>
+                                    <div class='col-sm-6'>
+                                        <input id='saveUrlField' class="source-fields-autocomplete form-control" name='saveUrlField' value="<?php print htmlspecialchars($trigger_obj["saveUrlField"], ENT_QUOTES); ?>" placeholder="Type to search for field">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <?php endforeach; endif;?>
                     <hr>
