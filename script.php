@@ -100,7 +100,7 @@
                             item.forEach(function(m) {
                                 msg += m + "<br/>";
                             });
-                            $('.det-trigger:eq(' + i + ')').find("input").addClass("error");
+                            $('.det-trigger:eq(' + i + ')').find("textarea").addClass("error");
                             $('.det-trigger:eq(' + i + ')').after("<p class='error-msg'><i>" + msg + "</i></p>");
                         }
 
@@ -184,6 +184,7 @@
                             addError(i, 'saveUrlEvent', errors_obj.saveUrlEvent);
                         }
 
+                        
                         if (errors_obj.saveUrlField)
                         {
                             addError(i, 'saveUrlField', errors_obj.saveUrlField);
