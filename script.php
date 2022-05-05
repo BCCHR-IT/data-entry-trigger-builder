@@ -91,22 +91,22 @@
                 {
                     if (errors.linkSourceEvent) 
                     {
-                        addError('linkSourceEvent', errors.linkSourceEvent);
+                        addErrors('linkSourceEvent', errors.linkSourceEvent);
                     }
 
                     if (errors.linkDestEvent)
                     {
-                        addError('linkDestEvent', errors.linkDestEvent);
+                        addErrors('linkDestEvent', errors.linkDestEvent);
                     }
 
                     if (errors.linkSource) 
                     {
-                        addError('linkSource', errors.linkSource);
+                        addErrors('linkSource', errors.linkSource);
                     }
 
                     if (errors.linkDest)
                     {
-                        addError('linkDest', errors.linkDest);
+                        addErrors('linkDest', errors.linkDest);
                     }
                     
                     if (errors.pipingSourceEvents)
@@ -166,22 +166,22 @@
 
                     if (errors.surveyUrlEvent) 
                     {
-                        addError('surveyUrlEvent', errors.surveyUrlEvent);
+                        addErrors('surveyUrlEvent', errors.surveyUrlEvent);
                     }
 
                     if (errors.surveyUrl)
                     {
-                        addError('surveyUrl', errors.surveyUrl);
+                        addErrors('surveyUrl', errors.surveyUrl);
                     }
 
                     if (errors.saveUrlEvent) 
                     {
-                        addError('saveUrlEvent', errors.saveUrlEvent);
+                        addErrors('saveUrlEvent', errors.saveUrlEvent);
                     }
 
                     if (errors.saveUrlField)
                     {
-                        addError('saveUrlField', errors.saveUrlField);
+                        addErrors('saveUrlField', errors.saveUrlField);
                     }
                 }
                 else

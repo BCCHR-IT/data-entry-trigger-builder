@@ -143,10 +143,10 @@ function addTrigger()
                         "<div class='class-sm-12'><label>Link source project field</label></div>" + 
                         "<div class='row'>" + 
                             "<div class='col-sm-6'>" +
-                                "<input id='linkSourceEvent' class='source-events-autocomplete form-control' name='linkSourceEvent[]' placeholder='Type to search for event' required>" +
+                                "<input class='linkSourceEvent source-events-autocomplete form-control' name='linkSourceEvent[]' placeholder='Type to search for event' required>" +
                             "</div>" +
                             "<div class='col-sm-6'>" + 
-                                "<input id='linkSource' class='source-fields-autocomplete form-control' name='linkSource[]' placeholder='Type to search for field' required>" +
+                                "<input class='linkSource source-fields-autocomplete form-control' name='linkSource[]' placeholder='Type to search for field' required>" +
                             "</div>" + 
                         "</div>" +
                     "</div>" +
@@ -154,10 +154,10 @@ function addTrigger()
                         "<div class='class-sm-12' id='link-source-text'><label>To linked project field</label></div>" + 
                         "<div class='row'>" + 
                             "<div class='col-sm-6 dest-event-wrapper'>" + 
-                                "<input id='linkDestEvent' class='dest-events-autocomplete form-control' name='linkDestEvent[]' placeholder='Type to search for event' required>" +
+                                "<input class='linkDestEvent dest-events-autocomplete form-control' name='linkDestEvent[]' placeholder='Type to search for event' required>" +
                             "</div>" + 
                             "<div id='link-source-wrapper' class='col-sm-6'>" + 
-                                "<input id='linkDest' class='dest-fields-autocomplete form-control' name='linkDest[]' placeholder='Type to search for field' required>" +
+                                "<input class='linkDest dest-fields-autocomplete form-control' name='linkDest[]' placeholder='Type to search for field' required>" +
                             "</div>" +
                         "</div>" + 
                     "</div>" + 
@@ -165,9 +165,9 @@ function addTrigger()
                         "<h6>Create Empty Records</h6>" + 
                         "<div class='class-sm-12'><label>If 'yes' is chosen, then an empty record is created when the trigger is met. Use this option when you don't want any data moved with the triggers.</label></div>" + 
                         "<div class='form-check col-sm-12'>" + 
-                            "<input type='radio' name='create-empty-record[]' class='form-check-input' value='1' required><label class='form-check-label'>Yes</label>" + 
+                            "<input type='radio' name='create-empty-record[]' class='create-empty-record form-check-input' value='1' required><label class='form-check-label'>Yes</label>" + 
                             "<br>" + 
-                            "<input type='radio' name='create-empty-record[]' class='form-check-input' value='0' required><label class='form-check-label'>No</label>" + 
+                            "<input type='radio' name='create-empty-record[]' class='create-empty-record form-check-input' value='0' required><label class='form-check-label'>No</label>" + 
                         "</div>" + 
                     "</div>" + 
                     "<div class='col-sm-6'>" + 
@@ -220,10 +220,10 @@ function addTrigger()
                         "<label>Specify the source field the survey url will be saved to, for redirection</label>" + 
                         "<div class='row'>" + 
                             "<div class='col-sm-6'>" + 
-                                "<input class='source-events-autocomplete form-control' name='saveUrlEvent[" + trigNum + "]' placeholder='Type to search for event'>" + 
+                                "<input class='saveUrlEvent source-events-autocomplete form-control' name='saveUrlEvent[" + trigNum + "]' placeholder='Type to search for event'>" + 
                             "</div>" + 
                             "<div class='col-sm-6'>" +
-                                "<input class='source-fields-autocomplete form-control' name='saveUrlField[" + trigNum + "]' placeholder='Type to search for field'>" + 
+                                "<input class='saveUrlField source-fields-autocomplete form-control' name='saveUrlField[" + trigNum + "]' placeholder='Type to search for field'>" + 
                             "</div>" + 
                         "</div>" + 
                     "</div>" + 
@@ -372,10 +372,15 @@ function updateAutocompleteItems(data)
     $(".surveyUrl").autocomplete({source: destInstruments});
 }
 
-function addError(id, error)
+function addErrors(className, errors)
 {
-    $('#' + id).addClass("error");
-    $('#' + id).after("<p class='error-msg'><i>" + error + "</i></p>");
+    var items = $('.' + className);
+    for (var index in errors)
+    {
+        var error = errors[index];
+        $(items[index]).addClass("error")
+        $(items[index]).after("<p class='error-msg'><i>" + error + "</i></p>")
+    }
 }
 
 function addTableErrors(errors, inputName)
@@ -383,7 +388,6 @@ function addTableErrors(errors, inputName)
     for(var index in errors)
     {
         var items = $("td > input[name='" + inputName + "[" + index + "][]']");
-        console.log(items);
         for(var i in errors[index])
         {
             var msg =  errors[index][i];

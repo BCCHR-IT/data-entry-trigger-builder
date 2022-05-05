@@ -6,26 +6,6 @@ $settings = $_POST;
 
 $dest_project_pid = $settings["dest-project"];
 
-if (!empty($settings["linkSourceEvent"]) && !$data_entry_trigger_builder->isValidEvent($settings["linkSourceEvent"]))
-{
-    $errors["linkSourceEvent"] = "Invalid event!";
-}
-
-if (!$data_entry_trigger_builder->isValidField($settings["linkSource"]))
-{
-    $errors["linkSource"] = "Invalid field!";
-}
-
-if (!empty($settings["linkDestEvent"]) && !$data_entry_trigger_builder->isValidEvent($settings["linkDestEvent"], $dest_project_pid)) 
-{
-    $errors["linkDestEvent"] = "Invalid event!";
-}
-
-if (!$data_entry_trigger_builder->isValidField($settings["linkDest"], $dest_project_pid)) 
-{
-    $errors["linkDest"] = "Invalid field!";
-}
-
 foreach($settings["triggers"] as $index => $trigger)
 {
     if (!empty($trigger))
@@ -34,6 +14,50 @@ foreach($settings["triggers"] as $index => $trigger)
         if (!empty($err))
         {
             $trigger_errors[$index] = $err;
+        }
+    }
+}
+
+foreach($settings["linkSourceEvent"] as $index => $fields)
+{
+    foreach($fields as $i => $field)
+    {
+        if(!$data_entry_trigger_builder->isValidEvent($field))
+        {
+            $errors["linkSourceEvent"][$index][$i] = "$field is an invalid event!";
+        }
+    }
+}
+
+foreach($settings["linkSource"] as $index => $fields)
+{
+    foreach($fields as $i => $field)
+    {
+        if(!$data_entry_trigger_builder->isValidField($field))
+        {
+            $errors["linkSource"][$index][$i] = "$field is an invalid field!";
+        }
+    }
+}
+
+foreach($settings["linkDestEvent"] as $index => $fields)
+{
+    foreach($fields as $i => $field)
+    {
+        if(!$data_entry_trigger_builder->isValidEvent($field, $dest_project_pid))
+        {
+            $errors["linkDestEvent"][$index][$i] = "$field is an invalid event!";
+        }
+    }
+}
+
+foreach($settings["linkDest"] as $index => $fields)
+{
+    foreach($fields as $i => $field)
+    {
+        if(!$data_entry_trigger_builder->isValidField($field, $dest_project_pid))
+        {
+            $errors["linkDest"][$index][$i] = "$field is an invalid field!";
         }
     }
 }
@@ -137,29 +161,53 @@ foreach($settings["destInstrEvents"] as $index => $fields)
     }
 }
 
+foreach($settings["surveyUrlEvent"] as $index => $fields)
+{
+    foreach($fields as $i => $field)
+    {
+        if(!$data_entry_trigger_builder->isValidEvent($field, $dest_project_pid))
+        {
+            $errors["surveyUrlEvent"][$index][$i] = "$field is an invalid event!";
+        }
+    }
+}
+
+foreach($settings["surveyUrl"] as $index => $fields)
+{
+    foreach($fields as $i => $field)
+    {
+        if(!$data_entry_trigger_builder->isValidInstrument($field, $dest_project_pid))
+        {
+            $errors["surveyUrl"][$index][$i] = "$field is an invalid instrument!";
+        }
+    }
+}
+
+foreach($settings["saveUrlEvent"] as $index => $fields)
+{
+    foreach($fields as $i => $field)
+    {
+        if(!$data_entry_trigger_builder->isValidEvent($field))
+        {
+            $errors["saveUrlEvent"][$index][$i] = "$field is an invalid event!";
+        }
+    }
+}
+
+foreach($settings["saveUrlField"] as $index => $fields)
+{
+    foreach($fields as $i => $field)
+    {
+        if(!$data_entry_trigger_builder->isValidField($field))
+        {
+            $errors["saveUrlField"][$index][$i] = "$field is an invalid field!";
+        }
+    }
+}
+
 if (!empty($trigger_errors))
 {
     $errors["trigger_errors"] = $trigger_errors;
-}
-
-if (!empty($settings["surveyUrlEvent"]) && !$data_entry_trigger_builder->isValidEvent($settings["surveyUrlEvent"], $dest_project_pid))
-{
-    $errors["surveyUrlEvent"] = "Invalid event!";
-}
-
-if (!empty($settings["surveyUrl"]) && !$data_entry_trigger_builder->isValidInstrument($settings["surveyUrl"], $dest_project_pid))
-{
-    $errors["surveyUrl"] = "Invalid instrument!";
-}
-
-if (!empty($settings["saveUrlEvent"]) && !$data_entry_trigger_builder->isValidEvent($settings["saveUrlEvent"])) 
-{
-    $errors["saveUrlEvent"] = "Invalid event!";
-}
-
-if (!empty($settings["saveUrlField"]) && !$data_entry_trigger_builder->isValidField($settings["saveUrlField"])) 
-{
-    $errors["saveUrlField"] = "Invalid field!";
 }
 
 if (!empty($errors))
