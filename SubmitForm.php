@@ -8,7 +8,7 @@ $dest_project_pid = $settings["dest-project"];
 
 foreach($settings["triggers"] as $index => $trigger_obj)
 {
-    $err = $data_entry_trigger_builder->validateSyntax($trigger);
+    $err = $data_entry_trigger_builder->validateSyntax($trigger_obj["trigger"]);
     if (!empty($err))
     {
         $errors[$index]["trigger_errors"] = $trigger_errors;
@@ -98,7 +98,7 @@ foreach($settings["triggers"] as $index => $trigger_obj)
         }
     }
 
-    foreach($trigger_obj["destInstrEvents"] as $n => $fields)
+    foreach($trigger_obj["destInstrEvents"] as $n => $field)
     {
         if(!$data_entry_trigger_builder->isValidEvent($field, $dest_project_pid))
         {

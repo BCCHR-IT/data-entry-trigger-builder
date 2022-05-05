@@ -164,6 +164,11 @@
                             addTableErrors(i, errors_obj.sourceInstr, "sourceInstr");
                         }
 
+                        if (errors_obj.destInstrEvents)
+                        {
+                            addTableErrors(i, errors_obj.destInstrEvents, "destInstrEvents");
+                        }
+
                         if (errors_obj.surveyUrlEvent) 
                         {
                             addError(i, 'surveyUrlEvent', errors_obj.surveyUrlEvent);
