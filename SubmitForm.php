@@ -6,184 +6,152 @@ $settings = $_POST;
 
 $dest_project_pid = $settings["dest-project"];
 
-foreach($settings["triggers"] as $index => $trigger)
+foreach($settings["triggers"] as $index => $trigger_obj)
 {
-    if ($trigger <> "")
+    $err = $data_entry_trigger_builder->validateSyntax($trigger);
+    if (!empty($err))
     {
-        $err = $data_entry_trigger_builder->validateSyntax($trigger);
-        if (!empty($err))
+        $errors[$index]["trigger_errors"] = $trigger_errors;
+    }
+
+    if (!empty($trigger_obj["linkSourceEvent"]) && !$data_entry_trigger_builder->isValidEvent($trigger_obj["linkSourceEvent"]))
+    {
+        $errors[$index][$index]["linkSourceEvent"] = "Invalid event!";
+    }
+
+    if (!$data_entry_trigger_builder->isValidField($trigger_obj["linkSource"]))
+    {
+        $errors[$index]["linkSource"] = "Invalid field!";
+    }
+
+    if (!empty($trigger_obj["linkDestEvent"]) && !$data_entry_trigger_builder->isValidEvent($trigger_obj["linkDestEvent"], $dest_project_pid)) 
+    {
+        $errors[$index]["linkDestEvent"] = "Invalid event!";
+    }
+
+    if (!$data_entry_trigger_builder->isValidField($trigger_obj["linkDest"], $dest_project_pid)) 
+    {
+        $errors[$index]["linkDest"] = "Invalid field!";
+    }
+
+    foreach($trigger_obj["pipingSourceEvents"] as $index => $fields)
+    {
+        foreach($fields as $i => $field)
         {
-            $trigger_errors[$index] = $err;
+            if(!$data_entry_trigger_builder->isValidEvent($field))
+            {
+                $errors[$index]["pipingSourceEvents"][$index][$i] = "$field is an invalid event!";
+            }
         }
     }
-}
 
-foreach($settings["linkSourceEvent"] as $index => $field)
-{
-    if(!$data_entry_trigger_builder->isValidEvent($field))
+    foreach($trigger_obj["pipingSourceFields"] as $index => $fields)
     {
-        $errors["linkSourceEvent"][$index] = "$field is an invalid event!";
-    }
-}
-
-foreach($settings["linkSource"] as $index => $field)
-{
-    if(!$data_entry_trigger_builder->isValidField($field))
-    {
-        $errors["linkSource"][$index] = "$field is an invalid field!";
-    }
-}
-
-foreach($settings["linkDestEvent"] as $index => $field)
-{
-    if(!$data_entry_trigger_builder->isValidEvent($field, $dest_project_pid))
-    {
-        $errors["linkDestEvent"][$index] = "$field is an invalid event!";
-    }
-}
-
-foreach($settings["linkDest"] as $index => $field)
-{
-    if(!$data_entry_trigger_builder->isValidField($field, $dest_project_pid))
-    {
-        $errors["linkDest"][$index] = "$field is an invalid field!";
-    }
-}
-
-foreach($settings["pipingSourceEvents"] as $index => $fields)
-{
-    foreach($fields as $i => $field)
-    {
-        if(!$data_entry_trigger_builder->isValidEvent($field))
+        foreach($fields as $i => $field)
         {
-            $errors["pipingSourceEvents"][$index][$i] = "$field is an invalid event!";
+            if(!$data_entry_trigger_builder->isValidField($field))
+            {
+                $errors[$index]["pipingSourceFields"][$index][$i] = "$field is an invalid field!";
+            }
         }
     }
-}
 
-foreach($settings["pipingSourceFields"] as $index => $fields)
-{
-    foreach($fields as $i => $field)
+    foreach($trigger_obj["pipingDestEvents"] as $index => $fields)
     {
-        if(!$data_entry_trigger_builder->isValidField($field))
+        foreach($fields as $i => $field)
         {
-            $errors["pipingSourceFields"][$index][$i] = "$field is an invalid field!";
+            if(!$data_entry_trigger_builder->isValidEvent($field, $dest_project_pid))
+            {
+                $errors[$index]["pipingDestEvents"][$index][$i] = "$field is an invalid event!";
+            }
         }
     }
-}
 
-foreach($settings["pipingDestEvents"] as $index => $fields)
-{
-    foreach($fields as $i => $field)
+    foreach($trigger_obj["pipingDestFields"] as $index => $fields)
     {
-        if(!$data_entry_trigger_builder->isValidEvent($field, $dest_project_pid))
+        foreach($fields as $i => $field)
         {
-            $errors["pipingDestEvents"][$index][$i] = "$field is an invalid event!";
+            if(!$data_entry_trigger_builder->isValidField($field, $dest_project_pid))
+            {
+                $errors[$index]["pipingDestFields"][$index][$i] = "$field is an invalid field!";
+            }
         }
     }
-}
 
-foreach($settings["pipingDestFields"] as $index => $fields)
-{
-    foreach($fields as $i => $field)
+    foreach($trigger_obj["setDestEvents"] as $index => $fields)
     {
-        if(!$data_entry_trigger_builder->isValidField($field, $dest_project_pid))
+        foreach($fields as $i => $field)
         {
-            $errors["pipingDestFields"][$index][$i] = "$field is an invalid field!";
+            if(!$data_entry_trigger_builder->isValidEvent($field, $dest_project_pid))
+            {
+                $errors[$index]["setDestEvents"][$index][$i] = "$field is an invalid event!";
+            }
         }
     }
-}
 
-foreach($settings["setDestEvents"] as $index => $fields)
-{
-    foreach($fields as $i => $field)
+    foreach($trigger_obj["setDestFields"] as $index => $fields)
     {
-        if(!$data_entry_trigger_builder->isValidEvent($field, $dest_project_pid))
+        foreach($fields as $i => $field)
         {
-            $errors["setDestEvents"][$index][$i] = "$field is an invalid event!";
+            if(!$data_entry_trigger_builder->isValidField($field, $dest_project_pid))
+            {
+                $errors[$index]["setDestFields"][$index][$i] = "$field is an invalid field!";
+            }
         }
     }
-}
 
-foreach($settings["setDestFields"] as $index => $fields)
-{
-    foreach($fields as $i => $field)
+    foreach($trigger_obj["sourceInstrEvents"] as $index => $fields)
     {
-        if(!$data_entry_trigger_builder->isValidField($field, $dest_project_pid))
+        foreach($fields as $i => $field)
         {
-            $errors["setDestFields"][$index][$i] = "$field is an invalid field!";
+            if(!$data_entry_trigger_builder->isValidEvent($field))
+            {
+                $errors[$index]["sourceInstrEvents"][$index][$i] = "$field is an invalid event!";
+            }
         }
     }
-}
 
-foreach($settings["sourceInstrEvents"] as $index => $fields)
-{
-    foreach($fields as $i => $field)
+    foreach($trigger_obj["sourceInstr"] as $index => $fields)
     {
-        if(!$data_entry_trigger_builder->isValidEvent($field))
+        foreach($fields as $i => $field)
         {
-            $errors["sourceInstrEvents"][$index][$i] = "$field is an invalid event!";
+            if(!$data_entry_trigger_builder->isValidInstrument($field))
+            {
+                $errors[$index]["sourceInstr"][$index][$i] = "$field is an invalid instrument!";
+            }
         }
     }
-}
 
-foreach($settings["sourceInstr"] as $index => $fields)
-{
-    foreach($fields as $i => $field)
+    foreach($trigger_obj["destInstrEvents"] as $index => $fields)
     {
-        if(!$data_entry_trigger_builder->isValidInstrument($field))
+        foreach($fields as $i => $field)
         {
-            $errors["sourceInstr"][$index][$i] = "$field is an invalid instrument!";
+            if(!$data_entry_trigger_builder->isValidEvent($field, $dest_project_pid))
+            {
+                $errors[$index]["destInstrEvents"][$index][$i] = "$field is an invalid event!";
+            }
         }
     }
-}
 
-foreach($settings["destInstrEvents"] as $index => $fields)
-{
-    foreach($fields as $i => $field)
+    if (!empty($trigger_obj["surveyUrlEvent"]) && !$data_entry_trigger_builder->isValidEvent($trigger_obj["surveyUrlEvent"], $dest_project_pid))
     {
-        if(!$data_entry_trigger_builder->isValidEvent($field, $dest_project_pid))
-        {
-            $errors["destInstrEvents"][$index][$i] = "$field is an invalid event!";
-        }
+        $errors[$index]["surveyUrlEvent"] = "Invalid event!";
     }
-}
 
-foreach($settings["surveyUrlEvent"] as $index => $field)
-{
-    if($field <> "" && !$data_entry_trigger_builder->isValidEvent($field, $dest_project_pid))
+    if (!empty($trigger_obj["surveyUrl"]) && !$data_entry_trigger_builder->isValidInstrument($trigger_obj["surveyUrl"], $dest_project_pid))
     {
-        $errors["surveyUrlEvent"][$index] = "$field is an invalid event!";
+        $errors[$index]["surveyUrl"] = "Invalid instrument!";
     }
-}
 
-foreach($settings["surveyUrl"] as $index => $field)
-{
-    if($field <> "" && !$data_entry_trigger_builder->isValidInstrument($field, $dest_project_pid))
+    if (!empty($trigger_obj["saveUrlEvent"]) && !$data_entry_trigger_builder->isValidEvent($trigger_obj["saveUrlEvent"])) 
     {
-        $errors["surveyUrl"][$index] = "$field is an invalid instrument!";
+        $errors[$index]["saveUrlEvent"] = "Invalid event!";
     }
-}
 
-foreach($settings["saveUrlEvent"] as $index => $field)
-{
-    if($field <> "" && !$data_entry_trigger_builder->isValidEvent($field))
+    if (!empty($trigger_obj["saveUrlField"]) && !$data_entry_trigger_builder->isValidField($trigger_obj["saveUrlField"])) 
     {
-        $errors["saveUrlEvent"][$index] = "$field is an invalid event!";
+        $errors[$index]["saveUrlField"] = "Invalid field!";
     }
-}
-
-foreach($settings["saveUrlField"] as $index => $field)
-{
-    if($field <> "" && !$data_entry_trigger_builder->isValidField($field))
-    {
-        $errors["saveUrlField"][$index] = "$field is an invalid field!";
-    }
-}
-
-if (!empty($trigger_errors))
-{
-    $errors["trigger_errors"] = $trigger_errors;
 }
 
 if (!empty($errors))

@@ -89,100 +89,101 @@
 
                 if (errors.success != true)
                 {
-                    if (errors.linkSourceEvent) 
+                    for (let i = 0; i < errors.length; i++)
                     {
-                        addErrors('linkSourceEvent', errors.linkSourceEvent);
-                    }
+                        var errors_obj = errors[i];
 
-                    if (errors.linkDestEvent)
-                    {
-                        addErrors('linkDestEvent', errors.linkDestEvent);
-                    }
-
-                    if (errors.linkSource) 
-                    {
-                        addErrors('linkSource', errors.linkSource);
-                    }
-
-                    if (errors.linkDest)
-                    {
-                        addErrors('linkDest', errors.linkDest);
-                    }
-                    
-                    if (errors.pipingSourceEvents)
-                    {
-                        addTableErrors(errors.pipingSourceEvents, "pipingSourceEvents");
-                    }
-
-                    if (errors.pipingSourceFields)
-                    {
-                        addTableErrors(errors.pipingSourceFields, "pipingSourceFields");
-                    }
-
-                    if (errors.pipingDestEvents)
-                    {
-                        addTableErrors(errors.pipingDestEvents, "pipingDestEvents");
-                    }
-
-                    if (errors.pipingDestFields)
-                    {
-                        addTableErrors(errors.pipingDestFields, "pipingDestFields");
-                    }
-
-                    if (errors.setDestEvents)
-                    {
-                        addTableErrors(errors.setDestEvents, "setDestEvents");
-                    }
-
-                    if (errors.setDestFields)
-                    {
-                        addTableErrors(errors.setDestFields, "setDestFields");
-                    }
-
-                    if (errors.sourceInstrEvents)
-                    {
-                        addTableErrors(errors.sourceInstrEvents, "sourceInstrEvents");
-                    }
-
-                    if (errors.sourceInstr)
-                    {
-                        addTableErrors(errors.sourceInstr, "sourceInstr");
-                    }
-
-                    if (errors.trigger_errors)
-                    {
-                        var triggers = $('.det-trigger');
-                        for (var index in errors.trigger_errors)
+                        if (errors_obj.trigger_errors)
                         {
-                            var item = errors.trigger_errors[index];
+                            var item = errors_obj.trigger_errors;
                             var msg = "";
                             item.forEach(function(m) {
                                 msg += m + "<br/>";
                             });
-                            $(triggers[index]).find("input").addClass("error")
-                            $(triggers[index]).after("<p class='error-msg'><i>" + msg + "</i></p>")
+                            $('.det-trigger:eq(' + i + ')').find("input").addClass("error");
+                            $('.det-trigger:eq(' + i + ')').after("<p class='error-msg'><i>" + msg + "</i></p>");
                         }
-                    }
 
-                    if (errors.surveyUrlEvent) 
-                    {
-                        addErrors('surveyUrlEvent', errors.surveyUrlEvent);
-                    }
+                        if (errors_obj.linkSourceEvent) 
+                        {
+                            addError(i, 'linkSourceEvent', errors_obj.linkSourceEvent);
+                        }
 
-                    if (errors.surveyUrl)
-                    {
-                        addErrors('surveyUrl', errors.surveyUrl);
-                    }
+                        if (errors_obj.linkDestEvent)
+                        {
+                            addError(i, 'linkDestEvent', errors_obj.linkDestEvent);
+                        }
 
-                    if (errors.saveUrlEvent) 
-                    {
-                        addErrors('saveUrlEvent', errors.saveUrlEvent);
-                    }
+                        if (errors_obj.linkSource) 
+                        {
+                            addError(i, 'linkSource', errors_obj.linkSource);
+                        }
 
-                    if (errors.saveUrlField)
-                    {
-                        addErrors('saveUrlField', errors.saveUrlField);
-                    }
+                        if (errors_obj.linkDest)
+                        {
+                            addError(i, 'linkDest', errors_obj.linkDest);
+                        }
+                        
+                        if (errors_obj.pipingSourceEvents)
+                        {
+                            addTableErrors(i, errors_obj.pipingSourceEvents, "pipingSourceEvents");
+                        }
+
+                        if (errors_obj.pipingSourceFields)
+                        {
+                            addTableErrors(i, errors_obj.pipingSourceFields, "pipingSourceFields");
+                        }
+
+                        if (errors_obj.pipingDestEvents)
+                        {
+                            addTableErrors(i, errors_obj.pipingDestEvents, "pipingDestEvents");
+                        }
+
+                        if (errors_obj.pipingDestFields)
+                        {
+                            addTableErrors(i, errors_obj.pipingDestFields, "pipingDestFields");
+                        }
+
+                        if (errors_obj.setDestEvents)
+                        {
+                            addTableErrors(i, errors_obj.setDestEvents, "setDestEvents");
+                        }
+
+                        if (errors_obj.setDestFields)
+                        {
+                            addTableErrors(i, errors_obj.setDestFields, "setDestFields");
+                        }
+
+                        if (errors_obj.sourceInstrEvents)
+                        {
+                            addTableErrors(i, errors_obj.sourceInstrEvents, "sourceInstrEvents");
+                        }
+
+                        if (errors_obj.sourceInstr)
+                        {
+                            addTableErrors(i, errors_obj.sourceInstr, "sourceInstr");
+                        }
+
+                        if (errors_obj.surveyUrlEvent) 
+                        {
+                            addError(i, 'surveyUrlEvent', errors_obj.surveyUrlEvent);
+                        }
+
+                        if (errors_obj.surveyUrl)
+                        {
+                            addError(i, 'surveyUrl', errors_obj.surveyUrl);
+                        }
+
+                        if (errors_obj.saveUrlEvent) 
+                        {
+                            addError(i, 'saveUrlEvent', errors_obj.saveUrlEvent);
+                        }
+
+                        if (errors_obj.saveUrlField)
+                        {
+                            addError(i, 'saveUrlField', errors_obj.saveUrlField);
+                        }
+                    }   
                 }
                 else
                 {

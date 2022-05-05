@@ -372,26 +372,18 @@ function updateAutocompleteItems(data)
     $(".surveyUrl").autocomplete({source: destInstruments});
 }
 
-function addErrors(className, errors)
+function addError(index, class, error)
 {
-    var items = $('.' + className);
-    for (var index in errors)
-    {
-        var error = errors[index];
-        $(items[index]).addClass("error")
-        $(items[index]).after("<p class='error-msg'><i>" + error + "</i></p>")
-    }
+    $('.' + class + ':eq(' + index + ')').addClass("error");
+    $('.' + class + ':eq(' + index + ')').after("<p class='error-msg'><i>" + error + "</i></p>");
 }
 
-function addTableErrors(errors, inputName)
+function addTableErrors(index, errors, inputName)
 {
-    for(var index in errors)
+    var items = $("td > input[name='triggers[" + index + "][" + inputName + "][]']");
+    for(var i in errors[index])
     {
-        var items = $("td > input[name='" + inputName + "[" + index + "][]']");
-        for(var i in errors[index])
-        {
-            var msg =  errors[index][i];
-            $(items[i]).after("<p class='error-msg'><i>" + msg + "</i></p>");
-        }   
-    }
+        var msg =  errors[index][i];
+        $(items[i]).after("<p class='error-msg'><i>" + msg + "</i></p>");
+    }   
 }
