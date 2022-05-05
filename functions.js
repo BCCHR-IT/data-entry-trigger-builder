@@ -131,7 +131,7 @@ function addTrigger()
                             "<span class='fa fa-trash-alt delete-trigger-btn'></span>" +
                         "</div>" +
                     "</div>" +
-                    "<textarea rows='1' name=\"triggers[]['trigger']\" class='form-control det-trigger-input' required></textarea>" +
+                    "<textarea rows='1' name=\"triggers[][trigger]\" class='form-control det-trigger-input' required></textarea>" +
                 "</div>" +
                 "<h6 style='margin-top:10px'>Record Linkage</h6>" +
                 "<p>" + 
@@ -143,10 +143,10 @@ function addTrigger()
                         "<div class='class-sm-12'><label>Link source project field</label></div>" + 
                         "<div class='row'>" + 
                             "<div class='col-sm-6'>" +
-                                "<input class='linkSourceEvent source-events-autocomplete form-control' name=\"triggers[]['linkSourceEvent']\" placeholder='Type to search for event' required>" +
+                                "<input class='linkSourceEvent source-events-autocomplete form-control' name=\"triggers[][linkSourceEvent]\" placeholder='Type to search for event' required>" +
                             "</div>" +
                             "<div class='col-sm-6'>" + 
-                                "<input class='linkSource source-fields-autocomplete form-control' name=\"triggers[]['linkSource']\" placeholder='Type to search for field' required>" +
+                                "<input class='linkSource source-fields-autocomplete form-control' name=\"triggers[][linkSource]\" placeholder='Type to search for field' required>" +
                             "</div>" + 
                         "</div>" +
                     "</div>" +
@@ -154,10 +154,10 @@ function addTrigger()
                         "<div class='class-sm-12' id='link-source-text'><label>To linked project field</label></div>" + 
                         "<div class='row'>" + 
                             "<div class='col-sm-6 dest-event-wrapper'>" + 
-                                "<input class='linkDestEvent dest-events-autocomplete form-control' name=\"triggers[]['linkDestEvent']\" placeholder='Type to search for event' required>" +
+                                "<input class='linkDestEvent dest-events-autocomplete form-control' name=\"triggers[][linkDestEvent]\" placeholder='Type to search for event' required>" +
                             "</div>" + 
                             "<div id='link-source-wrapper' class='col-sm-6'>" + 
-                                "<input class='linkDest dest-fields-autocomplete form-control' name=\"triggers[]['linkDest']\" placeholder='Type to search for field' required>" +
+                                "<input class='linkDest dest-fields-autocomplete form-control' name=\"triggers[][linkDest]\" placeholder='Type to search for field' required>" +
                             "</div>" +
                         "</div>" + 
                     "</div>" + 
@@ -165,9 +165,9 @@ function addTrigger()
                         "<h6>Create Empty Records</h6>" + 
                         "<div class='class-sm-12'><label>If 'yes' is chosen, then an empty record is created when the trigger is met. Use this option when you don't want any data moved with the triggers.</label></div>" + 
                         "<div class='form-check col-sm-12'>" + 
-                            "<input type='radio' name=\"triggers[]['create-empty-record']\" class='create-empty-record form-check-input' value='1' required><label class='form-check-label'>Yes</label>" + 
+                            "<input type='radio' name=\"triggers[][create-empty-record]\" class='create-empty-record form-check-input' value='1' required><label class='form-check-label'>Yes</label>" + 
                             "<br>" + 
-                            "<input type='radio' name=\"triggers[]['create-empty-record']\" class='create-empty-record form-check-input' value='0' required><label class='form-check-label'>No</label>" + 
+                            "<input type='radio' name=\"triggers[][create-empty-record]\" class='create-empty-record form-check-input' value='0' required><label class='form-check-label'>No</label>" + 
                         "</div>" + 
                     "</div>" + 
                     "<div class='col-sm-6'>" + 
@@ -175,12 +175,12 @@ function addTrigger()
                         "<div class='class-sm-12'><label>Add a static prefix or postfix to the linked source field when moving data. If neither prefix or postfix is selected, then a prefix is used.</label></div>" +
                         "<div class='row'>" + 
                             "<div class='col-sm-6'>" +
-                                "<input class='form-control' name=\"triggers[]['prefixPostfixStr']\" placeholder='Enter your prefix/postfix'>" +
+                                "<input class='form-control' name=\"triggers[][prefixPostfixStr]\" placeholder='Enter your prefix/postfix'>" +
                             "</div>" + 
                             "<div class='col-sm-6'>" + 
-                                "<input type='checkbox' name=\"triggers[]['prefixOrPostfix']\" class='prefixOrPostfix form-check-input' value='pre'><label class='form-check-label'>Prefix</label>" + 
+                                "<input type='checkbox' name=\"triggers[][prefixOrPostfix]\" class='prefixOrPostfix form-check-input' value='pre'><label class='form-check-label'>Prefix</label>" + 
                                 "<br>" +
-                                "<input type='checkbox' name=\"triggers[]['prefixOrPostfix']\" class='prefixOrPostfix form-check-input' value='post'><label class='form-check-label'>Postfix</label>" +
+                                "<input type='checkbox' name=\"triggers[][prefixOrPostfix]\" class='prefixOrPostfix form-check-input' value='post'><label class='form-check-label'>Postfix</label>" +
                             "</div>" +
                         "</div>" +
                     "</div>" +
@@ -209,10 +209,10 @@ function addTrigger()
                         "<label>Specify the destination instrument the module will generate a survey url from.</label>" + 
                         "<div class='row'>" + 
                             "<div class='col-sm-6 ui-front dest-event-wrapper'>" +
-                                "<input class='surveyUrlEvent dest-events-autocomplete form-control' name=\"triggers[]['surveyUrlEvent']\" placeholder='Type to search for event'>" + 
+                                "<input class='surveyUrlEvent dest-events-autocomplete form-control' name=\"triggers[][surveyUrlEvent]\" placeholder='Type to search for event'>" + 
                             "</div>" +
                             "<div class='col-sm-6 ui-front'>" + 
-                                "<input class='surveyUrl form-control' name=\"triggers[]['surveyUrl']\" placeholder='Type to search for instrument'>" + 
+                                "<input class='surveyUrl form-control' name=\"triggers[][surveyUrl]\" placeholder='Type to search for instrument'>" + 
                             "</div>" + 
                         "</div>" + 
                     "</div>" + 
@@ -220,10 +220,10 @@ function addTrigger()
                         "<label>Specify the source field the survey url will be saved to, for redirection</label>" + 
                         "<div class='row'>" + 
                             "<div class='col-sm-6'>" + 
-                                "<input class='saveUrlEvent source-events-autocomplete form-control' name=\"triggers[]['saveUrlEvent']\" placeholder='Type to search for event'>" + 
+                                "<input class='saveUrlEvent source-events-autocomplete form-control' name=\"triggers[][saveUrlEvent]\" placeholder='Type to search for event'>" + 
                             "</div>" + 
                             "<div class='col-sm-6'>" +
-                                "<input class='saveUrlField source-fields-autocomplete form-control' name=\"triggers[]['saveUrlField']\" placeholder='Type to search for field'>" + 
+                                "<input class='saveUrlField source-fields-autocomplete form-control' name=\"triggers[][saveUrlField]\" placeholder='Type to search for field'>" + 
                             "</div>" + 
                         "</div>" + 
                     "</div>" + 
