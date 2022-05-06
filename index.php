@@ -245,11 +245,11 @@ $Proj = new Project();
                                 <div class='row'>
                                     <?php if (REDCap::isLongitudinal()): ?>
                                         <div class='col-sm-6'>
-                                            <input class="source-events-autocomplete form-control" name='triggers[<?php print $index;?>][linkSourceEvent]' placeholder="Type to search for event" value="<?php print htmlspecialchars($trigger_obj["linkSourceEvent"], ENT_QUOTES); ?>" required>
+                                            <input class="linkSourceEvent source-events-autocomplete form-control" name='triggers[<?php print $index;?>][linkSourceEvent]' placeholder="Type to search for event" value="<?php print htmlspecialchars($trigger_obj["linkSourceEvent"], ENT_QUOTES); ?>" required>
                                         </div>
                                     <?php endif;?>
                                     <div class='col-sm-6'>
-                                        <input class="source-fields-autocomplete form-control" name='triggers[<?php print $index;?>][linkSource]' placeholder="Type to search for field" value="<?php print htmlspecialchars($trigger_obj["linkSource"], ENT_QUOTES); ?>" required>
+                                        <input class="linkSource source-fields-autocomplete form-control" name='triggers[<?php print $index;?>][linkSource]' placeholder="Type to search for field" value="<?php print htmlspecialchars($trigger_obj["linkSource"], ENT_QUOTES); ?>" required>
                                     </div> 
                                 </div>
                             </div>
@@ -257,10 +257,10 @@ $Proj = new Project();
                                 <div class='class-sm-12' id="link-source-text"><label>To linked project field</label></div>
                                 <div class='row'>
                                     <div class='col-sm-6 dest-event-wrapper' <?php if(empty($trigger_obj["linkDestEvent"])) {print "style='display:none'";} ?>>
-                                        <input class='dest-events-autocomplete form-control' name='triggers[<?php print $index;?>][linkDestEvent]' placeholder="Type to search for event" value="<?php print htmlspecialchars($trigger_obj["linkDestEvent"], ENT_QUOTES); ?>" required>
+                                        <input class='linkDestEvent dest-events-autocomplete form-control' name='triggers[<?php print $index;?>][linkDestEvent]' placeholder="Type to search for event" value="<?php print htmlspecialchars($trigger_obj["linkDestEvent"], ENT_QUOTES); ?>" required>
                                     </div>
                                     <div id="link-source-wrapper" class='col-sm-6'>
-                                        <input class='dest-fields-autocomplete form-control' name='triggers[<?php print $index;?>][linkDest]' placeholder="Type to search for field" value="<?php print htmlspecialchars($trigger_obj["linkDest"], ENT_QUOTES); ?>" required>
+                                        <input class='linkDest dest-fields-autocomplete form-control' name='triggers[<?php print $index;?>][linkDest]' placeholder="Type to search for field" value="<?php print htmlspecialchars($trigger_obj["linkDest"], ENT_QUOTES); ?>" required>
                                     </div>
                                 </div>
                             </div>
