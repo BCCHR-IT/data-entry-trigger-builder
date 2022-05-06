@@ -189,10 +189,12 @@
                             addError(i, 'saveUrlField', errors_obj.saveUrlField);
                         }
                     }   
+
+                    alert("You have errors in your DET! Please fix them before submitting again.");
                 }
                 else
                 {
-                    alert("Your DET has successfully been created");
+                    alert("Your DET has successfully been created.");
                 }
             },
             error: function (data, status, error) {
