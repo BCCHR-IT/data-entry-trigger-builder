@@ -439,60 +439,44 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
     public function redcap_save_record($project_id, $record, $instrument, $event_id, $group_id, $survey_hash, $response_id, $repeat_instance)
     {
         if ($project_id == $this->getProjectId())
-        {
+        {   
             // Get DET settings
-            $settings = json_decode($this->getProjectSetting("det_settings"), true);
-            
-            $dest_project = $settings["dest-project"];
-            $create_record_trigger = $settings["create-record-cond"];
+            $settings = json_decode($this->getProjectSetting("det_settings"), true);     
 
-            $link_source_event = $settings["linkSourceEvent"];
-            $link_source = $settings["linkSource"];
+            $triggers = $settings["triggers"];   
 
-            $link_dest_event = $settings["linkDestEvent"];
-            $link_dest_field = $settings["linkDest"];
-
-            $triggers = $settings["triggers"];
-
-            $piping_source_events = $settings["pipingSourceEvents"];
-            $piping_dest_events = $settings["pipingDestEvents"];
-
-            $piping_source_fields = $settings["pipingSourceFields"];
-            $piping_dest_fields = $settings["pipingDestFields"];
-
-            $set_dest_events = $settings["setDestEvents"];
-            $set_dest_fields = $settings["setDestFields"];
-            $set_dest_fields_values = $settings["setDestFieldsValues"];
-
-            $source_instruments_events = $settings["sourceInstrEvents"];
-            $source_instruments = $settings["sourceInstr"];
-            $dest_instruments_events = $settings["destInstrEvents"];
-
-            $overwrite_data = $settings["overwrite-data"];
-            $import_dags = $settings["import-dags"];
-            
             // Get current record data
             $record_data = json_decode(REDCap::getData("json", $record, null, null, null, false, $import_dags), true);
 
             /**
              * Process each trigger, and, if true, prepare associated data to move.
              */
-            foreach($triggers as $index => $trigger)
+            foreach($triggers as $index => $trigger_obj)
             {
-                $valid = REDCap::evaluateLogic($trigger, $project_id, $record); // REDCap class method to evaluate conditional logic.
+                $valid = REDCap::evaluateLogic($trigger_obj["trigger"], $project_id, $record); // REDCap class method to evaluate conditional logic.
                 if ($valid === null) // Null returned if logic is invalid. Else a boolean value.
                 {
-                    REDCap::logEvent("DET: Trigger was either syntactically incorrect, or parameters were invalid (e.g., record or event does not exist). No data moved.", "Trigger: $trigger", null, $record, $event_id, $project_id);
+                    REDCap::logEvent("DET: Trigger was either syntactically incorrect, or parameters were invalid (e.g., record or event does not exist). No data moved.", "Trigger: " . $trigger_obj["trigger"], null, $record, $event_id, $project_id);
                 }
                 else if ($valid)
                 {
-                    $at_least_one_trigger_valid = $valid;
+                    $dest_project = $trigger_obj["dest-project"];
+                    $create_record_trigger = $trigger_obj["create-record-cond"];
 
-                    $trigger_source_fields = $piping_source_fields[$index];
-                    $trigger_source_events = $piping_source_events[$index];
+                    $link_source_event = $trigger_obj["linkSourceEvent"];
+                    $link_source = $trigger_obj["linkSource"];
 
-                    $trigger_dest_fields = $piping_dest_fields[$index];
-                    $trigger_dest_events = $piping_dest_events[$index];
+                    $link_dest_event = $trigger_obj["linkDestEvent"];
+                    $link_dest_field = $trigger_obj["linkDest"];
+
+                    $overwrite_data = $trigger_obj["overwrite-data"];
+                    $import_dags = $trigger_obj["import-dags"];
+
+                    $trigger_source_fields = $trigger_obj["pipingSourceFields"];
+                    $trigger_source_events = $trigger_obj["pipingSourceEvents"];
+
+                    $trigger_dest_fields = $trigger_obj["pipingDestFields"];
+                    $trigger_dest_events = $trigger_obj["pipingDestEvents"];
 
                     /**
                      * Move field data from source to destination
@@ -540,9 +524,9 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                     /**
                      * Set destination fields as custom value
                      */
-                    $trigger_dest_fields = $set_dest_fields[$index];
-                    $trigger_dest_values = $set_dest_fields_values[$index];
-                    $trigger_dest_events = $set_dest_events[$index];
+                    $trigger_dest_fields = $trigger_obj["setDestFields"];
+                    $trigger_dest_values = $trigger_obj["setDestFieldsValues"];
+                    $trigger_dest_events = $trigger_obj["setDestEvents"];
 
                     foreach($trigger_dest_fields as $i => $dest_field)
                     {
@@ -575,9 +559,9 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                     /**
                      * Move source instruments to destination instruments (Is a one-to-one relationship).
                      */
-                    $trigger_source_instruments = $source_instruments[$index];
-                    $trigger_source_instruments_events = $source_instruments_events[$index];
-                    $trigger_dest_instruments_events = $dest_instruments_events[$index];
+                    $trigger_source_instruments = $trigger_obj["sourceInstr"];
+                    $trigger_source_instruments_events = $trigger_obj["sourceInstrEvents"];
+                    $trigger_dest_instruments_events = $trigger_obj["destInstrEvents"];
 
                     foreach($trigger_source_instruments as $i => $source_instrument)
                     {
@@ -614,177 +598,168 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                             $dest_record_data[$dest_event] = $event_data;
                         }
                     }
-                }
-            }
 
-            if (!empty($dest_record_data) || ($settings["create-empty-record"] == 1 && $at_least_one_trigger_valid))
-            {
-                // Check if the linking id field is the same as the record id field.
-                $dest_record_id = $this->framework->getRecordIdField($dest_project);
-                if ($dest_record_id != $link_dest_field)
-                {
-                    /**
-                     * Check for existing record, otherwise create a new one. Assume linking ID is unique.
-                     */
-
-                    // Search for the index of the linking id's event. If not found, then assume it's a classical project and that the index for the first event is 0.
-                    if (!empty($link_source_event))
+                    if (!empty($dest_record_data) || $trigger_obj["create-empty-record"] == 1)
                     {
-                        $key = array_search($link_source_event, array_column($record_data, "redcap_event_name"));
-                    }
-                    else
-                    {
-                        $key = 0;
-                    }
-
-                    $data = $record_data[$key];
-                    $link_dest_value = $data[$link_source];
-
-                    if (!empty($settings["prefixPostfixStr"]))
-                    {
-                        if ($settings["prefixOrPostfix"] == "post")
-                            $link_dest_value .= $settings["prefixPostfixStr"];
-                        else
-                            $link_dest_value = $settings["prefixPostfixStr"] . $link_dest_value;
-                    }
-
-                    // Set linking id
-                    if (!empty($link_dest_event))	
-                    {	
-                        $dest_record_data[$link_dest_event][$link_dest_field] = $link_dest_value;	
-                    }	
-                    else // Assume classic project	
-                    {	
-                        $dest_record_data["classic"][$link_dest_field] = $link_dest_value;
-                    }
-
-                    // Retrieve record id. Exit if there is no value for the linking field, as it should be filled and never change.
-                    if (empty($link_dest_value))
-                    {
-                        REDCap::logEvent("DET: Linking field value is empty, so no data moved", "Filter logic: [$link_dest_field] = ''", null, $record, $event_id, $project_id);
-                        return;
-                    }
-                    else 
-                    {
-                        $filter_logic = "[$link_dest_field] = '$link_dest_value'";
-                        $existing_record = REDCap::getData($dest_project, "json", null, $dest_record_id, $link_dest_event, null, false, false, false, $filter_logic);
-                        $existing_record = json_decode($existing_record, true);
-
-                        if (sizeof($existing_record) == 0)
+                        // Check if the linking id field is the same as the record id field.
+                        $dest_record_id = $this->framework->getRecordIdField($dest_project);
+                        if ($dest_record_id != $link_dest_field)
                         {
-                            $dest_record = $this->framework->addAutoNumberedRecord($dest_project);
-                        }
-                        else
-                        {
-                            $dest_record = $existing_record[0][$dest_record_id];
-                        }
-                    }
-                }
-                else
-                {
-                    $dest_record = $record_data[0][$link_source];
-                    if (!empty($settings["prefixPostfixStr"]))
-                    {
-                        if ($settings["prefixOrPostfix"] == "post")
-                            $dest_record .= $settings["prefixPostfixStr"];
-                        else
-                            $dest_record = $settings["prefixPostfixStr"] . $dest_record;
-                    }
-                }
-                
-                // Create a record to move if empty
-                if ($settings["create-empty-record"] == 1 && empty($dest_record_data))
-                {
-                    $dest_record_data[] = [
-                        $dest_record_id => $dest_record
-                    ];
-                }
+                            /**
+                             * Check for existing record, otherwise create a new one. Assume linking ID is unique.
+                             */
 
-                // Set record_id, and redcap_data_access_group if $import_dags is true
-                foreach ($dest_record_data as $i => $data)
-                {
-                    $dest_record_data[$i][$dest_record_id] = $dest_record;
-                    if ($import_dags)
-                    {
-                        $dest_record_data[$i]["redcap_data_access_group"] = $record_data[0]["redcap_data_access_group"];
-                    }
-                }
-
-                $dest_record_data = array_values($dest_record_data); // Don't need the keys to push, only the values.
-            }
-            
-            if (!empty($dest_record_data))
-            {
-                // Save DET data in destination project;
-                $save_response = REDCap::saveData($dest_project, "json", json_encode($dest_record_data), $overwrite_data);
-
-                if (!empty($save_response["errors"]))
-                {
-                    REDCap::logEvent("DET: Errors", json_encode($save_response["errors"]), null, $record, $event_id, $project_id);
-                }
-                else
-                {
-                    REDCap::logEvent("DET: Ran successfully", "Data was successfully imported from project $project_id to project $dest_project", null, $record, $event_id, $project_id);
-                }
-
-                if (!empty($save_response["warnings"]))
-                {
-                    REDCap::logEvent("DET: Ran sucessfully with Warnings", json_encode($save_response["warnings"]), null, $record, $event_id, $project_id);
-                }
-
-                if (!empty($save_response["ids"]))
-                {
-                    REDCap::logEvent("DET: Modified/Saved the following records", json_encode($save_response["ids"]), null, null, null, $dest_project);
-                }
-
-                /**
-                 * If data was saved without errors then generate survey link and save it to the source project 
-                 **/
-
-                if (empty($save_response["errors"]))
-                {
-                    $survey_url_event = $settings["surveyUrlEvent"];
-                    $survey_url_instrument = $settings["surveyUrl"];
-                    $save_url_event = $settings["saveUrlEvent"];
-                    $save_url_field = $settings["saveUrlField"];
-
-                    if (!empty($survey_url_instrument) && !empty($save_url_field))
-                    {
-                        if (!empty($survey_url_event))
-                        {
-                            if (!isset($Proj))
+                            // Search for the index of the linking id's event. If not found, then assume it's a classical project and that the index for the first event is 0.
+                            if (!empty($link_source_event))
                             {
-                                $Proj = new Project($dest_project);
-                                $dest_events = $Proj->getUniqueEventNames();
+                                $key = array_search($link_source_event, array_column($record_data, "redcap_event_name"));
                             }
-                            $survey_event_id = array_search($survey_url_event, $dest_events);
-                        }
-                        else
-                        {
-                            $survey_event_id = null;
-                        }
-
-                        $survey_url = REDCap::getSurveyLink($dest_record, $survey_url_instrument, $survey_event_id, 1, $dest_project);
-                        
-                        if (is_null($survey_url))
-                        {
-                            REDCap::logEvent("DET: Errors", "Survey url couldn't be generated. Please check your parameters for REDCap::getSurveyLink()\n\nProject = $dest_project\nRecord = $dest_record\nInstrument = $survey_url_instrument\nEvent ID = " . (is_null($survey_event_id) ? "null" : $survey_event_id), null, $record, $event_id, $project_id);
-                        }
-                        else
-                        {
-                            $record_id_field = REDCap::getRecordIdField();
-
-                            $save_url_data = [
-                                $record_id_field => $record,
-                                $save_url_field => $survey_url,
-                                "redcap_event_name" => empty($save_url_event) ? "" : $save_url_event
-                            ];
-
-                            $save_response = REDCap::saveData($project_id, "json", json_encode(array($save_url_data)));
-
-                            if (!empty($save_response["errors"]))
+                            else
                             {
-                                REDCap::logEvent("DET: Errors", "Unable to save survey url to $save_url_field. Received the following errors: " . json_encode($save_response["errors"]), null, $record, $event_id, $project_id);
+                                $key = 0;
+                            }
+
+                            $data = $record_data[$key];
+                            $link_dest_value = $data[$link_source];
+
+                            if (!empty($trigger_obj["prefixPostfixStr"]))
+                            {
+                                if ($trigger_obj["prefixOrPostfix"] == "post")
+                                    $link_dest_value .= $trigger_obj["prefixPostfixStr"];
+                                else
+                                    $link_dest_value = $trigger_obj["prefixPostfixStr"] . $link_dest_value;
+                            }
+
+                            // Set linking id
+                            if (!empty($link_dest_event))   
+                            {   
+                                $dest_record_data[$link_dest_event][$link_dest_field] = $link_dest_value;   
+                            }   
+                            else // Assume classic project  
+                            {   
+                                $dest_record_data["classic"][$link_dest_field] = $link_dest_value;
+                            }
+
+                            // Retrieve record id. Exit if there is no value for the linking field, as it should be filled and never change.
+                            if (empty($link_dest_value))
+                            {
+                                REDCap::logEvent("DET: Linking field value is empty, so no data moved", "Filter logic: [$link_dest_field] = ''", null, $record, $event_id, $project_id);
+                                return;
+                            }
+                            else 
+                            {
+                                $filter_logic = "[$link_dest_field] = '$link_dest_value'";
+                                $existing_record = REDCap::getData($dest_project, "json", null, $dest_record_id, $link_dest_event, null, false, false, false, $filter_logic);
+                                $existing_record = json_decode($existing_record, true);
+
+                                if (sizeof($existing_record) == 0)
+                                {
+                                    $dest_record = $this->framework->addAutoNumberedRecord($dest_project);
+                                }
+                                else
+                                {
+                                    $dest_record = $existing_record[0][$dest_record_id];
+                                }
+                            }
+                        }
+                        else
+                        {
+                            $dest_record = $record_data[0][$link_source];
+                            if (!empty($trigger_obj["prefixPostfixStr"]))
+                            {
+                                if ($trigger_obj["prefixOrPostfix"] == "post")
+                                    $dest_record .= $trigger_obj["prefixPostfixStr"];
+                                else
+                                    $dest_record = $trigger_obj["prefixPostfixStr"] . $dest_record;
+                            }
+                        }
+                        
+                        // Create a record to move if empty
+                        if ($trigger_obj["create-empty-record"] == 1 && empty($dest_record_data))
+                        {
+                            $dest_record_data[] = [
+                                $dest_record_id => $dest_record
+                            ];
+                        }
+
+                        // Set record_id, and redcap_data_access_group if $import_dags is true
+                        foreach ($dest_record_data as $i => $data)
+                        {
+                            $dest_record_data[$i][$dest_record_id] = $dest_record;
+                            if ($import_dags)
+                            {
+                                $dest_record_data[$i]["redcap_data_access_group"] = $record_data[0]["redcap_data_access_group"];
+                            }
+                        }
+
+                        $dest_record_data = array_values($dest_record_data); // Don't need the keys to push, only the values.
+                    }
+                    
+                    if (!empty($dest_record_data))
+                    {
+                        // Save DET data in destination project;
+                        $save_response = REDCap::saveData($dest_project, "json", json_encode($dest_record_data), $overwrite_data);
+
+                        if (!empty($save_response["errors"]))
+                        {
+                            REDCap::logEvent("DET: Errors for Trigger #$index", json_encode($save_response["errors"]), null, $record, $event_id, $project_id);
+                        }
+
+                        if (!empty($save_response["warnings"]))
+                        {
+                            REDCap::logEvent("DET: Ran sucessfully with Warnings for Trigger #$index", json_encode($save_response["warnings"]), null, $record, $event_id, $project_id);
+                        }
+
+                        /**
+                         * If data was saved without errors then generate survey link and save it to the source project 
+                         **/
+
+                        if (empty($save_response["errors"]))
+                        {
+                            $survey_url_event = $trigger_obj["surveyUrlEvent"];
+                            $survey_url_instrument = $trigger_obj["surveyUrl"];
+                            $save_url_event = $trigger_obj["saveUrlEvent"];
+                            $save_url_field = $trigger_obj["saveUrlField"];
+
+                            if (!empty($survey_url_instrument) && !empty($save_url_field))
+                            {
+                                if (!empty($survey_url_event))
+                                {
+                                    if (!isset($Proj))
+                                    {
+                                        $Proj = new Project($dest_project);
+                                        $dest_events = $Proj->getUniqueEventNames();
+                                    }
+                                    $survey_event_id = array_search($survey_url_event, $dest_events);
+                                }
+                                else
+                                {
+                                    $survey_event_id = null;
+                                }
+
+                                $survey_url = REDCap::getSurveyLink($dest_record, $survey_url_instrument, $survey_event_id, 1, $dest_project);
+                                
+                                if (is_null($survey_url))
+                                {
+                                    REDCap::logEvent("DET: Errors", "Survey url couldn't be generated. Please check your parameters for REDCap::getSurveyLink()\n\nProject = $dest_project\nRecord = $dest_record\nInstrument = $survey_url_instrument\nEvent ID = " . (is_null($survey_event_id) ? "null" : $survey_event_id), null, $record, $event_id, $project_id);
+                                }
+                                else
+                                {
+                                    $record_id_field = REDCap::getRecordIdField();
+
+                                    $save_url_data = [
+                                        $record_id_field => $record,
+                                        $save_url_field => $survey_url,
+                                        "redcap_event_name" => empty($save_url_event) ? "" : $save_url_event
+                                    ];
+
+                                    $save_response = REDCap::saveData($project_id, "json", json_encode(array($save_url_data)));
+
+                                    if (!empty($save_response["errors"]))
+                                    {
+                                        REDCap::logEvent("DET: Errors", "Unable to save survey url to $save_url_field. Received the following errors: " . json_encode($save_response["errors"]), null, $record, $event_id, $project_id);
+                                    }
+                                }
                             }
                         }
                     }
