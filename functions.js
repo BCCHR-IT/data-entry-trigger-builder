@@ -275,7 +275,7 @@ function fillPipingFieldForm(elem)
         $('#event-select').val(row.find(".pipingSourceEvents").val());
     }
 
-    if (row.find(".pipingDestEvents") && $('#dest-event-select').is(':visible'))
+    if (row.find(".pipingDestEvents") && $('#dest-event-select').attr('data-is-longitudinal') == 'yes')
     {
         $('#dest-event-select').val(row.find(".pipingDestEvents").val());
     }
@@ -293,7 +293,7 @@ function fillFieldForm(elem)
     $('#field-value').val(row.find(".setDestFieldsValues").val());
     $('#dest-field-select').val(row.find(".setDestFields").val());
 
-    if (row.find(".setDestEvents") && $('#dest-event-select').is(':visible'))
+    if (row.find(".setDestEvents") && $('#dest-event-select').attr('data-is-longitudinal') == 'yes')
     {
         $('#dest-event-select').val(row.find(".setDestEvents").val());
     }
@@ -313,7 +313,7 @@ function fillInstrForm(elem)
         $('#instr-event-select').val(row.find(".sourceInstrEvents").val()); 
     }
 
-    if (row.find(".destInstrEvents"))
+    if (row.find(".destInstrEvents") && $('#dest-event-instrument').attr('data-is-longitudinal') == 'yes')
     {
         $('#dest-event-instrument').val(row.find(".destInstrEvents").val());
     }
@@ -360,12 +360,14 @@ function updateAutocompleteItems(data)
         $(".dest-events-autocomplete").prop("required", true);
         $(".dest-event-wrapper").show();
         $("#add-instr-label-event-div").show();
+        $("#dest-event-instrument, #dest-event-select").attr("data-is-longitudinal", "yes");
     }
     else {
         $(".dest-events-autocomplete").val("");
         $(".dest-events-autocomplete").prop("required", false);
         $(".dest-event-wrapper").hide();
         $("#add-instr-label-event-div").hide();
+        $("#dest-event-instrument, #dest-event-select").attr("data-is-longitudinal", "no");
     }
     $(".surveyUrlEvent").prop("required", false); // This field should always be optional
     $(".dest-fields-autocomplete").autocomplete({source: destFields});

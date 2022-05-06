@@ -89,7 +89,7 @@
 
                 if (errors.success != true)
                 {
-                    for (let i = 0; i < errors.length; i++)
+                    for (var i in errors)
                     {
                         var errors_obj = errors[i];
 
@@ -184,7 +184,6 @@
                             addError(i, 'saveUrlEvent', errors_obj.saveUrlEvent);
                         }
 
-                        
                         if (errors_obj.saveUrlField)
                         {
                             addError(i, 'saveUrlField', errors_obj.saveUrlField);

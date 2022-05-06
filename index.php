@@ -110,13 +110,13 @@ $Proj = new Project();
             <p style="color:red"><b><?php print $import_err_msg; ?></b></p>
             <?php endif;?>
             <hr/>
-            <?php if (!empty($settings)): ?>
+            <!-- <?php if (!empty($settings)): ?>
             <h5>Download Release Notes</h5>
             <form id="download-form" action="<?php print $module->getUrl("downloadReleaseNotes.php");?>" method="post">
                 <button id="download-release-notes-btn" type="submit" class="btn btn-primary" style="margin-top:20px">Download Release Notes</button>
             </form>
             <hr/>
-            <?php endif;?>
+            <?php endif;?> -->
             <form id="det-form" method="post">
                 <h5>Select a Linked Project</h5>
                 <p>The module will move the data into the chosen project.</p>
@@ -235,7 +235,7 @@ $Proj = new Project();
                             </div>
                             <textarea rows="1" name="triggers[<?php print $index;?>][trigger]" class="form-control det-trigger-input" required><?php print str_replace("\"", "'", $trigger); ?></textarea>
                         </div>
-                        <h6>Record Linkage</h6>
+                        <h6 style="margin-top:10px">Record Linkage</h6>
                         <p>
                             Create subjects/push data to linked project using variables in source and linked project. When the trigger is met, then records between the source and linked project will be linked via the chosen fields. <b>When linking projects with anything other than the record ID fields, 'Auto-numbering for records' must be turned on in the destination project.</b>
                         </p>
@@ -427,10 +427,10 @@ $Proj = new Project();
                                 <label>Specify the destination instrument the module will generate a survey url from.</label>
                                 <div class="row">
                                     <div class='col-sm-6 ui-front dest-event-wrapper' <?php if(empty($trigger_obj["surveyUrlEvent"])) {print "style='display:none'";} ?>>
-                                        <input class='dest-events-autocomplete form-control' name="triggers[<?php print $index;?>][surveyUrlEvent]" value="<?php print htmlspecialchars($trigger_obj["surveyUrlEvent"], ENT_QUOTES); ?>" placeholder="Type to search for event">
+                                        <input class='surveyUrlEvent dest-events-autocomplete form-control' name="triggers[<?php print $index;?>][surveyUrlEvent]" value="<?php print htmlspecialchars($trigger_obj["surveyUrlEvent"], ENT_QUOTES); ?>" placeholder="Type to search for event">
                                     </div>
                                     <div class='col-sm-6 ui-front'>
-                                        <input class='form-control' name="triggers[<?php print $index;?>][surveyUrl]" value="<?php print htmlspecialchars($trigger_obj["surveyUrl"], ENT_QUOTES); ?>" placeholder="Type to search for instrument">
+                                        <input class='surveyUrl form-control' name="triggers[<?php print $index;?>][surveyUrl]" value="<?php print htmlspecialchars($trigger_obj["surveyUrl"], ENT_QUOTES); ?>" placeholder="Type to search for instrument">
                                     </div>
                                 </div>
                             </div>
@@ -439,11 +439,11 @@ $Proj = new Project();
                                 <div class="row">
                                     <?php if (REDCap::isLongitudinal()): ?>
                                     <div class='col-sm-6'>
-                                        <input class="source-events-autocomplete form-control" name='triggers[<?php print $index;?>][saveUrlEvent]' value="<?php print htmlspecialchars($trigger_obj["saveUrlEvent"], ENT_QUOTES); ?>" placeholder="Type to search for event">
+                                        <input class="saveUrlEvent source-events-autocomplete form-control" name='triggers[<?php print $index;?>][saveUrlEvent]' value="<?php print htmlspecialchars($trigger_obj["saveUrlEvent"], ENT_QUOTES); ?>" placeholder="Type to search for event">
                                     </div>
                                     <?php endif;?>
                                     <div class='col-sm-6'>
-                                        <input class="source-fields-autocomplete form-control" name='triggers[<?php print $index;?>][saveUrlField]' value="<?php print htmlspecialchars($trigger_obj["saveUrlField"], ENT_QUOTES); ?>" placeholder="Type to search for field">
+                                        <input class="saveUrlField source-fields-autocomplete form-control" name='triggers[<?php print $index;?>][saveUrlField]' value="<?php print htmlspecialchars($trigger_obj["saveUrlField"], ENT_QUOTES); ?>" placeholder="Type to search for field">
                                     </div>
                                 </div>
                             </div>
@@ -529,7 +529,7 @@ $Proj = new Project();
                             </div>
                             <div class='row' style='margin-top:20px'>
                                 <div class='col-sm-6 ui-front dest-event-wrapper' style='z-index: 0'>
-                                    <input class='dest-events-autocomplete form-control' id="dest-event-select" placeholder="Type to search for event">
+                                    <input data-is-longitudinal="yes" class='dest-events-autocomplete form-control' id="dest-event-select" placeholder="Type to search for event">
                                 </div>
                                 <div class='col-sm-6 ui-front' style='z-index: 0'>
                                     <input class='dest-fields-autocomplete form-control' id="dest-field-select" placeholder="Type to search for field">
@@ -573,7 +573,7 @@ $Proj = new Project();
                             </div>
                             <div class='row' style='margin-top:20px'>
                                 <div class='col-sm-6 ui-front dest-event-wrapper' style='z-index: 0'>
-                                    <input class='dest-events-autocomplete form-control' id="dest-event-instrument" placeholder="Type to search for event">
+                                    <input data-is-longitudinal="yes" class='dest-events-autocomplete form-control' id="dest-event-instrument" placeholder="Type to search for event">
                                 </div>
                             </div>
                         </div>
