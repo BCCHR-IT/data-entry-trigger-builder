@@ -233,7 +233,7 @@ $Proj = new Project();
                                     <span class="fa fa-trash-alt delete-trigger-btn"></span>
                                 </div>
                             </div>
-                            <textarea rows="1" name="triggers[]" class="form-control det-trigger-input" required><?php print str_replace("\"", "'", $trigger); ?></textarea>
+                            <textarea rows="1" name="triggers[<?php print $index;?>][trigger]" class="form-control det-trigger-input" required><?php print str_replace("\"", "'", $trigger); ?></textarea>
                         </div>
                         <h6>Record Linkage</h6>
                         <p>
@@ -245,11 +245,11 @@ $Proj = new Project();
                                 <div class='row'>
                                     <?php if (REDCap::isLongitudinal()): ?>
                                         <div class='col-sm-6'>
-                                            <input id='linkSourceEvent' class="source-events-autocomplete form-control" name='linkSourceEvent' placeholder="Type to search for event" value="<?php print htmlspecialchars($trigger_obj["linkSourceEvent"], ENT_QUOTES); ?>" required>
+                                            <input class="source-events-autocomplete form-control" name='triggers[<?php print $index;?>][linkSourceEvent]' placeholder="Type to search for event" value="<?php print htmlspecialchars($trigger_obj["linkSourceEvent"], ENT_QUOTES); ?>" required>
                                         </div>
                                     <?php endif;?>
                                     <div class='col-sm-6'>
-                                        <input id='linkSource' class="source-fields-autocomplete form-control" name='linkSource' placeholder="Type to search for field" value="<?php print htmlspecialchars($trigger_obj["linkSource"], ENT_QUOTES); ?>" required>
+                                        <input class="source-fields-autocomplete form-control" name='triggers[<?php print $index;?>][linkSource]' placeholder="Type to search for field" value="<?php print htmlspecialchars($trigger_obj["linkSource"], ENT_QUOTES); ?>" required>
                                     </div> 
                                 </div>
                             </div>
@@ -257,10 +257,10 @@ $Proj = new Project();
                                 <div class='class-sm-12' id="link-source-text"><label>To linked project field</label></div>
                                 <div class='row'>
                                     <div class='col-sm-6 dest-event-wrapper' <?php if(empty($trigger_obj["linkDestEvent"])) {print "style='display:none'";} ?>>
-                                        <input id='linkDestEvent' class='dest-events-autocomplete form-control' name='linkDestEvent' placeholder="Type to search for event" value="<?php print htmlspecialchars($trigger_obj["linkDestEvent"], ENT_QUOTES); ?>" required>
+                                        <input class='dest-events-autocomplete form-control' name='triggers[<?php print $index;?>][linkDestEvent]' placeholder="Type to search for event" value="<?php print htmlspecialchars($trigger_obj["linkDestEvent"], ENT_QUOTES); ?>" required>
                                     </div>
                                     <div id="link-source-wrapper" class='col-sm-6'>
-                                        <input id='linkDest' class='dest-fields-autocomplete form-control' name='linkDest' placeholder="Type to search for field" value="<?php print htmlspecialchars($trigger_obj["linkDest"], ENT_QUOTES); ?>" required>
+                                        <input class='dest-fields-autocomplete form-control' name='triggers[<?php print $index;?>][linkDest]' placeholder="Type to search for field" value="<?php print htmlspecialchars($trigger_obj["linkDest"], ENT_QUOTES); ?>" required>
                                     </div>
                                 </div>
                             </div>
@@ -269,18 +269,18 @@ $Proj = new Project();
                                 <div class="class-sm-12"><label>If 'yes' is chosen, then an empty record is created when the trigger is met. Use this option when you don't want any data moved with the triggers.</label></div>
                                 <div class="form-check col-sm-12">
                                     <?php if (empty($settings)): ?>
-                                        <input type="radio" name="create-empty-record" class="form-check-input" value="1" required><label class="form-check-label">Yes</label>
+                                        <input type="radio" name="triggers[<?php print $index;?>][create-empty-record]" class="form-check-input" value="1" required><label class="form-check-label">Yes</label>
                                         <br>
-                                        <input type="radio" name="create-empty-record" class="form-check-input" value="0" required><label class="form-check-label">No</label>
+                                        <input type="radio" name="triggers[<?php print $index;?>][create-empty-record]" class="form-check-input" value="0" required><label class="form-check-label">No</label>
                                     <?php else:?>
                                         <?php if ($trigger_obj["create-empty-record"] == "1"):?>
-                                        <input type="radio" name="create-empty-record" class="form-check-input" value="1" checked required><label class="form-check-label">Yes</label>
+                                        <input type="radio" name="triggers[<?php print $index;?>][create-empty-record]" class="form-check-input" value="1" checked required><label class="form-check-label">Yes</label>
                                         <br>
-                                        <input type="radio" name="create-empty-record" class="form-check-input" value="0" required><label class="form-check-label">No</label>
+                                        <input type="radio" name="triggers[<?php print $index;?>][create-empty-record]" class="form-check-input" value="0" required><label class="form-check-label">No</label>
                                         <?php else:?>
-                                        <input type="radio" name="create-empty-record" class="form-check-input" value="1" required><label class="form-check-label">Yes</label>
+                                        <input type="radio" name="triggers[<?php print $index;?>][create-empty-record]" class="form-check-input" value="1" required><label class="form-check-label">Yes</label>
                                         <br>
-                                        <input type="radio" name="create-empty-record" class="form-check-input" value="0" checked required><label class="form-check-label">No</label>
+                                        <input type="radio" name="triggers[<?php print $index;?>][create-empty-record]" class="form-check-input" value="0" checked required><label class="form-check-label">No</label>
                                         <?php endif; ?>
                                     <?php endif;?>
                                 </div>
@@ -290,21 +290,21 @@ $Proj = new Project();
                                 <div class='class-sm-12'><label>Add a static prefix or postfix to the linked source field when moving data. If neither prefix or postfix is selected, then a prefix is used.</label></div>
                                 <div class='row'>
                                     <div class='col-sm-6'>
-                                        <input id='prefixPostfixStr' class='form-control' name='prefixPostfixStr' placeholder="Enter your prefix/postfix" value="<?php print htmlspecialchars($trigger_obj["prefixPostfixStr"], ENT_QUOTES); ?>">
+                                        <input class='form-control' name='triggers[<?php print $index;?>][prefixPostfixStr]' placeholder="Enter your prefix/postfix" value="<?php print htmlspecialchars($trigger_obj["prefixPostfixStr"], ENT_QUOTES); ?>">
                                     </div>
                                     <div class='col-sm-6'>
                                         <?php if (empty($trigger_obj["prefixOrPostfix"])): ?>
-                                        <input type="checkbox" name="prefixOrPostfix" class="form-check-input" value="pre"><label class="form-check-label">Prefix</label>
+                                        <input type="checkbox" name="triggers[<?php print $index;?>][prefixOrPostfix]" class="form-check-input" value="pre"><label class="form-check-label">Prefix</label>
                                         <br>
-                                        <input type="checkbox" name="prefixOrPostfix" class="form-check-input" value="post"><label class="form-check-label">Postfix</label>
+                                        <input type="checkbox" name="triggers[<?php print $index;?>][prefixOrPostfix]" class="form-check-input" value="post"><label class="form-check-label">Postfix</label>
                                         <?php elseif ($trigger_obj["prefixOrPostfix"] == "pre"): ?>
-                                        <input type="checkbox" name="prefixOrPostfix" class="form-check-input" value="pre" checked><label class="form-check-label">Prefix</label>
+                                        <input type="checkbox" name="triggers[<?php print $index;?>][prefixOrPostfix]" class="form-check-input" value="pre" checked><label class="form-check-label">Prefix</label>
                                         <br>
-                                        <input type="checkbox" name="prefixOrPostfix" class="form-check-input" value="post"><label class="form-check-label">Postfix</label>
+                                        <input type="checkbox" name="triggers[<?php print $index;?>][prefixOrPostfix]" class="form-check-input" value="post"><label class="form-check-label">Postfix</label>
                                         <?php else: ?>
-                                        <input type="checkbox" name="prefixOrPostfix" class="form-check-input" value="pre"><label class="form-check-label">Prefix</label>
+                                        <input type="checkbox" name="triggers[<?php print $index;?>][prefixOrPostfix]" class="form-check-input" value="pre"><label class="form-check-label">Prefix</label>
                                         <br>
-                                        <input type="checkbox" name="prefixOrPostfix" class="form-check-input" value="post" checked><label class="form-check-label">Postfix</label>
+                                        <input type="checkbox" name="triggers[<?php print $index;?>][prefixOrPostfix]" class="form-check-input" value="post" checked><label class="form-check-label">Postfix</label>
                                         <?php endif;?>
                                     </div>
                                 </div>
@@ -342,17 +342,17 @@ $Proj = new Project();
                                     if (!empty($pipingSourceEvent))
                                     {
                                         print "[" . $pipingSourceEvent . "]";
-                                        print "<input class='pipingSourceEvents' type='hidden' name='pipingSourceEvents[$index][]' value='" . $pipingSourceEvent . "'>";
+                                        print "<input class='pipingSourceEvents' type='hidden' name='triggers[$index][pipingSourceEvents][]' value='" . $pipingSourceEvent . "'>";
                                     }
                                     print "[" . $source . "]";
-                                    print "<input class='pipingSourceFields' type='hidden' name='pipingSourceFields[$index][]' value='" . $source . "'></td><td>";
+                                    print "<input class='pipingSourceFields' type='hidden' name='triggers[$index][pipingSourceFields][]' value='" . $source . "'></td><td>";
                                     if (!empty($pipingDestEvents[$i]))
                                     {
                                         print "[" . $pipingDestEvent . "]";
-                                        print "<input class='pipingDestEvents' type='hidden' name='pipingDestEvents[$index][]' value='" . $pipingDestEvent . "'>";
+                                        print "<input class='pipingDestEvents' type='hidden' name='triggers[$index][pipingDestEvents][]' value='" . $pipingDestEvent . "'>";
                                     }
                                     print "[" . $dest . "]";
-                                    print "<input class='pipingDestFields' type='hidden' name='pipingDestFields[$index][]' value='" . $dest . "'>";
+                                    print "<input class='pipingDestFields' type='hidden' name='triggers[$index][pipingDestFields][]' value='" . $dest . "'>";
                                     print "</td><td><span class='fa fa-pencil-alt' onclick='fillPipingFieldForm(this)'></span></td>";
                                     print "<td><span class='fa fa-trash-alt delete-trigger-field'></span></td>";
                                     print "</tr>";
@@ -372,15 +372,15 @@ $Proj = new Project();
                                     if (!empty($setDestFieldsValue))
                                     {
                                         print "'" . $setDestFieldsValue . "'";
-                                        print "<input class='setDestFieldsValues' type='hidden' name='setDestFieldsValues[$index][]' value='" . $setDestFieldsValue . "'></td><td>";
+                                        print "<input class='setDestFieldsValues' type='hidden' name='triggers[$index][setDestFieldsValues][]' value='" . $setDestFieldsValue . "'></td><td>";
                                     }
                                     if (!empty($setDestEvent))
                                     {
                                         print "[" . $setDestEvent . "]";
-                                        print "<input class='setDestEvents' type='hidden' name='setDestEvents[$index][]' value='" . $setDestEvent . "'>";
+                                        print "<input class='setDestEvents' type='hidden' name='triggers[$index][setDestEvents][]' value='" . $setDestEvent . "'>";
                                     }
                                     print "[" . $source . "]";
-                                    print "<input class='setDestFields' type='hidden' name='setDestFields[$index][]' value='" . $source . "'>";
+                                    print "<input class='setDestFields' type='hidden' name='triggers[$index][setDestFields][]' value='" . $source . "'>";
                                     print "</td><td><span class='fa fa-pencil-alt' onclick='fillFieldForm(this)'></span></td>";
                                     print "<td><span class='fa fa-trash-alt delete-trigger-field'></span></td>";
                                     print "</tr>";
@@ -400,14 +400,14 @@ $Proj = new Project();
                                     if (!empty($sourceInstrEvent))
                                     {
                                         print "[" . $sourceInstrEvent . "]";
-                                        print "<input class='sourceInstrEvents' type='hidden' name='sourceInstrEvents[$index][]' value='" . $sourceInstrEvent . "'>";
+                                        print "<input class='sourceInstrEvents' type='hidden' name='triggers[$index][sourceInstrEvents][]' value='" . $sourceInstrEvent . "'>";
                                     }
                                     print "[" . $source . "]";
-                                    print "<input class='sourceInstr' type='hidden' name='sourceInstr[$index][]' value='" . $source . "'></td><td>";
+                                    print "<input class='sourceInstr' type='hidden' name='triggers[$index][sourceInstr][]' value='" . $source . "'></td><td>";
                                     if (!empty($destInstrEvent))
                                     {
                                         print "[" . $destInstrEvent . "]";
-                                        print "<input class='destInstrEvents' type='hidden' name='destInstrEvents[$index][]' value='" . $destInstrEvent . "'>";
+                                        print "<input class='destInstrEvents' type='hidden' name='triggers[$index][destInstrEvents][]' value='" . $destInstrEvent . "'>";
                                     }
                                     else 
                                     {
@@ -427,10 +427,10 @@ $Proj = new Project();
                                 <label>Specify the destination instrument the module will generate a survey url from.</label>
                                 <div class="row">
                                     <div class='col-sm-6 ui-front dest-event-wrapper' <?php if(empty($trigger_obj["surveyUrlEvent"])) {print "style='display:none'";} ?>>
-                                        <input class='dest-events-autocomplete form-control' id="surveyUrlEvent" name="surveyUrlEvent" value="<?php print htmlspecialchars($trigger_obj["surveyUrlEvent"], ENT_QUOTES); ?>" placeholder="Type to search for event">
+                                        <input class='dest-events-autocomplete form-control' name="triggers[<?php print $index;?>][surveyUrlEvent]" value="<?php print htmlspecialchars($trigger_obj["surveyUrlEvent"], ENT_QUOTES); ?>" placeholder="Type to search for event">
                                     </div>
                                     <div class='col-sm-6 ui-front'>
-                                        <input class='form-control' id="surveyUrl" name="surveyUrl" value="<?php print htmlspecialchars($trigger_obj["surveyUrl"], ENT_QUOTES); ?>" placeholder="Type to search for instrument">
+                                        <input class='form-control' name="triggers[<?php print $index;?>][surveyUrl]" value="<?php print htmlspecialchars($trigger_obj["surveyUrl"], ENT_QUOTES); ?>" placeholder="Type to search for instrument">
                                     </div>
                                 </div>
                             </div>
@@ -439,11 +439,11 @@ $Proj = new Project();
                                 <div class="row">
                                     <?php if (REDCap::isLongitudinal()): ?>
                                     <div class='col-sm-6'>
-                                        <input id='saveUrlEvent' class="source-events-autocomplete form-control" name='saveUrlEvent' value="<?php print htmlspecialchars($trigger_obj["saveUrlEvent"], ENT_QUOTES); ?>" placeholder="Type to search for event">
+                                        <input class="source-events-autocomplete form-control" name='triggers[<?php print $index;?>][saveUrlEvent]' value="<?php print htmlspecialchars($trigger_obj["saveUrlEvent"], ENT_QUOTES); ?>" placeholder="Type to search for event">
                                     </div>
                                     <?php endif;?>
                                     <div class='col-sm-6'>
-                                        <input id='saveUrlField' class="source-fields-autocomplete form-control" name='saveUrlField' value="<?php print htmlspecialchars($trigger_obj["saveUrlField"], ENT_QUOTES); ?>" placeholder="Type to search for field">
+                                        <input class="source-fields-autocomplete form-control" name='triggers[<?php print $index;?>][saveUrlField]' value="<?php print htmlspecialchars($trigger_obj["saveUrlField"], ENT_QUOTES); ?>" placeholder="Type to search for field">
                                     </div>
                                 </div>
                             </div>
