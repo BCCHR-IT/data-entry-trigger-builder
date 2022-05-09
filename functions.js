@@ -229,18 +229,22 @@ function addTrigger()
                     "</div>" + 
                 "</div>" + 
                 "<h6>Confirm the following</h6>" +
-                "<div class='row'>" + 
-                    "<div class='form-group col-6'>" + 
-                        "<div class='row'><label>Overwrite data in destination project every time data is saved? This determines<br/>whether to push blank data over to the destination project.</label></div>" + 
-                        "<input type='radio' name='triggers[][overwrite-data]' class='form-check-input' value='overwrite' required><label class='form-check-label'>Yes</label>" +
-                        "<br>" + 
-                        "<input type='radio' name='triggers[][overwrite-data]' class='form-check-input' value='normal' required><label class='form-check-label'>No</label>" +
+                "<div class='row form-group'>" + 
+                    "<div class='col-sm-6'>" + 
+                        "<label>Overwrite data in destination project every time data is saved? This determines whether to push blank data over to the destination project.</label>" + 
+                        "<div class='form-check col-sm-12'>" + 
+                            "<input type='radio' name='triggers[" + trigNum + "][overwrite-data]' class='form-check-input' value='overwrite' required><label class='form-check-label'>Yes</label>" +
+                            "<br>" + 
+                            "<input type='radio' name='triggers[" + trigNum + "][overwrite-data]' class='form-check-input' value='normal' required><label class='form-check-label'>No</label>" +
+                        "</div>" + 
                     "</div>" + 
-                    "<div class='form-group col-6'>" +
-                        "<div class='row'><label>Import data access groups (DAGs) every time data is saved? The module can only<br/>import DAGs if they have a one-to-one relationship with the destination project.</label></div>" +
-                        "<input type='radio' name='triggers[][import-dags]' class='form-check-input' value='1' required><label class='form-check-label'>Yes</label>" +
-                        "<br>" +
-                        "<input type='radio' name='triggers[][import-dags]' class='form-check-input' value='0' required><label class='form-check-label'>No</label>" +
+                    "<div class='col-sm-6'>" +
+                        "<label>Import data access groups (DAGs) every time data is saved? The module can only import DAGs if they have a one-to-one relationship with the destination project.</label>" +
+                        "<div class='form-check col-sm-12'>" + 
+                            "<input type='radio' name='triggers[" + trigNum + "][import-dags]' class='form-check-input' value='1' required><label class='form-check-label'>Yes</label>" +
+                            "<br>" +
+                            "<input type='radio' name='triggers[" + trigNum + "][import-dags]' class='form-check-input' value='0' required><label class='form-check-label'>No</label>" +
+                        "</div>" + 
                     "</div>" +
                 "</div>" +
             "</div>";
