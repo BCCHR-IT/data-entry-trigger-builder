@@ -453,25 +453,25 @@ $Proj = new Project();
                             <div class="form-check col-6">
                                 <div class="row"><label>Overwrite data in destination project every time data is saved? This determines<br/>whether to push blank data over to the destination project.</label></div>
                                 <?php if ($trigger_obj["overwrite-data"] == "overwrite"):?>
-                                <input type="radio" name="trigger[<?php print $index;?>][overwrite-data]" class="form-check-input" value="overwrite" checked required><label class="form-check-label">Yes</label>
+                                <input type="radio" name="triggers[<?php print $index;?>][overwrite-data]" class="form-check-input" value="overwrite" checked required><label class="form-check-label">Yes</label>
                                 <br>
-                                <input type="radio" name="trigger[<?php print $index;?>][overwrite-data]" class="form-check-input" value="normal" required><label class="form-check-label">No</label>
+                                <input type="radio" name="triggers[<?php print $index;?>][overwrite-data]" class="form-check-input" value="normal" required><label class="form-check-label">No</label>
                                 <?php else:?>
-                                <input type="radio" name="trigger[<?php print $index;?>][overwrite-data]" class="form-check-input" value="overwrite" required><label class="form-check-label">Yes</label>
+                                <input type="radio" name="triggers[<?php print $index;?>][overwrite-data]" class="form-check-input" value="overwrite" required><label class="form-check-label">Yes</label>
                                 <br>
-                                <input type="radio" name="trigger[<?php print $index;?>][overwrite-data]" class="form-check-input" value="normal" checked required><label class="form-check-label">No</label>
+                                <input type="radio" name="triggers[<?php print $index;?>][overwrite-data]" class="form-check-input" value="normal" checked required><label class="form-check-label">No</label>
                                 <?php endif; ?>
                             </div>
                             <div class="form-check col-6">
                                 <div class="row"><label>Import data access groups (DAGs) every time data is saved? The module can only<br/>import DAGs if they have a one-to-one relationship with the destination project.</label></div>
                                 <?php if ($trigger_obj["import-dags"] == "1"):?>
-                                <input type="radio" name="trigger[<?php print $index;?>][import-dags]" class="form-check-input" value="1" checked required><label class="form-check-label">Yes</label>
+                                <input type="radio" name="triggers[<?php print $index;?>][import-dags]" class="form-check-input" value="1" checked required><label class="form-check-label">Yes</label>
                                 <br>
-                                <input type="radio" name="trigger[<?php print $index;?>][import-dags]" class="form-check-input" value="0" required><label class="form-check-label">No</label>
+                                <input type="radio" name="triggers[<?php print $index;?>][import-dags]" class="form-check-input" value="0" required><label class="form-check-label">No</label>
                                 <?php else:?>
-                                <input type="radio" name="trigger[<?php print $index;?>][import-dags]" class="form-check-input" value="1" required><label class="form-check-label">Yes</label>
+                                <input type="radio" name="triggers[<?php print $index;?>][import-dags]" class="form-check-input" value="1" required><label class="form-check-label">Yes</label>
                                 <br>
-                                <input type="radio" name="trigger[<?php print $index;?>][import-dags]" class="form-check-input" value="0" checked required><label class="form-check-label">No</label>
+                                <input type="radio" name="triggers[<?php print $index;?>][import-dags]" class="form-check-input" value="0" checked required><label class="form-check-label">No</label>
                                 <?php endif; ?>
                             </div>
                         </div>
