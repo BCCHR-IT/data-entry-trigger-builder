@@ -461,6 +461,8 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                 }
                 else if ($valid)
                 {
+                    $dest_record_data = [];
+                    
                     $create_record_trigger = $trigger_obj["create-record-cond"];
 
                     $link_source_event = $trigger_obj["linkSourceEvent"];
