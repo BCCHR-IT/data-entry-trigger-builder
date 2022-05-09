@@ -3,6 +3,21 @@
     $instrument_names = REDCap::getInstrumentNames();
 ?>
 <script>
+
+    /* Code to populate the populate
+     * the autocomplete fields for the 
+     * source project
+     */
+    var sourceEvents = [];
+
+    <?php if (REDCap::isLongitudinal()): ?>
+    sourceEvents = [<?php foreach ($metadata["events"] as $event) { print "'$event',"; }?>];
+    <?php endif;?>
+                
+    var sourceFields = [<?php foreach ($metadata["fields"] as $field) { print "'$field',"; } ?>];
+
+    var sourceInstr = [<?php foreach ($instrument_names as $unique_name => $label) { print "'$unique_name',"; } ?>];
+
     /**
      * When user goes to add a field or instrument
      * update .table-id item, hidden in each modal,
@@ -38,12 +53,20 @@
      */
 
     /**
-        Call to retrieve destination project's fields and instruments when page loads.
+        Call to update autocomplete items when page loads.
         Only relevent when DET aleady exists.
     */
     $(document).ready(function() {
         if ($("#destination-project-select").val() != "")
         {
+            <?php if (REDCap::isLongitudinal()): ?>
+            $(".source-events-autocomplete" ).autocomplete({source: sourceEvents});
+            <?php endif;?>
+                        
+            $(".source-fields-autocomplete").autocomplete({source: sourceFields});
+
+            $(".source-instr-autocomplete").autocomplete({source: sourceInstr});
+
             $.ajax({
                 url: "<?php print $module->getUrl("getDestinationFields.php") ?>",
                 type: "POST",
@@ -238,17 +261,13 @@
          * the autocomplete fields for the 
          * source project
          */
-        var sourceEvents = [];
 
         <?php if (REDCap::isLongitudinal()): ?>
-        sourceEvents = [<?php foreach ($metadata["events"] as $event) { print "'$event',"; }?>];
         $(".source-events-autocomplete" ).autocomplete({source: sourceEvents});
         <?php endif;?>
                     
-        var sourceFields = [<?php foreach ($metadata["fields"] as $field) { print "'$field',"; } ?>];
         $(".source-fields-autocomplete").autocomplete({source: sourceFields});
 
-        var sourceInstr = [<?php foreach ($instrument_names as $unique_name => $label) { print "'$unique_name',"; } ?>];
         $(".source-instr-autocomplete").autocomplete({source: sourceInstr});
 
         /**

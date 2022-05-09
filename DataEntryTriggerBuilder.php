@@ -443,7 +443,8 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
             // Get DET settings
             $settings = json_decode($this->getProjectSetting("det_settings"), true);     
 
-            $triggers = $settings["triggers"];   
+            $triggers = $settings["triggers"];
+            $dest_project = $settings["dest-project"];
 
             // Get current record data
             $record_data = json_decode(REDCap::getData("json", $record, null, null, null, false, $import_dags), true);
@@ -460,7 +461,6 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                 }
                 else if ($valid)
                 {
-                    $dest_project = $trigger_obj["dest-project"];
                     $create_record_trigger = $trigger_obj["create-record-cond"];
 
                     $link_source_event = $trigger_obj["linkSourceEvent"];
