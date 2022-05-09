@@ -446,9 +446,6 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
             $triggers = $settings["triggers"];
             $dest_project = $settings["dest-project"];
 
-            $overwrite_data = $settings["overwrite-data"];
-            $import_dags = $settings["import-dags"];
-
             // Get current record data
             $record_data = json_decode(REDCap::getData("json", $record, null, null, null, false, $import_dags), true);
 
@@ -467,6 +464,9 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                     $dest_record_data = [];
 
                     $create_record_trigger = $trigger_obj["create-record-cond"];
+
+                    $overwrite_data = $trigger_obj["overwrite-data"];
+                    $import_dags = $trigger_obj["import-dags"];
 
                     $link_source_event = $trigger_obj["linkSourceEvent"];
                     $link_source = $trigger_obj["linkSource"];
