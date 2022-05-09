@@ -656,7 +656,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
 
                                 if (sizeof($existing_record) == 0)
                                 {
-                                    $dest_record = $this->framework->addAutoNumberedRecord($dest_project);
+                                    $dest_record = REDCap::reserveNewRecordId($dest_project);
                                 }
                                 else
                                 {
