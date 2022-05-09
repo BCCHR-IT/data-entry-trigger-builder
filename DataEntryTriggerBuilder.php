@@ -446,6 +446,9 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
             $triggers = $settings["triggers"];
             $dest_project = $settings["dest-project"];
 
+            $overwrite_data = $settings["overwrite-data"];
+            $import_dags = $settings["import-dags"];
+
             // Get current record data
             $record_data = json_decode(REDCap::getData("json", $record, null, null, null, false, $import_dags), true);
 
@@ -462,7 +465,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                 else if ($valid)
                 {
                     $dest_record_data = [];
-                    
+
                     $create_record_trigger = $trigger_obj["create-record-cond"];
 
                     $link_source_event = $trigger_obj["linkSourceEvent"];
@@ -470,9 +473,6 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
 
                     $link_dest_event = $trigger_obj["linkDestEvent"];
                     $link_dest_field = $trigger_obj["linkDest"];
-
-                    $overwrite_data = $trigger_obj["overwrite-data"];
-                    $import_dags = $trigger_obj["import-dags"];
 
                     $trigger_source_fields = $trigger_obj["pipingSourceFields"];
                     $trigger_source_events = $trigger_obj["pipingSourceEvents"];
@@ -696,7 +696,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
 
                         $dest_record_data = array_values($dest_record_data); // Don't need the keys to push, only the values.
                     }
-                    
+
                     if (!empty($dest_record_data))
                     {
                         // Save DET data in destination project;
