@@ -82,14 +82,6 @@ $Proj = new Project();
             <div style="position: sticky; top: 0; width: 100%; background-color:#ff9800; padding:5px; text-align:center; z-index:200;">
                 <?php if ($Proj->project['status'] > 0): ?><h6><b>This project is currently in production, be careful with your changes!</b></h6><?php endif; ?>
                 <?php if (!empty($settings)): ?><h6><b>WARNING: Any changes made to the REDCap project, after the DET has been created, has the potential to break it. After you’ve updated your project, please make sure to update the DET in accordance with your changes.</b></h6><?php endif; ?>
-                <?php 
-                    // if (!empty($settings["dest-project"])) { 
-                    //     $DestProj = new Project($settings["dest-project"]); 
-                    //     if ($DestProj->project['status'] > 0) {
-                    //         print "<h5><b>The destination project is currently in production.</h5><b>";
-                    //     }
-                    // }
-                ?>
             </div>
         <?php endif; ?>
         <div class="container jumbotron">
@@ -449,9 +441,9 @@ $Proj = new Project();
                             </div>
                         </div>
                         <h6>Confirm the following</h6>
-                        <div class="row">
-                            <div class="form-check col-6">
-                                <div class="row"><label>Overwrite data in destination project every time data is saved? This determines<br/>whether to push blank data over to the destination project.</label></div>
+                        <div class="row form-group">
+                            <div class="form-check col-sm-6">
+                                <div class="col-sm-12"><label>Overwrite data in destination project every time data is saved? This determines<br/>whether to push blank data over to the destination project.</label></div>
                                 <?php if ($trigger_obj["overwrite-data"] == "overwrite"):?>
                                 <input type="radio" name="triggers[<?php print $index;?>][overwrite-data]" class="form-check-input" value="overwrite" checked required><label class="form-check-label">Yes</label>
                                 <br>
@@ -462,8 +454,8 @@ $Proj = new Project();
                                 <input type="radio" name="triggers[<?php print $index;?>][overwrite-data]" class="form-check-input" value="normal" checked required><label class="form-check-label">No</label>
                                 <?php endif; ?>
                             </div>
-                            <div class="form-check col-6">
-                                <div class="row"><label>Import data access groups (DAGs) every time data is saved? The module can only<br/>import DAGs if they have a one-to-one relationship with the destination project.</label></div>
+                            <div class="form-check col-sm-6">
+                                <div class="col-sm-12"><label>Import data access groups (DAGs) every time data is saved? The module can only<br/>import DAGs if they have a one-to-one relationship with the destination project.</label></div>
                                 <?php if ($trigger_obj["import-dags"] == "1"):?>
                                 <input type="radio" name="triggers[<?php print $index;?>][import-dags]" class="form-check-input" value="1" checked required><label class="form-check-label">Yes</label>
                                 <br>
