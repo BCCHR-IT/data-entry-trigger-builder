@@ -52,7 +52,7 @@
      * Call to retrieve destination project's fields and instruments when 
      * destination project changes/page load, and update autcomplete items
      */
-    $(".destination-project-select").on("change click", function () {
+    $(".destination-project-select").on("change ready", function () {
 
         console.log($(this).val());
         console.log($(this).parents(".trigger-and-data-wrapper"));

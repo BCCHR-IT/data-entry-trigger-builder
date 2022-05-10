@@ -84,7 +84,7 @@ function createInstrRow()
 
 function updateTable(elem)
 {
-    if ($(elem).attr("id") == "add-field-btn" && validateFieldForm())
+    if (elem.attr("id") == "add-field-btn" && validateFieldForm())
     {
         let newRow = createFieldRow();
         clearFieldForm();
@@ -97,11 +97,11 @@ function updateTable(elem)
 
     if (newRow)
     {
-        if ($(elem).text() == 'Update')
+        if (elem.text() == 'Update')
         {
             row.after(newRow)
             row.remove();
-            $(elem).text("Add");
+            elem.text("Add");
         }
         else
         {
@@ -136,15 +136,13 @@ function addTrigger()
                 "<h6>Select a Linked Project</h6>" + 
                 "<p>The module will move the data into the chosen project.</p>" + 
                 "<div class='form-group'>" + 
-                    "<select name='triggers[" + trigNum + "][dest-project]' class='destination-project-select form-control selectpicker' data-live-search='true' required>" + 
+                    "<select name='triggers[" + trigNum + "][dest-project]' class='destination-project-select form-control' required>" + 
                         "<option value='' disabled selected>Select a project</option>";
 
     for (var i in projectOptions)
     {
         html = html + projectOptions[i];
     }
-
-    console.log(html);
 
     html = html +  
             "</select>" + 
@@ -298,7 +296,7 @@ function clearInstrForm()
 
 function fillPipingFieldForm(elem)
 {
-    row = $(elem).parent("td").parent("tr");
+    row = elem.parent("td").parent("tr");
     $('#source-input').hide();
     $('#source-select').show();
 
@@ -321,7 +319,7 @@ function fillPipingFieldForm(elem)
 
 function fillFieldForm(elem)
 {
-    row = $(elem).parent("td").parent("tr");
+    row = elem.parent("td").parent("tr");
     $('#source-input').show();
     $('#source-select').hide();
 
@@ -339,7 +337,7 @@ function fillFieldForm(elem)
 
 function fillInstrForm(elem)
 {
-    row = $(elem).parent("td").parent("tr");
+    row = elem.parent("td").parent("tr");
     
     $('#instr-select').val(row.find(".sourceInstr").val());
 
@@ -381,34 +379,6 @@ function validateInstrumentForm()
     return true;
 }
 
-function updateAutocompleteItems(data)
-{
-    var metadata = JSON.parse(data);
-    destFields = metadata.fields;
-    destEvents = metadata.events;
-    destInstruments = metadata.instruments;
-
-    var isLongitudinal = metadata.isLongitudinal;
-
-    if (isLongitudinal) {
-        $(".dest-events-autocomplete").autocomplete({source: destEvents});
-        $(".dest-events-autocomplete").prop("required", true);
-        $(".dest-event-wrapper").show();
-        $("#add-instr-label-event-div").show();
-        $("#dest-event-instrument, #dest-event-select").attr("data-is-longitudinal", "yes");
-    }
-    else {
-        $(".dest-events-autocomplete").val("");
-        $(".dest-events-autocomplete").prop("required", false);
-        $(".dest-event-wrapper").hide();
-        $("#add-instr-label-event-div").hide();
-        $("#dest-event-instrument, #dest-event-select").attr("data-is-longitudinal", "no");
-    }
-    $(".surveyUrlEvent").prop("required", false); // This field should always be optional
-    $(".dest-fields-autocomplete").autocomplete({source: destFields});
-    $(".surveyUrl").autocomplete({source: destInstruments});
-}
-
 function updateElemAutocompleteItems(elem, data)
 {
     let metadata = JSON.parse(data);
@@ -419,22 +389,22 @@ function updateElemAutocompleteItems(elem, data)
     let isLongitudinal = metadata.isLongitudinal;
 
     if (isLongitudinal) {
-        $(elem).find(".dest-events-autocomplete").autocomplete({source: destEvents});
-        $(elem).find(".dest-events-autocomplete").prop("required", true);
-        $(elem).find(".dest-event-wrapper").show();
+        elem.find(".dest-events-autocomplete").autocomplete({source: destEvents});
+        elem.find(".dest-events-autocomplete").prop("required", true);
+        elem.find(".dest-event-wrapper").show();
         $("#add-instr-label-event-div").show();
         $("#dest-event-instrument, #dest-event-select").attr("data-is-longitudinal", "yes");
     }
     else {
-        $(elem).find(".dest-events-autocomplete").val("");
-        $(elem).find(".dest-events-autocomplete").prop("required", false);
-        $(elem).find(".dest-event-wrapper").hide();
+        elem.find(".dest-events-autocomplete").val("");
+        elem.find(".dest-events-autocomplete").prop("required", false);
+        elem.find(".dest-event-wrapper").hide();
         $("#add-instr-label-event-div").hide();
         $("#dest-event-instrument, #dest-event-select").attr("data-is-longitudinal", "no");
     }
-    $(elem).find(".surveyUrlEvent").prop("required", false); // This field should always be optional
-    $(elem).find(".dest-fields-autocomplete").autocomplete({source: destFields});
-    $(elem).find(".surveyUrl").autocomplete({source: destInstruments});
+    elem.find(".surveyUrlEvent").prop("required", false); // This field should always be optional
+    elem.find(".dest-fields-autocomplete").autocomplete({source: destFields});
+    elem.find(".surveyUrl").autocomplete({source: destInstruments});
 }
 
 function addError(index, className, error)

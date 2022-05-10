@@ -1,13 +1,17 @@
 <?php
 
+/**
+ * Before sainv the DET settings, validate, and return any errors.
+ */
+
 $data_entry_trigger_builder = new BCCHR\DataEntryTriggerBuilder\DataEntryTriggerBuilder();
 
 $settings = $_POST;
 
-$dest_project_pid = $settings["dest-project"];
-
 foreach($settings["triggers"] as $index => $trigger_obj)
 {
+    $dest_project_pid = $trigger_obj["dest-project"];
+
     $err = $data_entry_trigger_builder->validateSyntax($trigger_obj["trigger"]);
     if (!empty($err))
     {
