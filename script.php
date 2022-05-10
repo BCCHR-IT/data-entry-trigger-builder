@@ -4,99 +4,119 @@
 ?>
 <script>
 
-    /* Code to populate the populate
-     * the autocomplete fields for the 
+    /* 
+     * Code to retrieve events, fields, and instrument for the 
      * source project
      */
-    var sourceEvents = [];
+    let sourceEvents = [];
 
     <?php if (REDCap::isLongitudinal()): ?>
     sourceEvents = [<?php foreach ($metadata["events"] as $event) { print "'$event',"; }?>];
     <?php endif;?>
                 
-    var sourceFields = [<?php foreach ($metadata["fields"] as $field) { print "'$field',"; } ?>];
+    let sourceFields = [<?php foreach ($metadata["fields"] as $field) { print "'$field',"; } ?>];
 
-    var sourceInstr = [<?php foreach ($instrument_names as $unique_name => $label) { print "'$unique_name',"; } ?>];
+    let sourceInstr = [<?php foreach ($instrument_names as $unique_name => $label) { print "'$unique_name',"; } ?>];
 
-    /**
+    /*
      * When user goes to add a field or instrument
      * update .table-id item, hidden in each modal,
      * to tell them which trigger's table to update.
      * 
      */
     $("body").on("click", ".add-field-btn, .add-instr-btn", function () {
-        var id = $(this).siblings("table").attr("id");
+        let id = $(this).siblings("table").attr("id");
         $(".table-id").val(id);
     });
 
     $("body").on("click", ".fa-pencil-alt", function () {
-        var id = $(this).parents("table").attr("id");
+        let id = $(this).parents("table").attr("id");
         $(".table-id").val(id);
     });
 
-    /**
-        Code to delete a trigger
+    /*
+     * Code to delete a trigger
      */
     $('body').on('click', '.delete-trigger-btn', function () {
         $(this).closest('.trigger-and-data-wrapper').remove();
     });
 
-    /**
-        Code to delete a trigger's field/instrument
+    /*
+     * Code to delete a trigger's field/instrument
      */
     $("body").on("click", ".delete-trigger-field", function () {
         $(this).closest('.trigger-field-row').remove();
     });
 
     /**
-     * Ajax calls to retrieve destination project's fields and instruments
+     * Call to update autocomplete items when page loads.
+     * Only relevent when DET aleady exists.
      */
-
-    /**
-        Call to update autocomplete items when page loads.
-        Only relevent when DET aleady exists.
-    */
     $(document).ready(function() {
-        if ($("#destination-project-select").val() != "")
-        {
-            <?php if (REDCap::isLongitudinal()): ?>
-            $(".source-events-autocomplete" ).autocomplete({source: sourceEvents});
-            <?php endif;?>
-                        
-            $(".source-fields-autocomplete").autocomplete({source: sourceFields});
+        
+        <?php if (REDCap::isLongitudinal()): ?>
+        $(".source-events-autocomplete" ).autocomplete({source: sourceEvents});
+        <?php endif;?>
+                    
+        $(".source-fields-autocomplete").autocomplete({source: sourceFields});
 
-            $(".source-instr-autocomplete").autocomplete({source: sourceInstr});
+        $(".source-instr-autocomplete").autocomplete({source: sourceInstr});
 
-            $.ajax({
-                url: "<?php print $module->getUrl("getDestinationFields.php") ?>",
-                type: "POST",
-                data: {
-                    pid: $("#destination-project-select").val()
-                },
-                success: function (data) {
-                    updateAutocompleteItems(data);
-                },
-                error: function (data, status, error) {
-                    console.log("Returned with status " + status + " - " + error);
-                }
-            });
-        }
+        $.ajax({
+            url: "<?php print $module->getUrl("getDestinationFields.php") ?>",
+            type: "POST",
+            data: {
+                pid: $("#destination-project-select").val()
+            },
+            success: function (data) {
+                updateAutocompleteItems(data);
+            },
+            error: function (data, status, error) {
+                console.log("Returned with status " + status + " - " + error);
+            }
+        });
     });
 
-    /**
-        Call to retrieve destination project's fields and instruments when 
-        destination project changes, and update autcomplete items
-    */
+    /*
+     * Call to retrieve destination project's fields and instruments when 
+     * destination project changes, and update autcomplete items
+     */
     $("#destination-project-select").change(function () {
-        // Reset form by removing all triggers.
-        $('.trigger-and-data-wrapper').remove();
 
-        // Show the main form area if it's not already visible
-        $('#main-form').show();
+        /** 
+         * Code to populate the populate
+         * the autocomplete fields for the 
+         * source project
+         */
+
+        <?php if (REDCap::isLongitudinal()): ?>
+        $(".source-events-autocomplete" ).autocomplete({source: sourceEvents});
+        <?php endif;?>
+                    
+        $(".source-fields-autocomplete").autocomplete({source: sourceFields});
+
+        $(".source-instr-autocomplete").autocomplete({source: sourceInstr});
+
+        /**
+            Call to retrieve destination project's fields and instruments and update autcomplete items
+        */
+        $.ajax({
+            url: "<?php print $module->getUrl("getDestinationFields.php") ?>",
+            type: "POST",
+            data: {
+                pid: $("#destination-project-select").val()
+            },
+            success: function (data) {
+                updateElemAutocompleteItems($(this), data);
+            },
+            error: function (data, status, error) {
+                console.log("Returned with status " + status + " - " + error);
+            }
+        });
     });
 
-    /**
-     * Ajax call to submit form, and validate
+    /*
+     * Call to submit form, and validate
      */
     $("#det-form").submit(function (event) {
         event.preventDefault();
@@ -105,21 +125,21 @@
             type: "POST",
             data: $("form").serialize(),
             success: function (data) {
-                var errors = JSON.parse(data);
+                let errors = JSON.parse(data);
 
                 $(document).find('.error-msg').remove();
                 $(document).find(".error").removeClass("error");
 
                 if (errors.success != true)
                 {
-                    for (var i in errors)
+                    for (let i in errors)
                     {
-                        var errors_obj = errors[i];
+                        let errors_obj = errors[i];
 
                         if (errors_obj.trigger_errors)
                         {
-                            var item = errors_obj.trigger_errors;
-                            var msg = "";
+                            let item = errors_obj.trigger_errors;
+                            let msg = "";
                             item.forEach(function(m) {
                                 msg += m + "<br/>";
                             });
@@ -226,7 +246,7 @@
         });
     })
 
-    /**
+    /*
      * Clear add field modal items, whenever
      * user switches back and forth between
      * entering a custom value or selecting a field
@@ -240,7 +260,7 @@
         $('#event-select').val("");
     });
 
-    /**
+    /*
      * When a user closes a modal, clear the
      * form. 
      */
@@ -251,50 +271,23 @@
         $('#add-instr-btn').text("Add");
     });
 
+    /*
+     * Add a new trigger on button click
+     */
     $('#add-trigger-btn').click(function() {
         addTrigger();
-
-        // Bind autocomplete functionality
-
-        /** 
-         * Code to populate the populate
-         * the autocomplete fields for the 
-         * source project
-         */
-
-        <?php if (REDCap::isLongitudinal()): ?>
-        $(".source-events-autocomplete" ).autocomplete({source: sourceEvents});
-        <?php endif;?>
-                    
-        $(".source-fields-autocomplete").autocomplete({source: sourceFields});
-
-        $(".source-instr-autocomplete").autocomplete({source: sourceInstr});
-
-        /**
-            Call to retrieve destination project's fields and instruments and update autcomplete items
-        */
-        $.ajax({
-            url: "<?php print $module->getUrl("getDestinationFields.php") ?>",
-            type: "POST",
-            data: {
-                pid: $("#destination-project-select").val()
-            },
-            success: function (data) {
-                updateAutocompleteItems(data);
-            },
-            error: function (data, status, error) {
-                console.log("Returned with status " + status + " - " + error);
-            }
-        });
     });
 
+    /*
+     * Update trigger table 
+     */
     $('#add-field-btn, #add-instr-btn').click(function () {
         updateTable(this);
     });
 
-    /**
+    /*
      * Code to make sure only one option of the prefix/postfix choice is selected
-     **/
+     */
      $('#det-form').on('click', '.prefixOrPostfix', function () {
         if ($(this).val() == "pre")
             $(this).siblings('.prefixOrPostfix[value="post"]').prop('checked', false);

@@ -75,6 +75,14 @@ $Proj = new Project();
                 padding: 10px;
             }
         </style>
+        <script>
+            let projectOptions = [
+                <?php
+                $projects = $data_entry_trigger_builder->getProjects();
+                foreach($projects as $project) { print "'<option value=\'". $project["project_id"] . "\'>" . $project["project_id"] . " - " . $project["app_title"] . "</option>'"; }
+                ?>
+            ];
+        </script>
         <script src="<?php print $module->getUrl("functions.js");?>" type="text/javascript"></script>
     </head>
     <body>
@@ -110,38 +118,6 @@ $Proj = new Project();
             <hr/>
             <?php endif;?> -->
             <form id="det-form" method="post">
-                <h5>Select a Linked Project</h5>
-                <p>The module will move the data into the chosen project.</p>
-                <div class="form-group">
-                    <select name="dest-project" id="destination-project-select" class="form-control selectpicker" data-live-search="true" required>
-                        <option value="" disabled <?php if (empty($settings)) { print "selected"; }?>>Select a project</option>
-                        <?php
-                            $projects = $data_entry_trigger_builder->getProjects();
-                            foreach($projects as $project)
-                            {
-                                if ($project["project_id"] != $_GET["pid"]) {
-                                    if (!empty($settings["dest-project"]) && $project["project_id"] == $settings["dest-project"])
-                                    {
-                                        print "<option value='". $project["project_id"] . "' selected>" . $project["project_id"] . " - " . $project["app_title"] . "</option>";
-                                    }
-                                    else
-                                    {
-                                        print "<option value='". $project["project_id"] . "'>" . $project["project_id"] . " - " . $project["app_title"] . "</option>";
-                                    }
-                                }
-                            }
-                        ?>
-                    </select>
-                    <?php 
-                    if (!empty($settings["dest-project"])) { 
-                        $DestProj = new Project($settings["dest-project"]); 
-                        if ($DestProj->project['status'] > 0) {
-                            print "<p><b><i>This project is currently in production.</i></p></b>";
-                        }
-                    }
-                    ?>
-                </div>
-                <hr>
                 <div id="main-form" <?php if (empty($settings)) :?> style="display:none" <?php endif;?>>
                     <h5>Triggers (Max. 10)</h5>
                     <div id="trigger-instr" style="margin-bottom:20px">
@@ -227,7 +203,37 @@ $Proj = new Project();
                             </div>
                             <textarea rows="1" name="triggers[<?php print $index;?>][trigger]" class="form-control det-trigger-input" required><?php print str_replace("\"", "'", $trigger); ?></textarea>
                         </div>
-                        <h6 style="margin-top:10px">Record Linkage</h6>
+                        <h6 style="margin-top:10px">Select a Linked Project</h6>
+                        <p>The module will move the data into the chosen project.</p>
+                        <div class="form-group">
+                            <select name="triggers[<?php print $index;?>][dest-project]" id="destination-project-select" class="form-control selectpicker" data-live-search="true" required>
+                                <option value="" disabled>Select a project</option>
+                                <?php
+                                    foreach($projects as $project)
+                                    {
+                                        if ($project["project_id"] != $_GET["pid"]) {
+                                            if (!empty($trigger_obj["dest-project"]) && $project["project_id"] == $trigger_obj["dest-project"])
+                                            {
+                                                print "<option value='". $project["project_id"] . "' selected>" . $project["project_id"] . " - " . $project["app_title"] . "</option>";
+                                            }
+                                            else
+                                            {
+                                                print "<option value='". $project["project_id"] . "'>" . $project["project_id"] . " - " . $project["app_title"] . "</option>";
+                                            }
+                                        }
+                                    }
+                                ?>
+                            </select>
+                            <?php 
+                            if (!empty($trigger_obj["dest-project"])) { 
+                                $DestProj = new Project($trigger_obj["dest-project"]); 
+                                if ($DestProj->project['status'] > 0) {
+                                    print "<p><b><i>This project is currently in production.</i></p></b>";
+                                }
+                            }
+                            ?>
+                        </div>
+                        <h6>Record Linkage</h6>
                         <p>
                             Create subjects/push data to linked project using variables in source and linked project. When the trigger is met, then records between the source and linked project will be linked via the chosen fields. <b>When linking projects with anything other than the record ID fields, 'Auto-numbering for records' must be turned on in the destination project.</b>
                         </p>
