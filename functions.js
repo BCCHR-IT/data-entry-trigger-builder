@@ -1,6 +1,6 @@
-let row = null;
-let destFields = [];
-let destEvents = [];
+var row = null;
+var destFields = [];
+var destEvents = [];
 
 function createFieldRow()
 {

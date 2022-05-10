@@ -79,7 +79,7 @@ $Proj = new Project();
             let projectOptions = [
                 <?php
                 $projects = $data_entry_trigger_builder->getProjects();
-                foreach($projects as $project) { print "'<option value=\"". $project["project_id"] . "\">" . $project["project_id"] . " - " . $project["app_title"] . "</option>'"; }
+                foreach($projects as $project) { print "\"<option value='". $project["project_id"] . "'>" . $project["project_id"] . " - " . $project["app_title"] . "</option>\","; }
                 ?>
             ];
         </script>
