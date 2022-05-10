@@ -49,7 +49,7 @@
     });
 
     /*
-     * Call to retrieve destination project's fields and instruments when 
+     * Call to retrieve destination project's fields and instruments
      * on page load, and update autcomplete items. This is for existing DETs. 
      */
     $(document).ready(function () {
@@ -63,7 +63,7 @@
                 url: "<?php print $module->getUrl("getDestinationFields.php") ?>",
                 type: "POST",
                 data: {
-                    pid: $(this).find(".destination-project-select").val()
+                    pid: $(this).find("select.destination-project-select").val()
                 },
                 success: function (data) {
                     updateElemAutocompleteItems($(this), data);
