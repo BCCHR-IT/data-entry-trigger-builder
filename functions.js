@@ -133,10 +133,10 @@ function addTrigger()
                     "</div>" +
                     "<textarea rows='1' name=\"triggers[" + trigNum + "][trigger]\" class='form-control det-trigger-input' required></textarea>" +
                 "</div>" +
-                "<h6>Select a Linked Project</h6>" + 
+                "<h6 style='margin-top:10px'>Select a Linked Project</h6>" + 
                 "<p>The module will move the data into the chosen project.</p>" + 
                 "<div class='form-group'>" + 
-                    "<select name='triggers[" + trigNum + "][dest-project]' class='destination-project-select form-control' required>" + 
+                    "<select name='triggers[" + trigNum + "][dest-project]' class='destination-project-select form-control selectpicker' data-live-search='true' required>" + 
                         "<option value='' disabled selected>Select a project</option>";
 
     for (var i in projectOptions)
@@ -147,7 +147,7 @@ function addTrigger()
     html = html +  
             "</select>" + 
             "</div>" + 
-            "<h6 style='margin-top:10px'>Record Linkage</h6>" +
+            "<h6>Record Linkage</h6>" +
             "<p>" + 
                 "Create subjects/push data to linked project using variables in source and linked project. When the trigger is met, then records between the source and linked project will be linked via the chosen fields." + 
                 "<b> When linking projects with anything other than the record ID fields, 'Auto-numbering for records' must be turned on in the destination project.</b>" +
@@ -271,6 +271,7 @@ function addTrigger()
     else if (triggers.length < 10)
     {
         triggers.last().after(html);
+        $(".destination-project-select").selectpicker();
     }
     else
     {
@@ -382,11 +383,15 @@ function validateInstrumentForm()
 function updateElemAutocompleteItems(elem, data)
 {
     let metadata = JSON.parse(data);
+    
     destFields = metadata.fields;
     destEvents = metadata.events;
     destInstruments = metadata.instruments;
 
     let isLongitudinal = metadata.isLongitudinal;
+
+    console.log(elem);
+    console.log(elem.find(".dest-events-autocomplete"));
 
     if (isLongitudinal) {
         elem.find(".dest-events-autocomplete").autocomplete({source: destEvents});
