@@ -383,15 +383,11 @@ function validateInstrumentForm()
 function updateElemAutocompleteItems(elem, data)
 {
     let metadata = JSON.parse(data);
-    
+    let isLongitudinal = metadata.isLongitudinal;
+
     destFields = metadata.fields;
     destEvents = metadata.events;
     destInstruments = metadata.instruments;
-
-    let isLongitudinal = metadata.isLongitudinal;
-
-    console.log(elem);
-    console.log(elem.find(".dest-events-autocomplete"));
 
     if (isLongitudinal) {
         elem.find(".dest-events-autocomplete").autocomplete({source: destEvents});

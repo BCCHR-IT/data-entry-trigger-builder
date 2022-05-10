@@ -50,9 +50,47 @@
 
     /*
      * Call to retrieve destination project's fields and instruments when 
-     * destination project changes/page load, and update autcomplete items
+     * on page load, and update autcomplete items. This is for existing DETs. 
      */
-    $(".destination-project-select").change(function () {
+    $(document).ready(function () {
+        let triggers = $(".trigger-and-data-wrapper");
+        for (var i in triggers)
+        {
+            let trigger = triggers[i];
+
+            <?php if (REDCap::isLongitudinal()): ?>
+            $(".source-events-autocomplete" ).autocomplete({source: sourceEvents});
+            <?php endif;?>
+                        
+            $(".source-fields-autocomplete").autocomplete({source: sourceFields});
+
+            $(".source-instr-autocomplete").autocomplete({source: sourceInstr});
+
+            /**
+                Call to retrieve destination project's fields and instruments and update autcomplete items
+            */
+
+            $.ajax({
+                url: "<?php print $module->getUrl("getDestinationFields.php") ?>",
+                type: "POST",
+                data: {
+                    pid: $(trigger).find(".destination-project-select").val()
+                },
+                success: function (data) {
+                    updateElemAutocompleteItems(trigger, data);
+                },
+                error: function (data, status, error) {
+                    console.log("Returned with status " + status + " - " + error);
+                }
+            });
+        }
+    });
+
+    /*
+     * Call to retrieve destination project's fields and instruments when 
+     * destination project changes, and update autcomplete items
+     */
+    $(".destination-project-select").on("change", function () {
 
         /** 
          * Code to populate the populate
