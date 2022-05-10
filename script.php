@@ -58,6 +58,8 @@
             $(".source-fields-autocomplete").autocomplete({source: sourceFields});
             $(".source-instr-autocomplete").autocomplete({source: sourceInstr});
 
+            let triggerWrapper = $(this);
+
             //Call to retrieve destination project's fields and instruments and update autcomplete items
             $.ajax({
                 url: "<?php print $module->getUrl("getDestinationFields.php") ?>",
@@ -66,7 +68,7 @@
                     pid: $(this).find("select.destination-project-select").val()
                 },
                 success: function (data) {
-                    updateElemAutocompleteItems($(this), data);
+                    updateElemAutocompleteItems(triggerWrapper, data);
                 },
                 error: function (data, status, error) {
                     console.log("Returned with status " + status + " - " + error);
