@@ -54,9 +54,6 @@
      */
     $(".destination-project-select").change(function () {
 
-        console.log($(this).val());
-        console.log($(this).parents(".trigger-and-data-wrapper"));
-
         /** 
          * Code to populate the populate
          * the autocomplete fields for the 
@@ -74,6 +71,9 @@
         /**
             Call to retrieve destination project's fields and instruments and update autcomplete items
         */
+
+        let triggerWrapper = $(this).parents(".trigger-and-data-wrapper");
+
         $.ajax({
             url: "<?php print $module->getUrl("getDestinationFields.php") ?>",
             type: "POST",
@@ -81,7 +81,7 @@
                 pid: $(this).val()
             },
             success: function (data) {
-                updateElemAutocompleteItems($(this).parents(".trigger-and-data-wrapper"), data);
+                updateElemAutocompleteItems(triggerWrapper, data);
             },
             error: function (data, status, error) {
                 console.log("Returned with status " + status + " - " + error);
