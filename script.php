@@ -90,7 +90,7 @@
      * Call to retrieve destination project's fields and instruments when 
      * destination project changes, and update autcomplete items
      */
-    $(".destination-project-select").on("change", function () {
+    $('#det-form').on("change", ".destination-project-select", function () {
 
         /** 
          * Code to populate the populate
