@@ -79,7 +79,7 @@ $Proj = new Project();
             let projectOptions = [
                 <?php
                 $projects = $data_entry_trigger_builder->getProjects();
-                foreach($projects as $project) { print "'<option value=\'". $project["project_id"] . "\'>" . $project["project_id"] . " - " . $project["app_title"] . "</option>'"; }
+                foreach($projects as $project) { print "'<option value=\"". $project["project_id"] . "\">" . $project["project_id"] . " - " . $project["app_title"] . "</option>'"; }
                 ?>
             ];
         </script>
@@ -118,7 +118,7 @@ $Proj = new Project();
             <hr/>
             <?php endif;?> -->
             <form id="det-form" method="post">
-                <div id="main-form" <?php if (empty($settings)) :?> style="display:none" <?php endif;?>>
+                <div id="main-form">
                     <h5>Triggers (Max. 10)</h5>
                     <div id="trigger-instr" style="margin-bottom:20px">
                         <label>Push data from the source project to the linked project, when the following conditions are met:</label>
