@@ -83,6 +83,10 @@
      */
     $(".destination-project-select").change(function () {
 
+        console.log($(this).val());
+        console.log($(this).parent(".trigger-and-data-wrapper"));
+
+
         /** 
          * Code to populate the populate
          * the autocomplete fields for the 
