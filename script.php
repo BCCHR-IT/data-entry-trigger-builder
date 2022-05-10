@@ -58,18 +58,11 @@
         {
             let trigger = triggers[i];
 
-            <?php if (REDCap::isLongitudinal()): ?>
             $(".source-events-autocomplete" ).autocomplete({source: sourceEvents});
-            <?php endif;?>
-                        
             $(".source-fields-autocomplete").autocomplete({source: sourceFields});
-
             $(".source-instr-autocomplete").autocomplete({source: sourceInstr});
 
-            /**
-                Call to retrieve destination project's fields and instruments and update autcomplete items
-            */
-
+            //Call to retrieve destination project's fields and instruments and update autcomplete items
             $.ajax({
                 url: "<?php print $module->getUrl("getDestinationFields.php") ?>",
                 type: "POST",
@@ -98,20 +91,13 @@
          * source project
          */
 
-        <?php if (REDCap::isLongitudinal()): ?>
-        $(".source-events-autocomplete" ).autocomplete({source: sourceEvents});
-        <?php endif;?>
-                    
+        $(".source-events-autocomplete" ).autocomplete({source: sourceEvents});                    
         $(".source-fields-autocomplete").autocomplete({source: sourceFields});
-
         $(".source-instr-autocomplete").autocomplete({source: sourceInstr});
-
-        /**
-            Call to retrieve destination project's fields and instruments and update autcomplete items
-        */
 
         let triggerWrapper = $(this).parents(".trigger-and-data-wrapper");
 
+        //Call to retrieve destination project's fields and instruments and update autcomplete items
         $.ajax({
             url: "<?php print $module->getUrl("getDestinationFields.php") ?>",
             type: "POST",
@@ -288,6 +274,9 @@
      */
     $('#add-trigger-btn').click(function() {
         addTrigger();
+        $(".source-events-autocomplete" ).autocomplete({source: sourceEvents});                    
+        $(".source-fields-autocomplete").autocomplete({source: sourceFields});
+        $(".source-instr-autocomplete").autocomplete({source: sourceInstr});
     });
 
     /*
