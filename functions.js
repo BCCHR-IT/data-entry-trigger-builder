@@ -84,7 +84,7 @@ function createInstrRow()
 
 function updateTable(elem)
 {
-    if (elem.attr("id") == "add-field-btn" && validateFieldForm())
+    if ($(elem).attr("id") == "add-field-btn" && validateFieldForm())
     {
         let newRow = createFieldRow();
         clearFieldForm();
@@ -97,11 +97,11 @@ function updateTable(elem)
 
     if (newRow)
     {
-        if (elem.text() == 'Update')
+        if ($(elem).text() == 'Update')
         {
             row.after(newRow)
             row.remove();
-            elem.text("Add");
+            $(elem).text("Add");
         }
         else
         {
@@ -297,7 +297,7 @@ function clearInstrForm()
 
 function fillPipingFieldForm(elem)
 {
-    row = elem.parent("td").parent("tr");
+    row = $(elem).parent("td").parent("tr");
     $('#source-input').hide();
     $('#source-select').show();
 
@@ -320,7 +320,7 @@ function fillPipingFieldForm(elem)
 
 function fillFieldForm(elem)
 {
-    row = elem.parent("td").parent("tr");
+    row = $(elem).parent("td").parent("tr");
     $('#source-input').show();
     $('#source-select').hide();
 
@@ -338,7 +338,7 @@ function fillFieldForm(elem)
 
 function fillInstrForm(elem)
 {
-    row = elem.parent("td").parent("tr");
+    row = $(elem).parent("td").parent("tr");
     
     $('#instr-select').val(row.find(".sourceInstr").val());
 
