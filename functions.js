@@ -39,7 +39,7 @@ function createFieldRow()
         var editFunction = 'fillPipingFieldForm(this)'
     }
 
-    var html = "<tr class='trigger-field-row'>" +
+    let html = "<tr class='trigger-field-row'>" +
                     "<td>" + sourceEvent + sourceField + sourceEventElem + sourceFieldElem + "</td>" +
                     "<td>" + destEvent + destField + destEventElem + destFieldElem + "</td>" +
                     "</td><td><span class='fa fa-pencil-alt' onclick='" + editFunction + "'></span></td>" +
@@ -72,7 +72,7 @@ function createInstrRow()
         var destEventElem = "";
     }
 
-    var html = "<tr class='trigger-field-row'>" +
+    let html = "<tr class='trigger-field-row'>" +
                     "<td>" + sourceEvent + sourceInstr + sourceEventElem + sourceInstrElem + "</td>" +
                     "<td>" + destEvent + destEventElem + "</td>" +
                     "</td><td><span class='fa fa-pencil-alt' onclick='fillInstrForm(this)'></span></td>" +
@@ -86,12 +86,12 @@ function updateTable(elem)
 {
     if ($(elem).attr("id") == "add-field-btn" && validateFieldForm())
     {
-        let newRow = createFieldRow();
+        var newRow = createFieldRow();
         clearFieldForm();
     }   
     else if (validateInstrumentForm())
     {
-        let newRow = createInstrRow();
+        var newRow = createInstrRow();
         clearInstrForm();
     }
 
