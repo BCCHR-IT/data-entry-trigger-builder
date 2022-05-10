@@ -104,10 +104,10 @@
             url: "<?php print $module->getUrl("getDestinationFields.php") ?>",
             type: "POST",
             data: {
-                pid: $("#destination-project-select").val()
+                pid: $(this).val()
             },
             success: function (data) {
-                updateElemAutocompleteItems($(this), data);
+                updateElemAutocompleteItems($(this).parent(".trigger-and-data-wrapper"), data);
             },
             error: function (data, status, error) {
                 console.log("Returned with status " + status + " - " + error);
