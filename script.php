@@ -54,27 +54,24 @@
      */
     $(document).ready(function () {
         $(".trigger-and-data-wrapper").each(function () {
-            for (var i in triggers)
-            {
-                $(".source-events-autocomplete" ).autocomplete({source: sourceEvents});
-                $(".source-fields-autocomplete").autocomplete({source: sourceFields});
-                $(".source-instr-autocomplete").autocomplete({source: sourceInstr});
+            $(".source-events-autocomplete" ).autocomplete({source: sourceEvents});
+            $(".source-fields-autocomplete").autocomplete({source: sourceFields});
+            $(".source-instr-autocomplete").autocomplete({source: sourceInstr});
 
-                //Call to retrieve destination project's fields and instruments and update autcomplete items
-                $.ajax({
-                    url: "<?php print $module->getUrl("getDestinationFields.php") ?>",
-                    type: "POST",
-                    data: {
-                        pid: $(trigger).find(".destination-project-select").val()
-                    },
-                    success: function (data) {
-                        updateElemAutocompleteItems($(this), data);
-                    },
-                    error: function (data, status, error) {
-                        console.log("Returned with status " + status + " - " + error);
-                    }
-                });
-            }
+            //Call to retrieve destination project's fields and instruments and update autcomplete items
+            $.ajax({
+                url: "<?php print $module->getUrl("getDestinationFields.php") ?>",
+                type: "POST",
+                data: {
+                    pid: $(trigger).find(".destination-project-select").val()
+                },
+                success: function (data) {
+                    updateElemAutocompleteItems($(this), data);
+                },
+                error: function (data, status, error) {
+                    console.log("Returned with status " + status + " - " + error);
+                }
+            });
         });
     });
 
