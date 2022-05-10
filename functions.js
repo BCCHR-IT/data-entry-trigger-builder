@@ -139,10 +139,12 @@ function addTrigger()
                     "<select name='triggers[" + trigNum + "][dest-project]' class='destination-project-select form-control selectpicker' data-live-search='true' required>" + 
                         "<option value='' disabled selected>Select a project</option>";
 
-    for (var i = 0; i < projectOptions.length; i++)
+    for (var i in projectOptions)
     {
         html = html + projectOptions[i];
     }
+
+    console.log(html);
 
     html = html +  
             "</select>" + 

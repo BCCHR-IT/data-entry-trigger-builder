@@ -48,44 +48,14 @@
         $(this).closest('.trigger-field-row').remove();
     });
 
-    /**
-     * Call to update autocomplete items when page loads.
-     * Only relevent when DET aleady exists.
-     */
-    $(document).ready(function() {
-
-        <?php if (REDCap::isLongitudinal()): ?>
-        $(".source-events-autocomplete" ).autocomplete({source: sourceEvents});
-        <?php endif;?>
-                    
-        $(".source-fields-autocomplete").autocomplete({source: sourceFields});
-
-        $(".source-instr-autocomplete").autocomplete({source: sourceInstr});
-
-        $.ajax({
-            url: "<?php print $module->getUrl("getDestinationFields.php") ?>",
-            type: "POST",
-            data: {
-                pid: $("#destination-project-select").val()
-            },
-            success: function (data) {
-                updateAutocompleteItems(data);
-            },
-            error: function (data, status, error) {
-                console.log("Returned with status " + status + " - " + error);
-            }
-        });
-    });
-
     /*
      * Call to retrieve destination project's fields and instruments when 
-     * destination project changes, and update autcomplete items
+     * destination project changes/page load, and update autcomplete items
      */
-    $(".destination-project-select").change(function () {
+    $(".destination-project-select").on("change click", function () {
 
         console.log($(this).val());
-        console.log($(this).parent(".trigger-and-data-wrapper"));
-
+        console.log($(this).parents(".trigger-and-data-wrapper"));
 
         /** 
          * Code to populate the populate
@@ -111,7 +81,7 @@
                 pid: $(this).val()
             },
             success: function (data) {
-                updateElemAutocompleteItems($(this).parent(".trigger-and-data-wrapper"), data);
+                updateElemAutocompleteItems($(this).parents(".trigger-and-data-wrapper"), data);
             },
             error: function (data, status, error) {
                 console.log("Returned with status " + status + " - " + error);
