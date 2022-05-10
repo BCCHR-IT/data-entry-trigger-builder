@@ -53,30 +53,29 @@
      * on page load, and update autcomplete items. This is for existing DETs. 
      */
     $(document).ready(function () {
-        let triggers = $(".trigger-and-data-wrapper");
-        for (var i in triggers)
-        {
-            let trigger = triggers[i];
+        $(".trigger-and-data-wrapper").each(function () {
+            for (var i in triggers)
+            {
+                $(".source-events-autocomplete" ).autocomplete({source: sourceEvents});
+                $(".source-fields-autocomplete").autocomplete({source: sourceFields});
+                $(".source-instr-autocomplete").autocomplete({source: sourceInstr});
 
-            $(".source-events-autocomplete" ).autocomplete({source: sourceEvents});
-            $(".source-fields-autocomplete").autocomplete({source: sourceFields});
-            $(".source-instr-autocomplete").autocomplete({source: sourceInstr});
-
-            //Call to retrieve destination project's fields and instruments and update autcomplete items
-            $.ajax({
-                url: "<?php print $module->getUrl("getDestinationFields.php") ?>",
-                type: "POST",
-                data: {
-                    pid: $(trigger).find(".destination-project-select").val()
-                },
-                success: function (data) {
-                    updateElemAutocompleteItems(trigger, data);
-                },
-                error: function (data, status, error) {
-                    console.log("Returned with status " + status + " - " + error);
-                }
-            });
-        }
+                //Call to retrieve destination project's fields and instruments and update autcomplete items
+                $.ajax({
+                    url: "<?php print $module->getUrl("getDestinationFields.php") ?>",
+                    type: "POST",
+                    data: {
+                        pid: $(trigger).find(".destination-project-select").val()
+                    },
+                    success: function (data) {
+                        updateElemAutocompleteItems($(this), data);
+                    },
+                    error: function (data, status, error) {
+                        console.log("Returned with status " + status + " - " + error);
+                    }
+                });
+            }
+        });
     });
 
     /*
