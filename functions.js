@@ -4,42 +4,42 @@ var destEvents = [];
 
 function createFieldRow()
 {
-    let id = $(".table-id").val();
-    let index = id.substring(id.length - 1, id.length);
-    let sourceEvent = '';
-    let sourceEventElem = '';
-    let destEvent = '';
-    let destEventElem = '';
-    let destField = '[' + $('#dest-field-select').val() + ']';
+    var id = $(".table-id").val();
+    var index = id.substring(id.length - 1, id.length);
+    var sourceEvent = '';
+    var sourceEventElem = '';
+    var destEvent = '';
+    var destEventElem = '';
+    var destField = '[' + $('#dest-field-select').val() + ']';
     
     if ($('#field-value').val() != '') {
         var sourceField = "'" + $('#field-value').val() + "'";
         var sourceFieldElem = "<input class='setDestFieldsValues' type='hidden' name='triggers[" + index + "][setDestFieldsValues][]' value='" + $('#field-value').val() + "'/>";
 
         if ($('#dest-event-select').val() && $('#dest-event-select').val() != '') {
-            var destEvent = '[' + $('#dest-event-select').val() + ']';
-            var destEventElem = "<input class='setDestEvents' type='hidden' name='triggers[" + index + "][setDestEvents][]' value='" + $('#dest-event-select').val() + "'/>";
+            destEvent = '[' + $('#dest-event-select').val() + ']';
+            destEventElem = "<input class='setDestEvents' type='hidden' name='triggers[" + index + "][setDestEvents][]' value='" + $('#dest-event-select').val() + "'/>";
         }
         var destFieldElem = "<input class='setDestFields' type='hidden' name='triggers[" + index + "][setDestFields][]' value='" + $('#dest-field-select').val() + "'/>";
         var editFunction = 'fillFieldForm(this)'
     }
     else {
         if ($('#event-select').val() && $('#event-select').val() != '') {
-            var sourceEvent = '[' + $('#event-select').val() + ']';
-            var sourceEventElem =  "<input class='pipingSourceEvents' type='hidden' name='triggers[" + index + "][pipingSourceEvents][]' value='" + $('#event-select').val() + "'/>";
+            sourceEvent = '[' + $('#event-select').val() + ']';
+            sourceEventElem =  "<input class='pipingSourceEvents' type='hidden' name='triggers[" + index + "][pipingSourceEvents][]' value='" + $('#event-select').val() + "'/>";
         }
         var sourceField = '[' + $('#field-select').val() + ']';
         var sourceFieldElem = "<input class='pipingSourceFields' type='hidden' name='triggers[" + index + "][pipingSourceFields][]' value='" + $('#field-select').val() + "'/>";
 
         if ($('#dest-event-select').val() && $('#dest-event-select').val() != '') {
-            var destEvent = '[' + $('#dest-event-select').val() + ']';
-            var destEventElem = "<input class='pipingDestEvents' type='hidden' name='triggers[" + index + "][pipingDestEvents][]' value='" + $('#dest-event-select').val() + "'/>";
+            destEvent = '[' + $('#dest-event-select').val() + ']';
+            destEventElem = "<input class='pipingDestEvents' type='hidden' name='triggers[" + index + "][pipingDestEvents][]' value='" + $('#dest-event-select').val() + "'/>";
         }
         var destFieldElem = "<input class='pipingDestFields' type='hidden' name='triggers[" + index + "][pipingDestFields][]' value='" + $('#dest-field-select').val() + "'/>";
         var editFunction = 'fillPipingFieldForm(this)'
     }
 
-    let html = "<tr class='trigger-field-row'>" +
+    var html = "<tr class='trigger-field-row'>" +
                     "<td>" + sourceEvent + sourceField + sourceEventElem + sourceFieldElem + "</td>" +
                     "<td>" + destEvent + destField + destEventElem + destFieldElem + "</td>" +
                     "</td><td><span class='fa fa-pencil-alt' onclick='" + editFunction + "'></span></td>" +
@@ -51,17 +51,17 @@ function createFieldRow()
 
 function createInstrRow()
 {
-    let id = $(".table-id").val();
-    let index = id.substring(id.length - 1, id.length);
-    let sourceEvent = '';
-    let sourceEventElem = '';
+    var id = $(".table-id").val();
+    var index = id.substring(id.length - 1, id.length);
+    var sourceEvent = '';
+    var sourceEventElem = '';
 
     if ($('#instr-event-select').val() && $('#instr-event-select').val() != '') {
-        var sourceEvent = '[' + $('#instr-event-select').val() + ']';
-        var sourceEventElem = "<input class='sourceInstrEvents' type='hidden' name='triggers[" + index + "][sourceInstrEvents][]' value='" + $('#instr-event-select').val() + "'/>";
+        sourceEvent = '[' + $('#instr-event-select').val() + ']';
+        sourceEventElem = "<input class='sourceInstrEvents' type='hidden' name='triggers[" + index + "][sourceInstrEvents][]' value='" + $('#instr-event-select').val() + "'/>";
     }
-    let sourceInstr = '[' + $('#instr-select').val() + ']';
-    let sourceInstrElem = "<input class='sourceInstr' type='hidden' name='triggers[" + index + "][sourceInstr][]' value='" + $('#instr-select').val() + "'/>";
+    var sourceInstr = '[' + $('#instr-select').val() + ']';
+    var sourceInstrElem = "<input class='sourceInstr' type='hidden' name='triggers[" + index + "][sourceInstr][]' value='" + $('#instr-select').val() + "'/>";
 
     if ($('#dest-event-instrument').val() && $('#dest-event-instrument').val() != '') {
         var destEvent = '[' + $('#dest-event-instrument').val() + ']';
@@ -72,7 +72,7 @@ function createInstrRow()
         var destEventElem = "";
     }
 
-    let html = "<tr class='trigger-field-row'>" +
+    var html = "<tr class='trigger-field-row'>" +
                     "<td>" + sourceEvent + sourceInstr + sourceEventElem + sourceInstrElem + "</td>" +
                     "<td>" + destEvent + destEventElem + "</td>" +
                     "</td><td><span class='fa fa-pencil-alt' onclick='fillInstrForm(this)'></span></td>" +
@@ -139,7 +139,7 @@ function addTrigger()
                     "<select name='triggers[" + trigNum + "][dest-project]' class='destination-project-select form-control selectpicker' data-live-search='true' required>" + 
                         "<option value='' disabled selected>Select a project</option>";
 
-    for (var i in projectOptions)
+    for (let i in projectOptions)
     {
         html = html + projectOptions[i];
     }
