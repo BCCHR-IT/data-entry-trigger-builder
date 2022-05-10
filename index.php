@@ -76,7 +76,7 @@ $Proj = new Project();
             }
         </style>
         <script>
-            let projectOptions = [
+            var projectOptions = [
                 <?php
                 $projects = $data_entry_trigger_builder->getProjects();
                 foreach($projects as $project) { print "\"<option value='". $project["project_id"] . "'>" . $project["project_id"] . " - " . $project["app_title"] . "</option>\","; }
@@ -206,7 +206,7 @@ $Proj = new Project();
                         <h6 style="margin-top:10px">Select a Linked Project</h6>
                         <p>The module will move the data into the chosen project.</p>
                         <div class="form-group">
-                            <select name="triggers[<?php print $index;?>][dest-project]" id="destination-project-select" class="form-control selectpicker" data-live-search="true" required>
+                            <select name="triggers[<?php print $index;?>][dest-project]" class="destination-project-select form-control selectpicker" data-live-search="true" required>
                                 <option value="" disabled>Select a project</option>
                                 <?php
                                     foreach($projects as $project)

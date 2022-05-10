@@ -53,7 +53,7 @@
      * Only relevent when DET aleady exists.
      */
     $(document).ready(function() {
-        
+
         <?php if (REDCap::isLongitudinal()): ?>
         $(".source-events-autocomplete" ).autocomplete({source: sourceEvents});
         <?php endif;?>
@@ -81,7 +81,7 @@
      * Call to retrieve destination project's fields and instruments when 
      * destination project changes, and update autcomplete items
      */
-    $("#destination-project-select").change(function () {
+    $(".destination-project-select").change(function () {
 
         /** 
          * Code to populate the populate
