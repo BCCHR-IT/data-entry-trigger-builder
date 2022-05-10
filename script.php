@@ -63,7 +63,7 @@
                 url: "<?php print $module->getUrl("getDestinationFields.php") ?>",
                 type: "POST",
                 data: {
-                    pid: $(trigger).find(".destination-project-select").val()
+                    pid: $(this).find(".destination-project-select").val()
                 },
                 success: function (data) {
                     updateElemAutocompleteItems($(this), data);
