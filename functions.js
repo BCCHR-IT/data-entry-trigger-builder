@@ -13,30 +13,30 @@ function createFieldRow()
     let destField = '[' + $('#dest-field-select').val() + ']';
     
     if ($('#field-value').val() != '') {
-        let sourceField = "'" + $('#field-value').val() + "'";
-        let sourceFieldElem = "<input class='setDestFieldsValues' type='hidden' name='triggers[" + index + "][setDestFieldsValues][]' value='" + $('#field-value').val() + "'/>";
+        var sourceField = "'" + $('#field-value').val() + "'";
+        var sourceFieldElem = "<input class='setDestFieldsValues' type='hidden' name='triggers[" + index + "][setDestFieldsValues][]' value='" + $('#field-value').val() + "'/>";
 
         if ($('#dest-event-select').val() && $('#dest-event-select').val() != '') {
-            let destEvent = '[' + $('#dest-event-select').val() + ']';
-            let destEventElem = "<input class='setDestEvents' type='hidden' name='triggers[" + index + "][setDestEvents][]' value='" + $('#dest-event-select').val() + "'/>";
+            var destEvent = '[' + $('#dest-event-select').val() + ']';
+            var destEventElem = "<input class='setDestEvents' type='hidden' name='triggers[" + index + "][setDestEvents][]' value='" + $('#dest-event-select').val() + "'/>";
         }
-        let destFieldElem = "<input class='setDestFields' type='hidden' name='triggers[" + index + "][setDestFields][]' value='" + $('#dest-field-select').val() + "'/>";
-        let editFunction = 'fillFieldForm(this)'
+        var destFieldElem = "<input class='setDestFields' type='hidden' name='triggers[" + index + "][setDestFields][]' value='" + $('#dest-field-select').val() + "'/>";
+        var editFunction = 'fillFieldForm(this)'
     }
     else {
         if ($('#event-select').val() && $('#event-select').val() != '') {
-            let sourceEvent = '[' + $('#event-select').val() + ']';
-            let sourceEventElem =  "<input class='pipingSourceEvents' type='hidden' name='triggers[" + index + "][pipingSourceEvents][]' value='" + $('#event-select').val() + "'/>";
+            var sourceEvent = '[' + $('#event-select').val() + ']';
+            var sourceEventElem =  "<input class='pipingSourceEvents' type='hidden' name='triggers[" + index + "][pipingSourceEvents][]' value='" + $('#event-select').val() + "'/>";
         }
-        let sourceField = '[' + $('#field-select').val() + ']';
-        let sourceFieldElem = "<input class='pipingSourceFields' type='hidden' name='triggers[" + index + "][pipingSourceFields][]' value='" + $('#field-select').val() + "'/>";
+        var sourceField = '[' + $('#field-select').val() + ']';
+        var sourceFieldElem = "<input class='pipingSourceFields' type='hidden' name='triggers[" + index + "][pipingSourceFields][]' value='" + $('#field-select').val() + "'/>";
 
         if ($('#dest-event-select').val() && $('#dest-event-select').val() != '') {
-            let destEvent = '[' + $('#dest-event-select').val() + ']';
-            let destEventElem = "<input class='pipingDestEvents' type='hidden' name='triggers[" + index + "][pipingDestEvents][]' value='" + $('#dest-event-select').val() + "'/>";
+            var destEvent = '[' + $('#dest-event-select').val() + ']';
+            var destEventElem = "<input class='pipingDestEvents' type='hidden' name='triggers[" + index + "][pipingDestEvents][]' value='" + $('#dest-event-select').val() + "'/>";
         }
-        let destFieldElem = "<input class='pipingDestFields' type='hidden' name='triggers[" + index + "][pipingDestFields][]' value='" + $('#dest-field-select').val() + "'/>";
-        let editFunction = 'fillPipingFieldForm(this)'
+        var destFieldElem = "<input class='pipingDestFields' type='hidden' name='triggers[" + index + "][pipingDestFields][]' value='" + $('#dest-field-select').val() + "'/>";
+        var editFunction = 'fillPipingFieldForm(this)'
     }
 
     let html = "<tr class='trigger-field-row'>" +
@@ -57,19 +57,19 @@ function createInstrRow()
     let sourceEventElem = '';
 
     if ($('#instr-event-select').val() && $('#instr-event-select').val() != '') {
-        let sourceEvent = '[' + $('#instr-event-select').val() + ']';
-        let sourceEventElem = "<input class='sourceInstrEvents' type='hidden' name='triggers[" + index + "][sourceInstrEvents][]' value='" + $('#instr-event-select').val() + "'/>";
+        var sourceEvent = '[' + $('#instr-event-select').val() + ']';
+        var sourceEventElem = "<input class='sourceInstrEvents' type='hidden' name='triggers[" + index + "][sourceInstrEvents][]' value='" + $('#instr-event-select').val() + "'/>";
     }
     let sourceInstr = '[' + $('#instr-select').val() + ']';
     let sourceInstrElem = "<input class='sourceInstr' type='hidden' name='triggers[" + index + "][sourceInstr][]' value='" + $('#instr-select').val() + "'/>";
 
     if ($('#dest-event-instrument').val() && $('#dest-event-instrument').val() != '') {
-        let destEvent = '[' + $('#dest-event-instrument').val() + ']';
-        let destEventElem = "<input class='destInstrEvents' type='hidden' name='triggers[" + index + "][destInstrEvents][]' value='" + $('#dest-event-instrument').val() + "'/>";
+        var destEvent = '[' + $('#dest-event-instrument').val() + ']';
+        var destEventElem = "<input class='destInstrEvents' type='hidden' name='triggers[" + index + "][destInstrEvents][]' value='" + $('#dest-event-instrument').val() + "'/>";
     }
     else {
-        let destEvent = "<i>Data is moving to a classic project, so there are no events</i>";
-        let destEventElem = "";
+        var destEvent = "<i>Data is moving to a classic project, so there are no events</i>";
+        var destEventElem = "";
     }
 
     let html = "<tr class='trigger-field-row'>" +
