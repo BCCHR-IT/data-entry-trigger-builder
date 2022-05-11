@@ -121,7 +121,7 @@
             url: "<?php print $module->getUrl("getDestinationFields.php") ?>",
             type: "POST",
             data: {
-                pid: $(this).parent(".trigger-and-data-wrapper").find("select.destination-project-select").val()
+                pid: $(this).parents(".trigger-and-data-wrapper").find("select.destination-project-select").val()
             },
             success: function (data) {
                 let metadata = JSON.parse(data);
