@@ -27,33 +27,6 @@
     $("body").on("click", ".add-field-btn, .add-instr-btn", function () {
         let id = $(this).siblings("table").attr("id");
         $(".table-id").val(id);
-        
-        //Call to retrieve destination project's fields and instruments and update autcomplete items
-        $.ajax({
-            url: "<?php print $module->getUrl("getDestinationFields.php") ?>",
-            type: "POST",
-            data: {
-                pid: $(this).parents("select.destination-project-select").val()
-            },
-            success: function (data) {
-                let metadata = JSON.parse(data);
-                let isLongitudinal = metadata.isLongitudinal;
-
-                let destFields = metadata.fields;
-                let destEvents = metadata.events;
-                let destInstruments = metadata.instruments;
-
-                if (isLongitudinal) {
-                    $("#dest-event-instrument, #dest-event-select").autocomplete({source: destEvents});
-                    $("#dest-event-instrument, #dest-event-select").attr("data-is-longitudinal", "yes");
-                }
-
-                $("#dest-field-select").autocomplete({source: destFields});
-            },
-            error: function (data, status, error) {
-                console.log("Returned with status " + status + " - " + error);
-            }
-        });
     });
 
     $("body").on("click", ".fa-pencil-alt", function () {
@@ -131,6 +104,39 @@
             },
             success: function (data) {
                 updateElemAutocompleteItems(triggerWrapper, data);
+            },
+            error: function (data, status, error) {
+                console.log("Returned with status " + status + " - " + error);
+            }
+        });
+    });
+
+    /*
+     * Call to retrieve destination project's fields and instruments when 
+     * modals open, and update autcomplete items
+     */
+    $("body").on("click", ".add-field-btn, .add-instr-btn, .fa-pencil-alt", function () {
+         //Call to retrieve destination project's fields and instruments and update autcomplete items
+        $.ajax({
+            url: "<?php print $module->getUrl("getDestinationFields.php") ?>",
+            type: "POST",
+            data: {
+                pid: $(this).parent(".trigger-and-data-wrapper").find("select.destination-project-select").val()
+            },
+            success: function (data) {
+                let metadata = JSON.parse(data);
+                let isLongitudinal = metadata.isLongitudinal;
+
+                let destFields = metadata.fields;
+                let destEvents = metadata.events;
+                let destInstruments = metadata.instruments;
+
+                if (isLongitudinal) {
+                    $("#dest-event-instrument, #dest-event-select").autocomplete({source: destEvents});
+                    $("#dest-event-instrument, #dest-event-select").attr("data-is-longitudinal", "yes");
+                }
+
+                $("#dest-field-select").autocomplete({source: destFields});
             },
             error: function (data, status, error) {
                 console.log("Returned with status " + status + " - " + error);
