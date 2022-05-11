@@ -134,12 +134,14 @@
                 if (isLongitudinal) {
                     $("#dest-event-instrument, #dest-event-select").autocomplete({source: destEvents});
                     $("#dest-event-instrument, #dest-event-select").attr("data-is-longitudinal", "yes");
-                    $("#dest-event-instrument, #dest-event-select").show();
+                    $("#dest-event-instrument").show();
+                    $("#dest-event-select").parent(".dest-event-wrapper").show();
                 }
                 else
                 {
                     $("#dest-event-instrument, #dest-event-select").attr("data-is-longitudinal", "no");
-                    $("#dest-event-instrument, #dest-event-select").hide();
+                    $("#dest-event-instrument").hide();
+                    $("#dest-event-select").parent(".dest-event-wrapper").hide();
                 }
 
                 $("#dest-field-select").autocomplete({source: destFields});
