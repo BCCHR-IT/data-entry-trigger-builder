@@ -27,6 +27,23 @@
     $("body").on("click", ".add-field-btn, .add-instr-btn", function () {
         let id = $(this).siblings("table").attr("id");
         $(".table-id").val(id);
+
+        let triggerWrapper = $(this).parents(".trigger-and-data-wrapper");
+
+        //Call to retrieve destination project's fields and instruments and update autcomplete items
+        $.ajax({
+            url: "<?php print $module->getUrl("getDestinationFields.php") ?>",
+            type: "POST",
+            data: {
+                pid: $(this).parents(".det-trigger-input").val()
+            },
+            success: function (data) {
+                updateElemAutocompleteItems(triggerWrapper, data);
+            },
+            error: function (data, status, error) {
+                console.log("Returned with status " + status + " - " + error);
+            }
+        });
     });
 
     $("body").on("click", ".fa-pencil-alt", function () {
