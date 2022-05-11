@@ -121,7 +121,7 @@ $Proj = new Project();
                 <div id="main-form">
                     <h5>Triggers (Max. 10)</h5>
                     <div id="trigger-instr" style="margin-bottom:20px">
-                        <label>Push data from the source project to the linked project, when the following conditions are met:</label>
+                        <label>Push data from a source project to a linked project, when the following conditions are met:</label>
                         <ul>
                             <li>E.g., [event_name][instrument_name_complete] = "2"</li>
                             <li>E.g., [event_name][variable_name] = "1"</li>
