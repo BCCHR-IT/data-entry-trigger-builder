@@ -117,7 +117,7 @@ $Proj = new Project();
             </form>
             <hr/>
             <?php endif;?> -->
-            <form id="det-form" method="post">
+            <form id="det-form" method="post" data-source-is-longitudinal="<?php REDCap::isLongitudinal() ? print "yes" : print "no"; ?>>
                 <div id="main-form">
                     <h5>Triggers (Max. 10)</h5>
                     <div id="trigger-instr" style="margin-bottom:20px">

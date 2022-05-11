@@ -119,6 +119,7 @@ function addTrigger()
 {
     let triggers = $(".trigger-and-data-wrapper");
     let trigNum = triggers.length;
+    let sourceIsLongitudinal = $("form").attr("data-source-is-longitudinal");
     
     let html = "<div class='form-group trigger-and-data-wrapper new-wrapper'>" +
                 "<div class='det-trigger'>" +
@@ -155,11 +156,16 @@ function addTrigger()
             "<div class='row link-field form-group'>" + 
                 "<div class='col-sm-12' style='margin-bottom:10px'>" + 
                     "<div class='class-sm-12'><label>Link source project field</label></div>" + 
-                    "<div class='row'>" + 
-                        "<div class='col-sm-6'>" +
-                            "<input class='linkSourceEvent source-events-autocomplete form-control' name=\"triggers[" + trigNum + "][linkSourceEvent]\" placeholder='Type to search for event' required>" +
-                        "</div>" +
-                        "<div class='col-sm-6'>" + 
+                    "<div class='row'>";
+
+    if (sourceIsLongitudinal == "yes")
+    {
+        html = html +  "<div class='col-sm-6'>" +
+                "<input class='linkSourceEvent source-events-autocomplete form-control' name=\"triggers[" + trigNum + "][linkSourceEvent]\" placeholder='Type to search for event' required>" +
+            "</div>";
+    }
+
+    html = html + "<div class='col-sm-6'>" + 
                             "<input class='linkSource source-fields-autocomplete form-control' name=\"triggers[" + trigNum + "][linkSource]\" placeholder='Type to search for field' required>" +
                         "</div>" + 
                     "</div>" +
@@ -232,36 +238,41 @@ function addTrigger()
                 "</div>" + 
                 "<div class='form-group col-6'>" + 
                     "<label>Specify the source field the survey url will be saved to, for redirection.</label>" + 
-                    "<div class='row'>" + 
-                        "<div class='col-sm-6'>" + 
-                            "<input class='saveUrlEvent source-events-autocomplete form-control' name=\"triggers[" + trigNum + "][saveUrlEvent]\" placeholder='Type to search for event'>" + 
-                        "</div>" + 
-                        "<div class='col-sm-6'>" +
-                            "<input class='saveUrlField source-fields-autocomplete form-control' name=\"triggers[" + trigNum + "][saveUrlField]\" placeholder='Type to search for field'>" + 
-                        "</div>" + 
+                    "<div class='row'>";
+
+    if (sourceIsLongitudinal == "yes")
+    {
+        html = html + "<div class='col-sm-6'>" + 
+                    "<input class='saveUrlEvent source-events-autocomplete form-control' name=\"triggers[" + trigNum + "][saveUrlEvent]\" placeholder='Type to search for event'>" + 
+                "</div>";
+    }
+ 
+    html = html +   "<div class='col-sm-6'>" +
+                        "<input class='saveUrlField source-fields-autocomplete form-control' name=\"triggers[" + trigNum + "][saveUrlField]\" placeholder='Type to search for field'>" + 
                     "</div>" + 
                 "</div>" + 
             "</div>" + 
-            "<h6>Confirm the following</h6>" +
-            "<div class='row form-group'>" + 
-                "<div class='col-sm-6'>" + 
-                    "<label>Overwrite data in destination project every time data is saved? This determines whether to push blank data over to the destination project.</label>" + 
-                    "<div class='form-check col-sm-12'>" + 
-                        "<input type='radio' name='triggers[" + trigNum + "][overwrite-data]' class='form-check-input' value='overwrite' required><label class='form-check-label'>Yes</label>" +
-                        "<br>" + 
-                        "<input type='radio' name='triggers[" + trigNum + "][overwrite-data]' class='form-check-input' value='normal' required><label class='form-check-label'>No</label>" +
-                    "</div>" + 
+        "</div>" + 
+        "<h6>Confirm the following</h6>" +
+        "<div class='row form-group'>" + 
+            "<div class='col-sm-6'>" + 
+                "<label>Overwrite data in destination project every time data is saved? This determines whether to push blank data over to the destination project.</label>" + 
+                "<div class='form-check col-sm-12'>" + 
+                    "<input type='radio' name='triggers[" + trigNum + "][overwrite-data]' class='form-check-input' value='overwrite' required><label class='form-check-label'>Yes</label>" +
+                    "<br>" + 
+                    "<input type='radio' name='triggers[" + trigNum + "][overwrite-data]' class='form-check-input' value='normal' required><label class='form-check-label'>No</label>" +
                 "</div>" + 
-                "<div class='col-sm-6'>" +
-                    "<label>Import data access groups (DAGs) every time data is saved? The module can only import DAGs if they have a one-to-one relationship with the destination project.</label>" +
-                    "<div class='form-check col-sm-12'>" + 
-                        "<input type='radio' name='triggers[" + trigNum + "][import-dags]' class='form-check-input' value='1' required><label class='form-check-label'>Yes</label>" +
-                        "<br>" +
-                        "<input type='radio' name='triggers[" + trigNum + "][import-dags]' class='form-check-input' value='0' required><label class='form-check-label'>No</label>" +
-                    "</div>" + 
-                "</div>" +
+            "</div>" + 
+            "<div class='col-sm-6'>" +
+                "<label>Import data access groups (DAGs) every time data is saved? The module can only import DAGs if they have a one-to-one relationship with the destination project.</label>" +
+                "<div class='form-check col-sm-12'>" + 
+                    "<input type='radio' name='triggers[" + trigNum + "][import-dags]' class='form-check-input' value='1' required><label class='form-check-label'>Yes</label>" +
+                    "<br>" +
+                    "<input type='radio' name='triggers[" + trigNum + "][import-dags]' class='form-check-input' value='0' required><label class='form-check-label'>No</label>" +
+                "</div>" + 
             "</div>" +
-        "</div>";
+        "</div>" +
+    "</div>";
     
     if (triggers.length == 0)
     {
