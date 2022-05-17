@@ -125,7 +125,7 @@ function addTrigger()
                 "<div class='det-trigger'>" +
                     "<div class='row'>" + 
                         "<div class='col-sm-2'>" +
-                            "<h6>Trigger: #" + triggers.length + "</h6>" +
+                            "<h6>Trigger: #" + (triggers.length+1) + "</h6>" +
                         "</div>" +
                         "<div class='col-sm-9'></div>" +
                         "<div class='col-sm-1' style='text-align: center;'>" +
