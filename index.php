@@ -211,15 +211,13 @@ $Proj = new Project();
                                 <?php
                                     foreach($projects as $project)
                                     {
-                                        if ($project["project_id"] != $_GET["pid"]) {
-                                            if (!empty($trigger_obj["dest-project"]) && $project["project_id"] == $trigger_obj["dest-project"])
-                                            {
-                                                print "<option value='". $project["project_id"] . "' selected>" . $project["project_id"] . " - " . $project["app_title"] . "</option>";
-                                            }
-                                            else
-                                            {
-                                                print "<option value='". $project["project_id"] . "'>" . $project["project_id"] . " - " . $project["app_title"] . "</option>";
-                                            }
+                                        if (!empty($trigger_obj["dest-project"]) && $project["project_id"] == $trigger_obj["dest-project"])
+                                        {
+                                            print "<option value='". $project["project_id"] . "' selected>" . $project["project_id"] . " - " . $project["app_title"] . "</option>";
+                                        }
+                                        else
+                                        {
+                                            print "<option value='". $project["project_id"] . "'>" . $project["project_id"] . " - " . $project["app_title"] . "</option>";
                                         }
                                     }
                                 ?>
