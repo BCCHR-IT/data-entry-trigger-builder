@@ -150,7 +150,7 @@ function addTrigger()
             "</div>" + 
             "<h6>Record Linkage</h6>" +
             "<p>" + 
-                "Create subjects/push data to linked project using variables in source and linked project. When the trigger is met, then records between the source and linked project will be linked via the chosen fields." + 
+                "Create subjects/push data to linked project using variables in source and linked project. When the trigger is met, then records between the source and linked project will be linked via the chosen fields. An option to pick events will appear, if a project is longitudinal." + 
                 "<b> When linking projects with anything other than the record ID fields, 'Auto-numbering for records' must be turned on in the destination project.</b>" +
             "</p>" + 
             "<div class='row link-field form-group'>" + 
