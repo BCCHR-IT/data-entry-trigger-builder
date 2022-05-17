@@ -194,7 +194,7 @@ $Proj = new Project();
                         <div class="det-trigger">
                             <div class="row">
                                 <div class="col-sm-2">
-                                    <label><h6>Trigger:</h6></label>
+                                    <label><h6>Trigger: #<?php print $index+1; ?></h6></label>
                                 </div>
                                 <div class="col-sm-9"></div>
                                 <div class="col-sm-1" style="text-align: center;">
