@@ -277,6 +277,7 @@ function addTrigger()
     if (triggers.length == 0)
     {
         $("#trigger-instr").after(html);
+        $(".destination-project-select").selectpicker();
 
     }
     else if (triggers.length < 10)
