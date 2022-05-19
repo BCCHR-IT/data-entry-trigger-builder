@@ -677,14 +677,6 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                             }
                         }
                         
-                        // Create a record to move if empty
-                        if ($trigger_obj["create-empty-record"] == 1 && empty($dest_record_data))
-                        {
-                            $dest_record_data[] = [
-                                $dest_record_id => $dest_record
-                            ];
-                        }
-
                         // Set record_id, and redcap_data_access_group if $import_dags is true
                         foreach ($dest_record_data as $i => $data)
                         {
