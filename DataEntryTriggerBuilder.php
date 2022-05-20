@@ -506,11 +506,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                             $dest_event = "classic";
                         }
                         
-                        if ($dest_event != "classic" && empty($dest_record_data[$dest_event]))
-                        {
-                            $event_data = ["redcap_event_name" => $dest_event];
-                        }
-                        else if ($dest_event == "classic" && empty($dest_record_data[$dest_event]))
+                        if (empty($dest_record_data[$dest_event]))
                         {
                             $event_data = [];
                         }
@@ -542,11 +538,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                             $dest_event = "classic";
                         }
 
-                        if ($dest_event != "classic" && empty($dest_record_data[$dest_event]))
-                        {
-                            $event_data = ["redcap_event_name" => $dest_event];
-                        }
-                        else if ($dest_event == "classic" && empty($dest_record_data[$dest_event]))
+                        if (empty($dest_record_data[$dest_event]))
                         {
                             $event_data = [];
                         }
@@ -577,11 +569,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                             $dest_event = "classic";
                         }
 
-                        if ($dest_event != "classic" && empty($dest_record_data[$dest_event]))
-                        {
-                            $event_data = ["redcap_event_name" => $dest_event];
-                        }
-                        else if ($dest_event == "classic" && empty($dest_record_data[$dest_event]))
+                        if (empty($dest_record_data[$dest_event]))
                         {
                             $event_data = [];
                         }
@@ -636,6 +624,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                             // Set linking id
                             if (!empty($link_dest_event))   
                             {   
+                                $dest_record_data[$link_dest_event]["redcap_event_name"] = $link_dest_event
                                 $dest_record_data[$link_dest_event][$link_dest_field] = $link_dest_value;   
                             }   
                             else // Assume classic project  
