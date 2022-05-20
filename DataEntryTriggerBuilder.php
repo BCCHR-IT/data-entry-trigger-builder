@@ -624,7 +624,6 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                             // Set linking id
                             if (!empty($link_dest_event))   
                             {   
-                                $dest_record_data[$link_dest_event]["redcap_event_name"] = $link_dest_event;
                                 $dest_record_data[$link_dest_event][$link_dest_field] = $link_dest_value;   
                             }   
                             else // Assume classic project  
@@ -666,13 +665,19 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                             }
                         }
                         
-                        // Set record_id, and redcap_data_access_group if $import_dags is true
-                        foreach ($dest_record_data as $i => $data)
+                        // Set redcap_event_name, record_id, and redcap_data_access_group if $import_dags is true
+                        foreach ($dest_record_data as $redcap_event_name => $data)
                         {
-                            $dest_record_data[$i][$dest_record_id] = $dest_record;
+                            $dest_record_data[$redcap_event_name][$dest_record_id] = $dest_record;
+
+                            if ($redcap_event_name != "classic")
+                            {
+                                $dest_record_data[$redcap_event_name]["redcap_event_name"] = $redcap_event_name;
+                            }
+
                             if ($import_dags)
                             {
-                                $dest_record_data[$i]["redcap_data_access_group"] = $record_data[0]["redcap_data_access_group"];
+                                $dest_record_data[$redcap_event_name]["redcap_data_access_group"] = $record_data[0]["redcap_data_access_group"];
                             }
                         }
 
