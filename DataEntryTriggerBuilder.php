@@ -592,6 +592,14 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
 
                     if (!empty($dest_record_data) || $trigger_obj["create-empty-record"] == 1)
                     {
+                        if (empty($dest_record_data))
+                        {
+                            if (empty($link_dest_event))
+                                $dest_record_data["classic"] = [];
+                            else
+                                $dest_record_data[$link_dest_event] = [];
+                        }
+
                         // Check if the linking id field is the same as the record id field.
                         $dest_record_id = $this->framework->getRecordIdField($dest_project);
                         if ($dest_record_id != $link_dest_field)
