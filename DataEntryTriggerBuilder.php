@@ -624,7 +624,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                             // Set linking id
                             if (!empty($link_dest_event))   
                             {   
-                                $dest_record_data[$link_dest_event]["redcap_event_name"] = $link_dest_event
+                                $dest_record_data[$link_dest_event]["redcap_event_name"] = $link_dest_event;
                                 $dest_record_data[$link_dest_event][$link_dest_field] = $link_dest_value;   
                             }   
                             else // Assume classic project  
