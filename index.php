@@ -185,7 +185,7 @@ $Proj = new Project();
                         </table>
                         <button type="button" id="add-trigger-btn" class="btn btn-primary btn-sm">Add Trigger</button>
                     </div>
-                    <?php if (!empty($settings)): foreach($settings["triggers"] as $index => $trigger_obj): ?>
+                    <?php if (!empty($settings)): foreach(array_values($settings["triggers"]) as $index => $trigger_obj): ?>
                     <?php 
                         $index = htmlspecialchars($index, ENT_QUOTES); 
                         $trigger = htmlspecialchars($trigger_obj["trigger"], ENT_QUOTES); 
