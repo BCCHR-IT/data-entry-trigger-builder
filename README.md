@@ -8,6 +8,12 @@
 
 ![AddTrigger](imgs/addTrigger.png)
 
+The following form will appear. 
+
+![AddTriggerForm] (imgs/addTriggerForm.png)
+
+Start by creating a trigger. Data movement will occur when your trigger is met.
+
 ![CreateTrigger](imgs/createTrigger.png)
 
 3. Select your destination project. Your current project is automatically used as the source.
@@ -22,9 +28,13 @@
 
 ![PrefixPostfix](imgs/addPrefixPostfix.png)
 
-5. Add data to move when the condition is true, or create an empty record.
+5. Add data to move when the condition is true.
 
 ![DataMovement](imgs/dataMovement.png)
+
+Or create an empty record
+
+![CreateEmptyRecord] (imgs/createEmptyREcords.png)
 
 5.
     1. Add an instrument to move. This can only work if there’s a one-to-one relationship between the selected instrument and another instrument in the destination project. Meaning all fields in the source instrument, must exist in the destination instrument. 
@@ -34,7 +44,7 @@
 
 6. (OPTIONAL) Determine whether the module will pull the url for a survey into your source project, and where to save it.
 
-![GenerateSurveyUrl](imgs/generateSurveyUrl.png)
+![GenerateSurveyUrl](imgs/generateSurveyURLs.png)
 
 7. Determine whether you want blank fields to overwrite data in the destination project.
 
