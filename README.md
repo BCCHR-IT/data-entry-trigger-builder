@@ -44,7 +44,7 @@ Or create an empty record
 
 Data Movement Options:
 
-- Add an instrument to move. This can only work if there’s a one-to-one relationship between the selected instrument and another instrument in the destination project. Meaning all fields in the source instrument, must exist in the destination instrument. 
+- Add an instrument to move. All fields in the chosen instrument must exist in the destination project, for the chosen event.
 - Add a field to move. You can choose to pipe a field, or manually set a value to move. (i.e set completion status to ‘2’)
     
 ![AddField](imgs/addField.jpg)
