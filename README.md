@@ -75,6 +75,8 @@ Data Movement Options:
 
 1. Any changes made to the REDCap project, after the DET has been created, has the potential to break it. After you’ve updated your project, please make sure to update the DET in accordance with your changes.
 
+2. Previous functionality to export your settings to a word document has been disabled for v3.0.0, as it has not been made compatible with the new JSON structure. 
+
 # Limitations
 
 1. Is not compatible with repeatable instruments.
