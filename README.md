@@ -2,57 +2,57 @@
 
 1. Make sure the module has been enabled in your project. After, navigate to External Modules, in your REDCap sidebar. Only administrators can see the link.
 
-![Step1](imgs/step1.jpg)
+![CustomApplicationLink](imgs/customApplicationLink.jpg)
 
-2. Select your destination project. Your current project is automatically used as the source. If you’ve exported your DET settings from another project, you may import them, instead.
+2. Add a trigger to move data. Multiple conditions can be chained in one trigger using && (AND), or || (OR). See the table attached to the module,  for allowed qualifiers. If you’ve exported your DET settings from another project, you may import them, instead.
 
-![Step2](imgs/step2.jpg)
+![AddTrigger](imgs/addTrigger.png)
 
-3. Determine which fields you’ll use to link your source and destination projects. These fields will be used to link records between the projects, when at least one trigger condition is met.
+![CreateTrigger](imgs/createTrigger.png)
 
-![Step3](imgs/step3.jpg)
+3. Select your destination project. Your current project is automatically used as the source.
+
+![SelectDestination](imgs/selectDestination.png)
+
+4. Determine which fields you’ll use to link your source and destination projects. These fields will be used to link records between the projects, when at least one trigger condition is met.
+
+![RecordLinkage](imgs/recordLinkage.png)
 
 (OPTIONAL) Decide whether you want to append a static prefix, or postfix to the linking value.
 
 ![PrefixPostfix](imgs/addPrefixPostfix.png)
 
-4. Add a trigger to move data. Multiple conditions can be chained in one trigger using && (AND), or || (OR). See the table attached to the module,  for allowed qualifiers. 
+5. Add data to move when the condition is true, or create an empty record.
 
-![Step4](imgs/step4.jpg)
-
-5. Add data to move when the condition is true.
-
-![Step5](imgs/step5.jpg)
+![DataMovement](imgs/dataMovement.png)
 
 5.
     1. Add an instrument to move. This can only work if there’s a one-to-one relationship between the selected instrument and another instrument in the destination project. Meaning all fields in the source instrument, must exist in the destination instrument. 
     2. Add a field to move. You can choose to pipe a field, or manually set a value to move. (i.e set completion status to ‘2’)
     
-![Step5b](imgs/step5b.jpg)
+![AddField](imgs/addField.jpg)
 
-6. The module will allow up to ten triggers that each move their own data.
-
-![Step6](imgs/step6.jpg)
-
-7. (OPTIONAL) Determine whether the module will pull the url for a survey into your source project, and where to save it.
+6. (OPTIONAL) Determine whether the module will pull the url for a survey into your source project, and where to save it.
 
 ![GenerateSurveyUrl](imgs/generateSurveyUrl.png)
 
-8. Determine whether you want blank fields to overwrite data in the destination project.
+7. Determine whether you want blank fields to overwrite data in the destination project.
 
-![Step7](imgs/step7.jpg)
+![OverwriteData](imgs/overwriteData.jpg)
 
-9. Determine whether you want to import DAGs to the destination project. This will only work if the DAGs are identical between projects. 
+8. Determine whether you want to import DAGs to the destination project. This will only work if the DAGs are identical between projects. 
 
-![Step8](imgs/step8.jpg)
+![ImportDAGs](imgs/importDAGs.jpg)
+
+9. The module will allow up to 10 triggers that each move their own data.
 
 10. Save your DET. If it passes validation, then it will automatically run every time data is entered via a survey or data entry. Otherwise errors will be returned to you for correction. The DET will not save until your errors are corrected.
 
 11. Once your DET is created, refresh the page, then you can export the settings as a JSON string.
 
-![Step9](imgs/step9.JPG)
+![ExportSettings](imgs/exportSettings.JPG)
 
-12. The module logs all DET activity. It will log successes, warnings, and errors. You may check there whenever you want to check on the status of your DET.
+12. The module logs all DET errors. You may check there whenever you want to check on the status of your DET.
 
 # Warnings
 
@@ -61,6 +61,4 @@
 # Limitations
 
 1. Is not compatible with repeatable instruments.
-2. Can only be used within the same instance of REDCap. 
 3. Can have a maximum of 10 triggers, with unlimited data to pipe.
-4. Is not compatible with mult-arm projects at the moment.
