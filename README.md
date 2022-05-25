@@ -1,4 +1,10 @@
-# Data Entry Trigger Builder Instructions
+# Data Entry Trigger Builder 
+
+## Important
+
+When updating from < v3.0.0, you'll have to enter your previous settings again, by hand. This is because the settings are stored as JSON in REDCap, and the structure of the JSON object has changed with the upgrade to v3.0.0. The module will not function otherwise.
+
+## Instructions
 
 1. Make sure the module has been enabled in your project. After, navigate to External Modules, in your REDCap sidebar. Only administrators can see the link.
 
