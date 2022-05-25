@@ -10,7 +10,7 @@
 
 The following form will appear. 
 
-![AddTriggerForm] (imgs/addTriggerForm.png)
+![AddTriggerForm](imgs/addTriggerForm.png)
 
 Start by creating a trigger. Data movement will occur when your trigger is met.
 
@@ -34,12 +34,12 @@ Start by creating a trigger. Data movement will occur when your trigger is met.
 
 Or create an empty record
 
-![CreateEmptyRecord] (imgs/createEmptyRecords.png)
+![CreateEmptyRecord](imgs/createEmptyRecords.png)
 
 Data Movement Options:
 
-    1. Add an instrument to move. This can only work if there’s a one-to-one relationship between the selected instrument and another instrument in the destination project. Meaning all fields in the source instrument, must exist in the destination instrument. 
-    2. Add a field to move. You can choose to pipe a field, or manually set a value to move. (i.e set completion status to ‘2’)
+- Add an instrument to move. This can only work if there’s a one-to-one relationship between the selected instrument and another instrument in the destination project. Meaning all fields in the source instrument, must exist in the destination instrument. 
+- Add a field to move. You can choose to pipe a field, or manually set a value to move. (i.e set completion status to ‘2’)
     
 ![AddField](imgs/addField.jpg)
 
