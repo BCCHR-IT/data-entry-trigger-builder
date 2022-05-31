@@ -6,7 +6,7 @@ When updating from < v3.0.0, you'll have to enter your previous settings again, 
 
 ## Instructions
 
-1. Make sure the module has been enabled in your project. After, navigate to External Modules, in your REDCap sidebar. Only administrators can see the link.
+1. Make sure the module has been enabled in your project. After, navigate to External Modules, in your REDCap sidebar. Only administrators with "Access to all projects and data with maximum user privileges" can see the link.
 
 ![CustomApplicationLink](imgs/customApplicationLink.jpg)
 
