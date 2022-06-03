@@ -446,7 +446,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
             $triggers = $settings["triggers"];
 
             // Get current record data
-            $record_data = json_decode(REDCap::getData("json", $record, null, null, null, false, $import_dags), true);
+            $record_data = json_decode(REDCap::getData("json", $record, null, null, null, false, true), true);
 
             /**
              * Process each trigger, and, if true, prepare associated data to move.
@@ -699,12 +699,12 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
 
                         if (!empty($save_response["errors"]))
                         {
-                            REDCap::logEvent("DET: Errors for Trigger #$index", json_encode($save_response["errors"]), null, $record, $event_id, $project_id);
+                            REDCap::logEvent("DET: Errors for Trigger #" . ($index + 1), json_encode($save_response["errors"]), null, $record, $event_id, $project_id);
                         }
 
                         if (!empty($save_response["warnings"]))
                         {
-                            REDCap::logEvent("DET: Ran sucessfully with Warnings for Trigger #$index", json_encode($save_response["warnings"]), null, $record, $event_id, $project_id);
+                            REDCap::logEvent("DET: Ran sucessfully with Warnings for Trigger #" . ($index + 1), json_encode($save_response["warnings"]), null, $record, $event_id, $project_id);
                         }
 
                         /**
@@ -738,7 +738,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                                 
                                 if (is_null($survey_url))
                                 {
-                                    REDCap::logEvent("DET: Errors", "Survey url couldn't be generated. Please check your parameters for REDCap::getSurveyLink()\n\nProject = $dest_project\nRecord = $dest_record\nInstrument = $survey_url_instrument\nEvent ID = " . (is_null($survey_event_id) ? "null" : $survey_event_id), null, $record, $event_id, $project_id);
+                                    REDCap::logEvent("DET: Errors for Trigger #" . ($index + 1), "Survey url couldn't be generated. Please check your parameters for REDCap::getSurveyLink()\n\nProject = $dest_project\nRecord = $dest_record\nInstrument = $survey_url_instrument\nEvent ID = " . (is_null($survey_event_id) ? "null" : $survey_event_id), null, $record, $event_id, $project_id);
                                 }
                                 else
                                 {
@@ -754,7 +754,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
 
                                     if (!empty($save_response["errors"]))
                                     {
-                                        REDCap::logEvent("DET: Errors", "Unable to save survey url to $save_url_field. Received the following errors: " . json_encode($save_response["errors"]), null, $record, $event_id, $project_id);
+                                        REDCap::logEvent("DET: Errors for Trigger #" . ($index + 1), "Unable to save survey url to $save_url_field. Received the following errors: " . json_encode($save_response["errors"]), null, $record, $event_id, $project_id);
                                     }
                                 }
                             }

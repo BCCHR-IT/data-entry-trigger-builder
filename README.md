@@ -1,5 +1,9 @@
 # Data Entry Trigger Builder 
 
+## Acknowledgement
+
+Some functionality within the module has been inspired by work done by Andy Martin (https://github.com/123andy), Jae Lee, and Ihab Zeedia at Stanford University. 
+
 ## Important
 
 When updating from < v3.0.0, you'll have to enter your previous settings again, by hand. This is because the settings are stored as JSON in REDCap, and the structure of the JSON object has changed with the upgrade to v3.0.0. The module will not function otherwise.
@@ -74,7 +78,8 @@ Data Movement Options:
 # Warnings
 
 - Any changes made to the REDCap project, after the DET has been created, has the potential to break it. After you’ve updated your project, please make sure to update the DET in accordance with your changes.
-- Previous functionality to export your settings to a word document has been disabled for v3.0.0, as it has not been made compatible with the new JSON structure. 
+- Previous functionality to export your settings to a word document has been disabled for v3.0.0, as it has not been made compatible with the new JSON structure.
+- Functionality prior to v3.0.0 would log success, warnings, and errors to the REDCap logging table. The module will now only log warnings and errors. 
 
 # Limitations
 
