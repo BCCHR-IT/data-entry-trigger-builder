@@ -5,8 +5,8 @@
     "authors": [
         {
             "name": "Ashley Lee",
-            "email": "alee2@bcchr.ca",
-            "institution": "BC Children's Hospital Research Institute"
+            "email": "ashley.lee@ubc.ca,
+            "institution": "University of British Columbia Faculty of Medicine - Digital Solutions"
         }
     ],
     "links": {
@@ -18,7 +18,7 @@
             }
         ]
     },
-    "system-settings": [
+    /*"system-settings": [
         {
             "key": "temp-folder",
             "name": "Directory path to folder to temporarily store release notes. *Don't add a slash at the end",
@@ -26,7 +26,7 @@
             "type": "text",
             "super-users-only": true
         }
-    ],
+    ],*/
     "permissions": [
         "redcap_save_record"
     ],
