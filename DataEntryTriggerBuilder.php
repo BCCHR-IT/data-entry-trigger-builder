@@ -164,8 +164,8 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
     public function isValidEvent($var, $pid = null)
     {
         $var = trim($var, "'");
-        $Proj = new Project($pid);
-        $events = array_values($Proj->getUniqueEventNames());
+        $RedcapProj = new Project($pid);
+        $events = array_values($RedcapProj->getUniqueEventNames());
         return in_array($var, $events);
     }
 
@@ -391,9 +391,9 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
         {
             $metadata = REDCap::getDataDictionary($pid, "array");
             $instruments = array_values(array_unique(array_column($metadata, "form_name")));
-            $Proj = new Project($pid);
-            $events = array_values($Proj->getUniqueEventNames());
-            $isLongitudinal = $Proj->longitudinal;
+            $RedcapProj = new Project($pid);
+            $events = array_values($RedcapProj->getUniqueEventNames());
+            $isLongitudinal = $RedcapProj->longitudinal;
 
             /**
              * We can pipe over any data except descriptive, file, and signature fields. 
@@ -722,10 +722,10 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                             {
                                 if (!empty($survey_url_event))
                                 {
-                                    if (!isset($Proj))
+                                    if (!isset($RedcapProj))
                                     {
-                                        $Proj = new Project($dest_project);
-                                        $dest_events = $Proj->getUniqueEventNames();
+                                        $RedcapProj = new Project($dest_project);
+                                        $dest_events = $RedcapProj->getUniqueEventNames();
                                     }
                                     $survey_event_id = array_search($survey_url_event, $dest_events);
                                 }
