@@ -722,11 +722,8 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                             {
                                 if (!empty($survey_url_event))
                                 {
-                                    if (!isset($RedcapProj))
-                                    {
-                                        $RedcapProj = new Project($dest_project);
-                                        $dest_events = $RedcapProj->getUniqueEventNames();
-                                    }
+                                    $RedcapProj = new Project($dest_project);
+                                    $dest_events = $RedcapProj->getUniqueEventNames();
                                     $survey_event_id = array_search($survey_url_event, $dest_events);
                                 }
                                 else
