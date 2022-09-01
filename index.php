@@ -23,7 +23,6 @@ if ($settings == null)
     $dest_fields = $data_entry_trigger_builder->retrieveProjectMetadata($settings["dest-project"]);
 }
 
-$Proj = new Project();
 ?>
 <html>
     <head>
