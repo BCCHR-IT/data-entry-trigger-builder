@@ -21,8 +21,11 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
      */
     private function replaceStrings($text, $replacement)
     {
+        $quotes = [];
+        
         preg_match_all("/'/", $text, $quotes, PREG_OFFSET_CAPTURE);
         $quotes = $quotes[0];
+        
         if (sizeof($quotes) % 2 === 0)
         {
             $i = 0;
@@ -464,8 +467,6 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
 
                     $dest_project = $trigger_obj["dest-project"];
 
-                    $create_record_trigger = $trigger_obj["create-record-cond"];
-
                     $overwrite_data = $trigger_obj["overwrite-data"];
                     $import_dags = $trigger_obj["import-dags"];
 
@@ -699,12 +700,17 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
 
                         if (!empty($save_response["errors"]))
                         {
-                            REDCap::logEvent("DET: Errors for Trigger #" . ($index + 1), json_encode($save_response["errors"]), null, $record, $event_id, $project_id);
+                            REDCap::logEvent("DET Builder: Errors for Trigger #" . ($index + 1), json_encode($save_response["errors"]), null, $record, $event_id, $project_id);
                         }
 
-                        if (!empty($save_response["warnings"]))
+                        else if (!empty($save_response["warnings"]))
                         {
-                            REDCap::logEvent("DET: Ran sucessfully with Warnings for Trigger #" . ($index + 1), json_encode($save_response["warnings"]), null, $record, $event_id, $project_id);
+                            REDCap::logEvent("DET Builder: Ran Sucessfully with Warnings for Trigger #" . ($index + 1), json_encode($save_response["warnings"]), null, $record, $event_id, $project_id);
+                        }
+                        
+                        else 
+                        {
+                            REDCap::logEvent("DET Builder: Ran Sucessfully for Trigger #" . ($index + 1), null, null, $record, $event_id, $project_id);
                         }
 
                         /**
