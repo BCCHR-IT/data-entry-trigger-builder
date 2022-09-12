@@ -459,7 +459,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                 $valid = REDCap::evaluateLogic($trigger_obj["trigger"], $project_id, $record); // REDCap class method to evaluate conditional logic.
                 if ($valid === null) // Null returned if logic is invalid. Else a boolean value.
                 {
-                    REDCap::logEvent("DET: Trigger was either syntactically incorrect, or parameters were invalid (e.g., record or event does not exist). No data moved.", "Trigger: " . $trigger_obj["trigger"], null, $record, $event_id, $project_id);
+                    REDCap::logEvent("DET Builder: Trigger was either syntactically incorrect, or parameters were invalid (e.g., record or event does not exist). No data moved.", "Trigger #" . ($index + 1) . ": " . $trigger_obj["trigger"], null, $record, $event_id, $project_id);
                 }
                 else if ($valid)
                 {
@@ -643,7 +643,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                             // Retrieve record id. Exit if there is no value for the linking field, as it should be filled and never change.
                             if (empty($link_dest_value))
                             {
-                                REDCap::logEvent("DET: Linking field value is empty, so no data moved", "Filter logic: [$link_dest_field] = ''", null, $record, $event_id, $project_id);
+                                REDCap::logEvent("DET Builder: Linking field value is empty, so no data moved", "Filter logic: [$link_dest_field] = ''", null, $record, $event_id, $project_id);
                                 return;
                             }
                             else 
@@ -741,7 +741,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                                 
                                 if (is_null($survey_url))
                                 {
-                                    REDCap::logEvent("DET: Errors for Trigger #" . ($index + 1), "Survey url couldn't be generated. Please check your parameters for REDCap::getSurveyLink()\n\nProject = $dest_project\nRecord = $dest_record\nInstrument = $survey_url_instrument\nEvent ID = " . (is_null($survey_event_id) ? "null" : $survey_event_id), null, $record, $event_id, $project_id);
+                                    REDCap::logEvent("DET Builder: Errors for Trigger #" . ($index + 1), "Survey url couldn't be generated. Please check your parameters for REDCap::getSurveyLink()\n\nProject = $dest_project\nRecord = $dest_record\nInstrument = $survey_url_instrument\nEvent ID = " . (is_null($survey_event_id) ? "null" : $survey_event_id), null, $record, $event_id, $project_id);
                                 }
                                 else
                                 {
@@ -757,7 +757,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
 
                                     if (!empty($save_response["errors"]))
                                     {
-                                        REDCap::logEvent("DET: Errors for Trigger #" . ($index + 1), "Unable to save survey url to $save_url_field. Received the following errors: " . json_encode($save_response["errors"]), null, $record, $event_id, $project_id);
+                                        REDCap::logEvent("DET Builder: Errors for Trigger #" . ($index + 1), "Unable to save survey url to $save_url_field. Received the following errors: " . json_encode($save_response["errors"]), null, $record, $event_id, $project_id);
                                     }
                                 }
                             }
