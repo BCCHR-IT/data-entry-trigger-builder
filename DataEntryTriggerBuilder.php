@@ -710,7 +710,9 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                         
                         else 
                         {
-                            REDCap::logEvent("DET Builder: Ran Sucessfully for Trigger #" . ($index + 1), null, null, $record, $event_id, $project_id);
+                            REDCap::logEvent("DET Builder: Ran Sucessfully for Trigger #" . ($index + 1), 
+                                            "Created/modified the following records in PID $dest_project: " . json_encode($save_response["ids"]) . "\n# of created/modified records in PID $dest_project: " . $save_response["item_count"], 
+                                            null, $record, $event_id, $project_id);
                         }
 
                         /**
