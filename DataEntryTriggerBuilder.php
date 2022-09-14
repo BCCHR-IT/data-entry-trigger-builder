@@ -700,18 +700,18 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
 
                         if (!empty($save_response["errors"]))
                         {
-                            REDCap::logEvent("DET Builder: Errors for Trigger #" . ($index + 1), json_encode($save_response["errors"]), null, $record, $event_id, $project_id);
+                            REDCap::logEvent("DET Builder: Errors for Trigger #" . ($index + 1) . " Data not moved.", json_encode($save_response["errors"]), null, $record, $event_id, $project_id);
                         }
 
                         else if (!empty($save_response["warnings"]))
                         {
-                            REDCap::logEvent("DET Builder: Ran Sucessfully with Warnings for Trigger #" . ($index + 1), json_encode($save_response["warnings"]), null, $record, $event_id, $project_id);
+                            REDCap::logEvent("DET Builder: Moved Data with Warnings for Trigger #" . ($index + 1), json_encode($save_response["warnings"]), null, $record, $event_id, $project_id);
                         }
                         
                         else 
                         {
-                            REDCap::logEvent("DET Builder: Ran Sucessfully for Trigger #" . ($index + 1), 
-                                            "Created/modified the following records in PID $dest_project: " . json_encode($save_response["ids"]) . "\n# of created/modified records in PID $dest_project: " . $save_response["item_count"], 
+                            REDCap::logEvent("DET Builder: Moved Data for Trigger #" . ($index + 1), 
+                                            "Created/modified the following records in PID $dest_project: " . implode(", ", array_unique($save_response["ids"])), 
                                             null, $record, $event_id, $project_id);
                         }
 
