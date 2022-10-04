@@ -694,10 +694,18 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                     }
 
                     if (!empty($dest_record_data))
-                    {
+                    {   
+                        global $Proj;
+                        $SourceProj = $Proj;
+                        
                         // Save DET data in destination project;
                         $save_response = REDCap::saveData($dest_project, "json", json_encode($dest_record_data), $overwrite_data);
-
+                        
+                        // HOTFIX: For issue where after saveData the global $Proj variable references the destination project context
+                        if ($Proj->project_id !== $project_id) {
+                            $Proj = $SourceProj;
+                        }
+                        
                         if (!empty($save_response["errors"]))
                         {
                             REDCap::logEvent("DET Builder: Errors for Trigger #" . ($index + 1) . " Data not moved.", json_encode($save_response["errors"]), null, $record, $event_id, $project_id);
