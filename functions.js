@@ -119,7 +119,7 @@ function addTrigger()
 {
     let triggers = $(".trigger-and-data-wrapper");
     let trigNum = triggers.length;
-    let sourceIsLongitudinal = $("form").attr("data-source-is-longitudinal");
+    let sourceIsLongitudinal = $("#det-form").attr("data-source-is-longitudinal");
     
     let html = "<div class='form-group trigger-and-data-wrapper new-wrapper'>" +
                 "<div class='det-trigger'>" +
