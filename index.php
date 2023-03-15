@@ -109,13 +109,13 @@ if ($settings == null)
             <p style="color:red"><b><?php print $import_err_msg; ?></b></p>
             <?php endif;?>
             <hr/>
-            <!-- <?php if (!empty($settings)): ?>
+            <?php if (!empty($settings) && $module->getProjectSetting("enable-release-notes")): ?>
             <h5>Download Release Notes</h5>
             <form id="download-form" action="<?php print $module->getUrl("downloadReleaseNotes.php");?>" method="post">
                 <button id="download-release-notes-btn" type="submit" class="btn btn-primary" style="margin-top:20px">Download Release Notes</button>
             </form>
             <hr/>
-            <?php endif;?> -->
+            <?php endif;?>
             <form id="det-form" method="post" data-source-is-longitudinal="<?php REDCap::isLongitudinal() ? print "yes" : print "no"; ?>">
                 <div id="main-form">
                     <h5>Triggers (Max. 10)</h5>

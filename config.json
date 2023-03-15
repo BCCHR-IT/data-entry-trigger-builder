@@ -1,7 +1,7 @@
 {
-    "name": "Data Entry Trigger Builder",
+    "name": "Data Entry Trigger Builder (UBC Version)",
     "namespace": "BCCHR\\DataEntryTriggerBuilder",
-    "description": "An External Module that provides an interface to create a DET between a source and destination project.",
+    "description": "An External Module that provides an interface to create a DET between a source and destination project. This version is forked from the original version developed by the BC Children's Hospital Research Institute.",
     "authors": [
         {
             "name": "Ashley Lee",
@@ -24,5 +24,12 @@
     "framework-version": 3,
     "compatibility": {
         "redcap-version-min": "8.0.1"
-     }
+     },
+	"project-settings": [
+		{
+         "key": "enable-release-notes",
+         "name": "Check this field to allow users to download a document which summarizes the current builder settings",
+         "type": "checkbox"
+      	}
+	]
 }

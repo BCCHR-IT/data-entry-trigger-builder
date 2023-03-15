@@ -783,432 +783,430 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
      */
     public function downloadReleaseNotes($settings) 
     {
-        $sourceProjectTitle = REDCap::getProjectTitle();
-
-        $query = $this->framework->createQuery();
-        $query->add("select app_title from redcap_projects where project_id = ?", [$settings["dest-project"]]);
-
-        if ($query_result = $query->execute())
+        if ($this->getProjectSetting("enable-release-notes")) 
         {
-            while($row = $query_result->fetch_assoc())
-            {
-                $destProjectTitle = $row["app_title"];
-            }
-        }
-
-        // Creating the new document...
-        $phpWord = new \PhpOffice\PhpWord\PhpWord();
-
-        $phpWord->getSettings()->setUpdateFields(true); // Forces document to update and set page numbers when first opened, as page numbers are missing from TOC, because of a bug.
-
-        // Add styling
-        $phpWord->addFontStyle(
-            "generalFontStyle",
-            array('name' => 'Calibri', 'size' => 11, 'color' => 'black')
-        );
-        $phpWord->addNumberingStyle(
-            'hNum',
-            array('type' => 'multilevel', 'levels' => array(
-                array('pStyle' => 'Heading1', 'format' => 'decimal', 'text' => '%1'),
-                array('pStyle' => 'Heading2', 'format' => 'decimal', 'text' => '%1.%2'),
-                array('pStyle' => 'Heading3', 'format' => 'decimal', 'text' => '%1.%2.%3'),
-                )
-            )
-        );
-        $phpWord->addTitleStyle(
-            1,
-            array('name' => 'Calibri Light', 'size' => 18, 'color' => 'black', 'bold' => true),
-            array('numStyle' => 'hNum', 'numLevel' => 0)
-        );
-        $phpWord->addFontStyle(
-            "titleFontStyle",
-            array('name' => 'Calibri Light', 'size' => 18, 'color' => 'black', 'bold' => true)
-        );
-        $phpWord->addFontStyle(
-            "triggerFontStyle",
-            array('name' => 'Calibri', 'size' => 11, 'color' => 'black', 'bold' => true)
-        );
-        $phpWord->addParagraphStyle(
-            "centerParagraphStyle",
-            array("align" => \PhpOffice\PhpWord\SimpleType\Jc::CENTER)
-        );
-        $phpWord->addFontStyle(
-            "headerFontStyle",
-            array('name' => 'Times New Roman', 'size' => 18, 'color' => 'black', 'italic' => true)
-        );
-        $phpWord->addParagraphStyle(
-            "rightParagraphStyle",
-            array("align" => \PhpOffice\PhpWord\SimpleType\Jc::END)
-        );
-        $phpWord->addTableStyle(
-            "fieldInstrTableStyle", 
-            array("width" => 100 * 50, "unit" => \PhpOffice\PhpWord\SimpleType\TblWidth::PERCENT, "borderSize" => 1, "borderColor" => 000000)
-        );
-        $phpWord->addFontStyle(
-            "titleFontStyle",
-            array('name' => 'Calibri Light', 'size' => 18, 'color' => 'black', 'bold' => true, 'underline' => \PhpOffice\PhpWord\Style\Font::UNDERLINE_DASH)
-        );
-        $phpWord->addFontStyle(
-            "boldFontStyle",
-            array('name' => 'Calibri Light', 'size' => 11, 'color' => 'black', 'bold' => true)
-        );
-        $phpWord->addNumberingStyle(
-            'multilevel',
-            array(
-                'type' => 'multilevel',
-                'levels' => array(
-                    array('format' => 'decimal', 'text' => '%1.', 'left' => 360, 'hanging' => 360, 'tabPos' => 360),
-                    array('format' => 'upperLetter', 'text' => '%2.', 'left' => 720, 'hanging' => 360, 'tabPos' => 720),
-                )
-            )
-        );
-        $lineStyle = array('weight' => 1, 'width' => 450, 'height' => 0, 'color' => 000000);
-        $cellStyle = array("bgColor" => 'D3D3D3');
-        $tableStyle = array("width" => 100 * 50, "unit" => \PhpOffice\PhpWord\SimpleType\TblWidth::PERCENT, "borderSize" => 1, "borderColor" => 000000);
-
-        /* Note: any element you append to a document must reside inside of a Section. */
-
-        // Title Page
-        $title_section = $phpWord->addSection();
-        $header = $title_section->addHeader();
-        $header->addText("Release Notes", "headerFontStyle", "rightParagraphStyle");
-        $title_section->addText($sourceProjectTitle, "titleFontStyle", "centerParagraphStyle");
-        $title_section->addText("Conducted by", "generalFontStyle", "centerParagraphStyle");
-        $title_section->addText("Principal Investigator, Title, Affiliation", "generalFontStyle", "centerParagraphStyle");
-
-        $title_section->addTextBreak();
-        $title_section->addText("Document History", "boldFontStyle", "centerParagraphStyle");
-
-        $doc_history_table = $title_section->addTable($tableStyle);
-
-        $doc_history_table->addRow();
-        $doc_history_table->addCell(1750)->addText("Version", array('bold' => true));
-        $doc_history_table->addCell(1750)->addText("Changes Made", array('bold' => true));
-        $doc_history_table->addCell(1750)->addText("Effective Date", array('bold' => true));
-
-        $doc_history_table->addRow();
-        $doc_history_table->addCell(1750)->addText("1", "generalFontStyle");
-        $doc_history_table->addCell(1750)->addText($this->getProjectSetting("saved_by"), "generalFontStyle");
-        $doc_history_table->addCell(1750)->addText($this->getProjectSetting("saved_timestamp"), "generalFontStyle");
-
-        $title_section->addTextBreak();
-        $title_section->addTextBreak();
-
-        $app_table = $title_section->addTable($tableStyle);
-
-        $app_table->addRow();
-        $app_table->addCell(1750)->addText("Application Initial Version", array('bold' => true));
-        $app_table->addCell(1750)->addText("");
-
-        $app_table->addRow();
-        $app_table->addCell(1750)->addText($sourceProjectTitle, "generalFontStyle");
-        $app_table->addCell(1750)->addText("", "generalFontStyle");
-
-        $app_table->addRow();
-        $app_table->addCell(1750)->addText("Project ID", "generalFontStyle");
-        $app_table->addCell(1750)->addText($this->getProjectId(), "generalFontStyle");
-
-        $app_table->addRow();
-        $app_table->addCell(1750)->addText($destProjectTitle, "generalFontStyle");
-        $app_table->addCell(1750)->addText("", "generalFontStyle");
-
-        $app_table->addRow();
-        $app_table->addCell(1750)->addText("Project ID", "generalFontStyle");
-        $app_table->addCell(1750)->addText($settings["dest-project"], "generalFontStyle");
-
-        $app_table->addRow();
-        $app_table->addCell(1750)->addText("Accessible", "generalFontStyle");
-        $app_table->addCell(1750)->addText("World Wide Web", "generalFontStyle");
-
-        // Table of Contents
-        $toc_section = $phpWord->addSection();
-        $header = $toc_section->addHeader();
-        $header->addText("Release Notes", "headerFontStyle", "rightParagraphStyle");
-        $toc_section->addText("Table of Contents", "titleFontStyle");
-        $toc_section->addLine($lineStyle);
-        $toc_section->addTOC(array('name' => 'Calibri', 'size' => 11, 'color' => 'black'));
-
-        $section = $phpWord->addSection();
+            $sourceProjectTitle = REDCap::getProjectTitle();
     
-        // Add Header
-        $header = $section->addHeader();
-        $header->addText("Release Notes", "headerFontStyle", "rightParagraphStyle");
-
-        // Purpose
-        $section->addTitle("Purpose", 1);
-        $section->addLine($lineStyle);
-        $section->addText("This document describes the '$sourceProjectTitle' Include a short description of the project and how it pertains to data management.", "generalFontStyle");
-        // Scope
-        $section->addTitle("Scope", 1);
-        $section->addLine($lineStyle);
-        $section->addText("This document is to be used as a reference '$sourceProjectTitle' users for training purposes as well as for change requests tracking.", "generalFontStyle");
-
-        // Triggers
-        $section->addTitle("Database Set Up", 1);
-        $section->addLine($lineStyle);
-
-        if ($settings["import-dags"])
-        {
-            $section->addText("Create records in PID " . $settings["dest-project"] . " in the same data access groups (DAGs). DAG names will be the same across projects, though the IDs will be different.");
-            $section->addTextBreak();
-        }
-
-        foreach($settings["triggers"] as $index => $trigger) 
-        {
-            $section->addText("Trigger #$index: Create a record in PID " . $settings["dest-project"] . ", and move data in table $index when the following condition is true:", "generalFontStyle");
-            $section->addText(htmlspecialchars($trigger), "triggerFontStyle", "centerParagraphStyle");
-            $section->addTextBreak();
-        }
-
-        // Fields/Instrument Linkage
-        $section->addTitle("Fields/Instrument Linkage", 1);
-        $section->addLine($lineStyle);
-        $section->addText("The data from the following variables in PID " . $this->getProjectId() . " are *copied* into PID " . $settings["dest-project"] . " automatically when conditions are met.", "generalFontStyle");
-        $section->addTextBreak();
-
-        $text .= "Link records between source and destination project using ";
-        if (!empty($settings["linkSourceEvent"]))
-        {
-            $text .= "[" . $settings["linkSourceEvent"] . "]";
-        }
-        $text .= "[" . $settings["linkSource"] . "] = ";
-        if (!empty($settings["linkDestEvent"]))
-        {
-            $text .= "[" . $settings["linkDestEvent"] . "]";
-        }
-        $text .= "[" . $settings["linkDest"] . "]";
-        $section->addText($text, "generalFontStyle");
-
-        foreach($settings["triggers"] as $index => $trigger) 
-        {
-            $section->addTextBreak();
-            $section->addText("Copy the following data into PID " . $settings["dest-project"] . " when trigger #$index is true", "generalFontStyle");
-
-            $fields_instr_table = $section->addTable($tableStyle);
-            
-            // Table headers
-            $fields_instr_table->addRow();
-            $fields_instr_table->addCell(1750, $cellStyle)->addText("From source project", array('bold' => true));
-            $fields_instr_table->addCell(1750, $cellStyle)->addText("To destination project", array('bold' => true));
-
-            $pipingSourceEvents = $settings["pipingSourceEvents"][$index];
-            $pipingDestEvents = $settings["pipingDestEvents"][$index];
-            $pipingSourceFields = $settings["pipingSourceFields"][$index];
-            $pipingDestFields = $settings["pipingDestFields"][$index];
-            foreach($pipingSourceFields as $i => $source)
+            $query = $this->framework->createQuery();
+            $query->add("select app_title from redcap_projects where project_id = ?", [$settings["dest-project"]]);
+    
+            if ($query_result = $query->execute())
             {
-                $text = "";
-                $fields_instr_table->addRow();
-                if (!empty($pipingSourceEvents[$i]))
+                while($row = $query_result->fetch_assoc())
                 {
-                    $text .= "[" . $pipingSourceEvents[$i] . "]";
+                    $destProjectTitle = $row["app_title"];
                 }
-                $text .= "[" . $source . "]";
-                $fields_instr_table->addCell(1750)->addText($text);
-
-                $text = "";
-                if (!empty($pipingDestEvents[$i]))
-                {
-                    $text .= "[" . $pipingDestEvents[$i] . "]";
-                }
-                $text .= "[" . $pipingDestFields[$i] . "]";
-                $fields_instr_table->addCell(1750)->addText($text);
             }
-
-            $setDestEvents = $settings["setDestEvents"][$index];
-            $setDestFields = $settings["setDestFields"][$index];
-            $setDestFieldsValues = $settings["setDestFieldsValues"][$index];
-            foreach($setDestFields as $i => $source)
+    
+            // Creating the new document...
+            $phpWord = new \PhpOffice\PhpWord\PhpWord();
+    
+            $phpWord->getSettings()->setUpdateFields(true); // Forces document to update and set page numbers when first opened, as page numbers are missing from TOC, because of a bug.
+    
+            // Add styling
+            $phpWord->addFontStyle(
+                "generalFontStyle",
+                array('name' => 'Calibri', 'size' => 11, 'color' => 'black')
+            );
+            $phpWord->addNumberingStyle(
+                'hNum',
+                array('type' => 'multilevel', 'levels' => array(
+                    array('pStyle' => 'Heading1', 'format' => 'decimal', 'text' => '%1'),
+                    array('pStyle' => 'Heading2', 'format' => 'decimal', 'text' => '%1.%2'),
+                    array('pStyle' => 'Heading3', 'format' => 'decimal', 'text' => '%1.%2.%3'),
+                    )
+                )
+            );
+            $phpWord->addTitleStyle(
+                1,
+                array('name' => 'Calibri Light', 'size' => 18, 'color' => 'black', 'bold' => true),
+                array('numStyle' => 'hNum', 'numLevel' => 0)
+            );
+            $phpWord->addFontStyle(
+                "titleFontStyle",
+                array('name' => 'Calibri Light', 'size' => 18, 'color' => 'black', 'bold' => true)
+            );
+            $phpWord->addFontStyle(
+                "triggerFontStyle",
+                array('name' => 'Calibri', 'size' => 11, 'color' => 'black', 'bold' => true)
+            );
+            $phpWord->addParagraphStyle(
+                "centerParagraphStyle",
+                array("align" => \PhpOffice\PhpWord\SimpleType\Jc::CENTER)
+            );
+            $phpWord->addFontStyle(
+                "headerFontStyle",
+                array('name' => 'Times New Roman', 'size' => 18, 'color' => 'black', 'italic' => true)
+            );
+            $phpWord->addParagraphStyle(
+                "rightParagraphStyle",
+                array("align" => \PhpOffice\PhpWord\SimpleType\Jc::END)
+            );
+            $phpWord->addTableStyle(
+                "fieldInstrTableStyle", 
+                array("width" => 100 * 50, "unit" => \PhpOffice\PhpWord\SimpleType\TblWidth::PERCENT, "borderSize" => 1, "borderColor" => 000000)
+            );
+            $phpWord->addFontStyle(
+                "titleFontStyle",
+                array('name' => 'Calibri Light', 'size' => 18, 'color' => 'black', 'bold' => true, 'underline' => \PhpOffice\PhpWord\Style\Font::UNDERLINE_DASH)
+            );
+            $phpWord->addFontStyle(
+                "boldFontStyle",
+                array('name' => 'Calibri Light', 'size' => 11, 'color' => 'black', 'bold' => true)
+            );
+            $phpWord->addNumberingStyle(
+                'multilevel',
+                array(
+                    'type' => 'multilevel',
+                    'levels' => array(
+                        array('format' => 'decimal', 'text' => '%1.', 'left' => 360, 'hanging' => 360, 'tabPos' => 360),
+                        array('format' => 'upperLetter', 'text' => '%2.', 'left' => 720, 'hanging' => 360, 'tabPos' => 720),
+                    )
+                )
+            );
+            $lineStyle = array('weight' => 1, 'width' => 450, 'height' => 0, 'color' => 000000);
+            $cellStyle = array("bgColor" => 'D3D3D3');
+            $tableStyle = array("width" => 100 * 50, "unit" => \PhpOffice\PhpWord\SimpleType\TblWidth::PERCENT, "borderSize" => 1, "borderColor" => 000000);
+    
+            /* Note: any element you append to a document must reside inside of a Section. */
+    
+            // Title Page
+            $title_section = $phpWord->addSection();
+            $header = $title_section->addHeader();
+            $header->addText("Release Notes", "headerFontStyle", "rightParagraphStyle");
+            $title_section->addText($sourceProjectTitle, "titleFontStyle", "centerParagraphStyle");
+            $title_section->addText("Conducted by", "generalFontStyle", "centerParagraphStyle");
+            $title_section->addText("Principal Investigator, Title, Affiliation", "generalFontStyle", "centerParagraphStyle");
+    
+            $title_section->addTextBreak();
+            $title_section->addText("Document History", "boldFontStyle", "centerParagraphStyle");
+    
+            $doc_history_table = $title_section->addTable($tableStyle);
+    
+            $doc_history_table->addRow();
+            $doc_history_table->addCell(1750)->addText("Version", array('bold' => true));
+            $doc_history_table->addCell(1750)->addText("Changes Made", array('bold' => true));
+            $doc_history_table->addCell(1750)->addText("Effective Date", array('bold' => true));
+    
+            $doc_history_table->addRow();
+            $doc_history_table->addCell(1750)->addText("1", "generalFontStyle");
+            $doc_history_table->addCell(1750)->addText($this->getProjectSetting("saved_by"), "generalFontStyle");
+            $doc_history_table->addCell(1750)->addText($this->getProjectSetting("saved_timestamp"), "generalFontStyle");
+    
+            $title_section->addTextBreak();
+            $title_section->addTextBreak();
+    
+            $app_table = $title_section->addTable($tableStyle);
+    
+            $app_table->addRow();
+            $app_table->addCell(1750)->addText("Application Initial Version", array('bold' => true));
+            $app_table->addCell(1750)->addText("");
+    
+            $app_table->addRow();
+            $app_table->addCell(1750)->addText($sourceProjectTitle, "generalFontStyle");
+            $app_table->addCell(1750)->addText("", "generalFontStyle");
+    
+            $app_table->addRow();
+            $app_table->addCell(1750)->addText("Project ID", "generalFontStyle");
+            $app_table->addCell(1750)->addText($this->getProjectId(), "generalFontStyle");
+    
+            $app_table->addRow();
+            $app_table->addCell(1750)->addText($destProjectTitle, "generalFontStyle");
+            $app_table->addCell(1750)->addText("", "generalFontStyle");
+    
+            $app_table->addRow();
+            $app_table->addCell(1750)->addText("Project ID", "generalFontStyle");
+            $app_table->addCell(1750)->addText($settings["dest-project"], "generalFontStyle");
+    
+            $app_table->addRow();
+            $app_table->addCell(1750)->addText("Accessible", "generalFontStyle");
+            $app_table->addCell(1750)->addText("World Wide Web", "generalFontStyle");
+    
+            // Table of Contents
+            $toc_section = $phpWord->addSection();
+            $header = $toc_section->addHeader();
+            $header->addText("Release Notes", "headerFontStyle", "rightParagraphStyle");
+            $toc_section->addText("Table of Contents", "titleFontStyle");
+            $toc_section->addLine($lineStyle);
+            $toc_section->addTOC(array('name' => 'Calibri', 'size' => 11, 'color' => 'black'));
+    
+            $section = $phpWord->addSection();
+        
+            // Add Header
+            $header = $section->addHeader();
+            $header->addText("Release Notes", "headerFontStyle", "rightParagraphStyle");
+    
+            // Purpose
+            $section->addTitle("Purpose", 1);
+            $section->addLine($lineStyle);
+            $section->addText("This document describes the '$sourceProjectTitle' Include a short description of the project and how it pertains to data management.", "generalFontStyle");
+            // Scope
+            $section->addTitle("Scope", 1);
+            $section->addLine($lineStyle);
+            $section->addText("This document is to be used as a reference '$sourceProjectTitle' users for training purposes as well as for change requests tracking.", "generalFontStyle");
+    
+            // Triggers
+            $section->addTitle("Database Set Up", 1);
+            $section->addLine($lineStyle);
+    
+            if ($settings["import-dags"])
             {
-                $text = "";
+                $section->addText("Create records in PID " . $settings["dest-project"] . " in the same data access groups (DAGs). DAG names will be the same across projects, though the IDs will be different.");
+                $section->addTextBreak();
+            }
+    
+            foreach($settings["triggers"] as $index => $trigger) 
+            {
+                $section->addText("Trigger #$index: Create a record in PID " . $settings["dest-project"] . ", and move data in table $index when the following condition is true:", "generalFontStyle");
+                $section->addText(htmlspecialchars($trigger), "triggerFontStyle", "centerParagraphStyle");
+                $section->addTextBreak();
+            }
+    
+            // Fields/Instrument Linkage
+            $section->addTitle("Fields/Instrument Linkage", 1);
+            $section->addLine($lineStyle);
+            $section->addText("The data from the following variables in PID " . $this->getProjectId() . " are *copied* into PID " . $settings["dest-project"] . " automatically when conditions are met.", "generalFontStyle");
+            $section->addTextBreak();
+    
+            $text .= "Link records between source and destination project using ";
+            if (!empty($settings["linkSourceEvent"]))
+            {
+                $text .= "[" . $settings["linkSourceEvent"] . "]";
+            }
+            $text .= "[" . $settings["linkSource"] . "] = ";
+            if (!empty($settings["linkDestEvent"]))
+            {
+                $text .= "[" . $settings["linkDestEvent"] . "]";
+            }
+            $text .= "[" . $settings["linkDest"] . "]";
+            $section->addText($text, "generalFontStyle");
+    
+            foreach($settings["triggers"] as $index => $trigger) 
+            {
+                $section->addTextBreak();
+                $section->addText("Copy the following data into PID " . $settings["dest-project"] . " when trigger #$index is true", "generalFontStyle");
+    
+                $fields_instr_table = $section->addTable($tableStyle);
+                
+                // Table headers
                 $fields_instr_table->addRow();
-                if (!empty($setDestFieldsValues[$i]))
+                $fields_instr_table->addCell(1750, $cellStyle)->addText("From source project", array('bold' => true));
+                $fields_instr_table->addCell(1750, $cellStyle)->addText("To destination project", array('bold' => true));
+    
+                $pipingSourceEvents = $settings["pipingSourceEvents"][$index];
+                $pipingDestEvents = $settings["pipingDestEvents"][$index];
+                $pipingSourceFields = $settings["pipingSourceFields"][$index];
+                $pipingDestFields = $settings["pipingDestFields"][$index];
+                foreach($pipingSourceFields as $i => $source)
                 {
-                    $text .= "'" . $setDestFieldsValues[$i] . "'";
+                    $text = "";
+                    $fields_instr_table->addRow();
+                    if (!empty($pipingSourceEvents[$i]))
+                    {
+                        $text .= "[" . $pipingSourceEvents[$i] . "]";
+                    }
+                    $text .= "[" . $source . "]";
+                    $fields_instr_table->addCell(1750)->addText($text);
+    
+                    $text = "";
+                    if (!empty($pipingDestEvents[$i]))
+                    {
+                        $text .= "[" . $pipingDestEvents[$i] . "]";
+                    }
+                    $text .= "[" . $pipingDestFields[$i] . "]";
                     $fields_instr_table->addCell(1750)->addText($text);
                 }
-
-                $text = "";
-                if (!empty($setDestEvents[$i]))
+    
+                $setDestEvents = $settings["setDestEvents"][$index];
+                $setDestFields = $settings["setDestFields"][$index];
+                $setDestFieldsValues = $settings["setDestFieldsValues"][$index];
+                foreach($setDestFields as $i => $source)
                 {
-                    $text .= "[" . $setDestEvents[$i] . "]";
+                    $text = "";
+                    $fields_instr_table->addRow();
+                    if (!empty($setDestFieldsValues[$i]))
+                    {
+                        $text .= "'" . $setDestFieldsValues[$i] . "'";
+                        $fields_instr_table->addCell(1750)->addText($text);
+                    }
+    
+                    $text = "";
+                    if (!empty($setDestEvents[$i]))
+                    {
+                        $text .= "[" . $setDestEvents[$i] . "]";
+                    }
+                    $text .= "[" . $source . "]";
+                    $fields_instr_table->addCell(1750)->addText($text);
                 }
-                $text .= "[" . $source . "]";
-                $fields_instr_table->addCell(1750)->addText($text);
+    
+                $sourceInstr = $settings["sourceInstr"][$index];
+                $sourceInstrEvents = $settings["sourceInstrEvents"][$index];
+                foreach($sourceInstr as $i => $source)
+                {
+                    $text = "";
+                    $fields_instr_table->addRow();
+                    if (!empty($sourceInstrEvents[$i]))
+                    {
+                        $text .= "[" . $sourceInstrEvents[$i] . "]";
+                    }
+                    $text .= "[" . $source . "]";
+                    $fields_instr_table->addCell(1750)->addText($text);
+    
+                    $text = "";
+                    if (!empty($sourceInstrEvents[$i]))
+                    {
+                        $text .= "[" . $sourceInstrEvents[$i] . "]";
+                    }
+                    $text .= "[" . $source . "]";
+                    $fields_instr_table->addCell(1750)->addText($text);
+                }
             }
-
-            $sourceInstr = $settings["sourceInstr"][$index];
-            $sourceInstrEvents = $settings["sourceInstrEvents"][$index];
-            foreach($sourceInstr as $i => $source)
-            {
-                $text = "";
-                $fields_instr_table->addRow();
-                if (!empty($sourceInstrEvents[$i]))
-                {
-                    $text .= "[" . $sourceInstrEvents[$i] . "]";
-                }
-                $text .= "[" . $source . "]";
-                $fields_instr_table->addCell(1750)->addText($text);
-
-                $text = "";
-                if (!empty($sourceInstrEvents[$i]))
-                {
-                    $text .= "[" . $sourceInstrEvents[$i] . "]";
-                }
-                $text .= "[" . $source . "]";
-                $fields_instr_table->addCell(1750)->addText($text);
-            }
+    
+            // Restrictions
+            $section->addTextBreak();
+            $section->addTitle("Restrictions", 1);
+            $section->addLine($lineStyle);
+            $section->addText("Once the projects are in Production mode, the following action items should not occur in any of the projects under any circumstances. *DO NOT*: ", "generalFontStyle");
+            $section->addTextBreak();
+    
+            $section->addListItem('Rename/Update/Delete the *Record ID* field', 0, null, 'multilevel');
+            $section->addListItem('Add test subjects', 0, null, 'multilevel');
+            $section->addListItem('Create subjects manually in *All projects*', 0, null, 'multilevel');
+            $section->addListItem('Edit the API user account rights (*api useraccount names*)', 0, null, 'multilevel');
+            $section->addListItem('Change the field types (ex. text box fields to check box fields and vice versa)', 0, null, 'multilevel');
+            $section->addListItem('Change/Rename the Field Name', 0, null, 'multilevel');
+            $section->addListItem('Change/Edit the arm &#38; event names ', 0, null, 'multilevel');
+    
+            // Implementation And Approval
+            $section->addTextBreak();
+            $section->addTitle("Implementation &#38; Approval", 1);
+            $section->addLine($lineStyle);
+    
+            $completion_table = $section->addTable($tableStyle);
+            $completion_table->addRow();
+            $completion_table->addCell(1750)->addText("Date Started", "boldFontStyle");
+            $completion_table->addCell(1750);
+            $completion_table->addRow();
+            $completion_table->addCell(1750)->addText("Date Completed", "boldFontStyle");
+            $completion_table->addCell(1750);
+            $completion_table->addRow();
+            $completion_table->addCell(1750)->addText("Total number of hours (DM Team)", "boldFontStyle");
+            $completion_table->addCell(1750);
+    
+            $section->addTextBreak();
+    
+            $dev_table = $section->addTable($tableStyle);
+            $dev_table->addRow();
+            $dev_table->addCell(1750, $cellStyle)->addText("PROJECT LEAD<w:br />Project Request", "generalFontStyle");
+            $dev_table->addCell();
+            $dev_table->addCell(1750, $cellStyle)->addText("Date", "generalFontStyle");
+            $dev_table->addCell();
+            $dev_table->addRow();
+            $dev_table->addCell(1750, $cellStyle)->addText("DEVELOPMENT<w:br />Project Design and Setup.", "generalFontStyle");
+            $dev_table->addCell();
+            $dev_table->addCell(1750, $cellStyle)->addText("Date", "generalFontStyle");
+            $dev_table->addCell();
+            $dev_table->addRow();
+            $dev_table->addCell(1750, $cellStyle)->addText("DEVELOPMENT", "generalFontStyle");
+            $dev_table->addCell();
+            $dev_table->addCell(1750, $cellStyle)->addText("Date", "generalFontStyle");
+            $dev_table->addCell();
+            $dev_table->addRow();
+            $dev_table->addCell(1750, $cellStyle)->addText("DEV TESTING<w:br />(ALPHA TESTING)", "generalFontStyle");
+            $dev_table->addCell();
+            $dev_table->addCell(1750, $cellStyle)->addText("Date", "generalFontStyle");
+            $dev_table->addCell();
+            $dev_table->addRow();
+            $dev_table->addCell(1750*2, array("bgColor" => "D3D3D3", "gridSpan" => 4))->addText("BETA RELEASE<w:br />Date:", "generalFontStyle", "centerParagraphStyle");
+            $dev_table->addRow();
+            $dev_table->addCell(1750, $cellStyle)->addText("BETA TESTING", "generalFontStyle");
+            $dev_table->addCell();
+            $dev_table->addCell(1750, $cellStyle)->addText("Date", "generalFontStyle");
+            $dev_table->addCell();
+            $dev_table->addRow();
+            $dev_table->addCell(1750, $cellStyle)->addText("BCCH Research DM<w:br />Team Approval", "generalFontStyle");
+            $dev_table->addCell();
+            $dev_table->addCell(1750, $cellStyle)->addText("Date", "generalFontStyle");
+            $dev_table->addCell();
+            $dev_table->addRow();
+            $dev_table->addCell(1750, array("bgColor" => "D3D3D3", "gridSpan" => 4))->addText("PROD RELEASE<w:br />Date:", "generalFontStyle", "centerParagraphStyle");
+    
+            // Enhancements & Approval
+            $section->addTextBreak();
+            $section->addTitle("Enhancements &#38; Approval", 1);
+            $section->addLine($lineStyle);
+    
+            $enhancement_table = $section->addTable($tableStyle);
+            $enhancement_table->addRow();
+            $enhancement_table->addCell(1750, $cellStyle)->addText("Ticket ID#", "boldFontStyle");
+            $enhancement_table->addCell(1750, $cellStyle)->addText("Description", "boldFontStyle");
+            $enhancement_table->addCell(1750, $cellStyle)->addText("Status [Number of HW]", "boldFontStyle");
+            $enhancement_table->addCell(1750, $cellStyle)->addText("Completed Date", "boldFontStyle");
+            $enhancement_table->addRow();
+            $enhancement_table->addCell();
+            $enhancement_table->addCell();
+            $enhancement_table->addCell();
+            $enhancement_table->addCell();
+    
+            // Bug Fixes
+            $section->addTextBreak();
+            $section->addTitle("Bug Fixes", 1);
+            $section->addLine($lineStyle);
+    
+            $enhancement_table = $section->addTable($tableStyle);
+            $enhancement_table->addRow();
+            $enhancement_table->addCell(1750, $cellStyle)->addText("JIRA ID", "boldFontStyle");
+            $enhancement_table->addCell(1750, $cellStyle)->addText("Description", "boldFontStyle");
+            $enhancement_table->addCell(1750, $cellStyle)->addText("Status", "boldFontStyle");
+            $enhancement_table->addCell(1750, $cellStyle)->addText("Resolved Date", "boldFontStyle");
+            $enhancement_table->addRow();
+            $enhancement_table->addCell();
+            $enhancement_table->addCell();
+            $enhancement_table->addCell();
+            $enhancement_table->addCell();
+    
+            // Appendix: Key Terms
+            $section->addTextBreak();
+            $section->addTitle("Appendix: Key terms", 1);
+            $section->addLine($lineStyle);
+            $section->addText("The following table provides definitions for terms relevant to this document.", "generalFontStyle");
+    
+            $appendix_table = $section->addTable($tableStyle);
+            $appendix_table->addRow();
+            $appendix_table->addCell(1750, $cellStyle)->addText("Term", "boldFontStyle");
+            $appendix_table->addCell(1750, $cellStyle)->addText("Definition", "boldFontStyle");
+            $appendix_table->addRow();
+            $appendix_table->addCell()->addText("Alpha Testing", "generalFontStyle");
+            $appendix_table->addCell()->addText("Alpha testing is simulated or actual operational testing by potential users/customers or an independent test team at the developers' site. Alpha testing is often employed for off-the-shelf software as a form of internal acceptance testing, before the software goes to beta testing.", "generalFontStyle");
+            $appendix_table->addRow();
+            $appendix_table->addCell()->addText("Beta Testing", "generalFontStyle");
+            $appendix_table->addCell()->addText("Beta testing comes after alpha testing and can be considered a form of external user testing. Versions of the software, known as beta versions, are released to a limited audience outside of the programming team known as beta testers.", "generalFontStyle");
+            $appendix_table->addRow();
+            $appendix_table->addCell()->addText("DET", "generalFontStyle");
+            $appendix_table->addCell()->addText("A Data Entry Trigger (DET) in REDCap is the capability to execute a script every time a survey or data entry form is saved.", "generalFontStyle");
+            $appendix_table->addRow();
+            $appendix_table->addCell()->addText("API", "generalFontStyle");
+            $appendix_table->addCell()->addText('The acronym "API" stands for "Application Programming Interface". An API is just a defined way for a program to accomplish a task, usually retrieving or modifying data. API requests to REDCap are done using SSL (HTTPS), which means that the traffic to and from the REDCap server is encrypted.
+            ', "generalFontStyle");
+            $appendix_table->addRow();
+            $appendix_table->addCell()->addText("HW", "generalFontStyle");
+            $appendix_table->addCell()->addText("Hours of Work.", "generalFontStyle");
+    
+            // Support Information
+            $section->addTextBreak();
+            $section->addTitle("Support Information", 1);
+            $section->addLine($lineStyle);
+            $section->addText("If you have any questions about this document or about the project, please contact at redcap@cfri.ca.", "generalFontStyle");
+    
+            // Saving the document as OOXML file...
+            $objWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'Word2007');
+    
+            // Stream file
+            header('Content-Description: File Transfer');
+            header('Content-Type: application/vnd.openxmlformats-officedocument.wordprocessing');
+            header('Content-Disposition: attachment; filename="release_notes.docx"');
+            $objWriter->save("php://output");
         }
-
-        // Restrictions
-        $section->addTextBreak();
-        $section->addTitle("Restrictions", 1);
-        $section->addLine($lineStyle);
-        $section->addText("Once the projects are in Production mode, the following action items should not occur in any of the projects under any circumstances. *DO NOT*: ", "generalFontStyle");
-        $section->addTextBreak();
-
-        $section->addListItem('Rename/Update/Delete the *Record ID* field', 0, null, 'multilevel');
-        $section->addListItem('Add test subjects', 0, null, 'multilevel');
-        $section->addListItem('Create subjects manually in *All projects*', 0, null, 'multilevel');
-        $section->addListItem('Edit the API user account rights (*api useraccount names*)', 0, null, 'multilevel');
-        $section->addListItem('Change the field types (ex. text box fields to check box fields and vice versa)', 0, null, 'multilevel');
-        $section->addListItem('Change/Rename the Field Name', 0, null, 'multilevel');
-        $section->addListItem('Change/Edit the arm &#38; event names ', 0, null, 'multilevel');
-
-        // Implementation And Approval
-        $section->addTextBreak();
-        $section->addTitle("Implementation &#38; Approval", 1);
-        $section->addLine($lineStyle);
-
-        $completion_table = $section->addTable($tableStyle);
-        $completion_table->addRow();
-        $completion_table->addCell(1750)->addText("Date Started", "boldFontStyle");
-        $completion_table->addCell(1750);
-        $completion_table->addRow();
-        $completion_table->addCell(1750)->addText("Date Completed", "boldFontStyle");
-        $completion_table->addCell(1750);
-        $completion_table->addRow();
-        $completion_table->addCell(1750)->addText("Total number of hours (DM Team)", "boldFontStyle");
-        $completion_table->addCell(1750);
-
-        $section->addTextBreak();
-
-        $dev_table = $section->addTable($tableStyle);
-        $dev_table->addRow();
-        $dev_table->addCell(1750, $cellStyle)->addText("PROJECT LEAD<w:br />Project Request", "generalFontStyle");
-        $dev_table->addCell();
-        $dev_table->addCell(1750, $cellStyle)->addText("Date", "generalFontStyle");
-        $dev_table->addCell();
-        $dev_table->addRow();
-        $dev_table->addCell(1750, $cellStyle)->addText("DEVELOPMENT<w:br />Project Design and Setup.", "generalFontStyle");
-        $dev_table->addCell();
-        $dev_table->addCell(1750, $cellStyle)->addText("Date", "generalFontStyle");
-        $dev_table->addCell();
-        $dev_table->addRow();
-        $dev_table->addCell(1750, $cellStyle)->addText("DEVELOPMENT", "generalFontStyle");
-        $dev_table->addCell();
-        $dev_table->addCell(1750, $cellStyle)->addText("Date", "generalFontStyle");
-        $dev_table->addCell();
-        $dev_table->addRow();
-        $dev_table->addCell(1750, $cellStyle)->addText("DEV TESTING<w:br />(ALPHA TESTING)", "generalFontStyle");
-        $dev_table->addCell();
-        $dev_table->addCell(1750, $cellStyle)->addText("Date", "generalFontStyle");
-        $dev_table->addCell();
-        $dev_table->addRow();
-        $dev_table->addCell(1750*2, array("bgColor" => "D3D3D3", "gridSpan" => 4))->addText("BETA RELEASE<w:br />Date:", "generalFontStyle", "centerParagraphStyle");
-        $dev_table->addRow();
-        $dev_table->addCell(1750, $cellStyle)->addText("BETA TESTING", "generalFontStyle");
-        $dev_table->addCell();
-        $dev_table->addCell(1750, $cellStyle)->addText("Date", "generalFontStyle");
-        $dev_table->addCell();
-        $dev_table->addRow();
-        $dev_table->addCell(1750, $cellStyle)->addText("BCCH Research DM<w:br />Team Approval", "generalFontStyle");
-        $dev_table->addCell();
-        $dev_table->addCell(1750, $cellStyle)->addText("Date", "generalFontStyle");
-        $dev_table->addCell();
-        $dev_table->addRow();
-        $dev_table->addCell(1750, array("bgColor" => "D3D3D3", "gridSpan" => 4))->addText("PROD RELEASE<w:br />Date:", "generalFontStyle", "centerParagraphStyle");
-
-        // Enhancements & Approval
-        $section->addTextBreak();
-        $section->addTitle("Enhancements &#38; Approval", 1);
-        $section->addLine($lineStyle);
-
-        $enhancement_table = $section->addTable($tableStyle);
-        $enhancement_table->addRow();
-        $enhancement_table->addCell(1750, $cellStyle)->addText("Ticket ID#", "boldFontStyle");
-        $enhancement_table->addCell(1750, $cellStyle)->addText("Description", "boldFontStyle");
-        $enhancement_table->addCell(1750, $cellStyle)->addText("Status [Number of HW]", "boldFontStyle");
-        $enhancement_table->addCell(1750, $cellStyle)->addText("Completed Date", "boldFontStyle");
-        $enhancement_table->addRow();
-        $enhancement_table->addCell();
-        $enhancement_table->addCell();
-        $enhancement_table->addCell();
-        $enhancement_table->addCell();
-
-        // Bug Fixes
-        $section->addTextBreak();
-        $section->addTitle("Bug Fixes", 1);
-        $section->addLine($lineStyle);
-
-        $enhancement_table = $section->addTable($tableStyle);
-        $enhancement_table->addRow();
-        $enhancement_table->addCell(1750, $cellStyle)->addText("JIRA ID", "boldFontStyle");
-        $enhancement_table->addCell(1750, $cellStyle)->addText("Description", "boldFontStyle");
-        $enhancement_table->addCell(1750, $cellStyle)->addText("Status", "boldFontStyle");
-        $enhancement_table->addCell(1750, $cellStyle)->addText("Resolved Date", "boldFontStyle");
-        $enhancement_table->addRow();
-        $enhancement_table->addCell();
-        $enhancement_table->addCell();
-        $enhancement_table->addCell();
-        $enhancement_table->addCell();
-
-        // Appendix: Key Terms
-        $section->addTextBreak();
-        $section->addTitle("Appendix: Key terms", 1);
-        $section->addLine($lineStyle);
-        $section->addText("The following table provides definitions for terms relevant to this document.", "generalFontStyle");
-
-        $appendix_table = $section->addTable($tableStyle);
-        $appendix_table->addRow();
-        $appendix_table->addCell(1750, $cellStyle)->addText("Term", "boldFontStyle");
-        $appendix_table->addCell(1750, $cellStyle)->addText("Definition", "boldFontStyle");
-        $appendix_table->addRow();
-        $appendix_table->addCell()->addText("Alpha Testing", "generalFontStyle");
-        $appendix_table->addCell()->addText("Alpha testing is simulated or actual operational testing by potential users/customers or an independent test team at the developers' site. Alpha testing is often employed for off-the-shelf software as a form of internal acceptance testing, before the software goes to beta testing.", "generalFontStyle");
-        $appendix_table->addRow();
-        $appendix_table->addCell()->addText("Beta Testing", "generalFontStyle");
-        $appendix_table->addCell()->addText("Beta testing comes after alpha testing and can be considered a form of external user testing. Versions of the software, known as beta versions, are released to a limited audience outside of the programming team known as beta testers.", "generalFontStyle");
-        $appendix_table->addRow();
-        $appendix_table->addCell()->addText("DET", "generalFontStyle");
-        $appendix_table->addCell()->addText("A Data Entry Trigger (DET) in REDCap is the capability to execute a script every time a survey or data entry form is saved.", "generalFontStyle");
-        $appendix_table->addRow();
-        $appendix_table->addCell()->addText("API", "generalFontStyle");
-        $appendix_table->addCell()->addText('The acronym "API" stands for "Application Programming Interface". An API is just a defined way for a program to accomplish a task, usually retrieving or modifying data. API requests to REDCap are done using SSL (HTTPS), which means that the traffic to and from the REDCap server is encrypted.
-        ', "generalFontStyle");
-        $appendix_table->addRow();
-        $appendix_table->addCell()->addText("HW", "generalFontStyle");
-        $appendix_table->addCell()->addText("Hours of Work.", "generalFontStyle");
-
-        // Support Information
-        $section->addTextBreak();
-        $section->addTitle("Support Information", 1);
-        $section->addLine($lineStyle);
-        $section->addText("If you have any questions about this document or about the project, please contact at redcap@cfri.ca.", "generalFontStyle");
-
-        // Saving the document as OOXML file...
-        $filename = $this->getSystemSetting("temp-folder") . "/release_notes.docx";
-        $objWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'Word2007');
-        $objWriter->save($filename);
-
-        // Stream file
-        header('Content-Description: File Transfer');
-        header('Content-Type: application/vnd.openxmlformats-officedocument.wordprocessing');
-        header('Content-Disposition: attachment; filename="'.basename($filename).'"');
-        readfile($filename);
-
-        // Delete file
-        unlink($filename);
     }
 
     /**
