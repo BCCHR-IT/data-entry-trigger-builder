@@ -21,8 +21,8 @@
     "permissions": [
         "redcap_save_record"
     ],
-    "framework-version": 3,
+    "framework-version": 9,
     "compatibility": {
-        "redcap-version-min": "8.0.1"
+        "redcap-version-min": "13.1.17"
      }
 }
