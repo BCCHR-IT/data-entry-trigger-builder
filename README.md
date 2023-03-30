@@ -79,6 +79,7 @@ Data Movement Options:
 
 - Any changes made to the REDCap project, after the DET has been created, has the potential to break it. After you’ve updated your project, please make sure to update the DET in accordance with your changes.
 - Functionality developed at BCCHR to export your settings to a word document has been disabled, as it has not been made compatible with the new JSON structure.
+- Module now logs to the external module logs, rather than a project's regular logs.
 
 # Limitations
 

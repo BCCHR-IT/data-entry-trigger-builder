@@ -1,7 +1,7 @@
 {
     "name": "Data Entry Trigger Builder (UBC Version)",
     "namespace": "BCCHR\\DataEntryTriggerBuilder",
-    "description": "An External Module that provides an interface to create a DET between a source and destination project. This version is forked from the original version developed by the BC Children's Hospital Research Institute.",
+    "description": "An External Module that provides an interface to create a DET between a source and destination project. This version is forked from the original version developed by the BC Children's Hospital Research Institute, and has been updated and published, with their permission. It has significant changes, so please make sure to read the README carefully.",
     "authors": [
         {
             "name": "Ashley Lee",
