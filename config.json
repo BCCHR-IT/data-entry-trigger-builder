@@ -18,11 +18,8 @@
             }
         ]
     },
-    "permissions": [
-        "redcap_save_record"
-    ],
-    "framework-version": 9,
+    "framework-version": 14,
     "compatibility": {
-        "redcap-version-min": "13.1.17"
+        "redcap-version-min": "13.7.11"
      }
 }
