@@ -207,8 +207,8 @@ function addTrigger()
             "</div>" +
             "<h6>Data Movement</h6>" + 
             "<p>Copy the data below from source project to linked project when the trigger is met:</p>" +
-            "<button type='button' data-toggle='modal' data-target='#add-field-modal' class='btn btn-primary btn-xs add-field-btn'>Add Field</button> " + 
-            "<button type='button' data-toggle='modal' data-target='#add-instr-modal' class='btn btn-primary btn-xs add-instr-btn'>Add Instrument</button>" +
+            "<button type='button' data-bs-toggle='modal' data-bs-target='#add-field-modal' class='btn btn-primary btn-xs add-field-btn'>Add Field</button>" + 
+            "<button type='button' data-bs-toggle='modal' data-bs-target='#add-instr-modal' class='btn btn-primary btn-xs add-instr-btn'>Add Instrument</button>" +
             "<br/><br/>" + 
             "<table class='table' id='table-" + trigNum + "'>" +
                 "<thead>" + 
