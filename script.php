@@ -65,7 +65,8 @@
                 url: "<?php print $module->getUrl("getDestinationFields.php") ?>",
                 type: "POST",
                 data: {
-                    pid: $(this).find("select.destination-project-select").val()
+                    pid: $(this).find("select.destination-project-select").val(),
+                    redcap_csrf_token: "<?php print $module->getCSRFToken() ?>"
                 },
                 success: function (data) {
                     updateElemAutocompleteItems(triggerWrapper, data);
@@ -100,7 +101,8 @@
             url: "<?php print $module->getUrl("getDestinationFields.php") ?>",
             type: "POST",
             data: {
-                pid: $(this).val()
+                pid: $(this).val(),
+                redcap_csrf_token: "<?php print $module->getCSRFToken() ?>"
             },
             success: function (data) {
                 updateElemAutocompleteItems(triggerWrapper, data);
@@ -121,7 +123,8 @@
             url: "<?php print $module->getUrl("getDestinationFields.php") ?>",
             type: "POST",
             data: {
-                pid: $(this).parents(".trigger-and-data-wrapper").find("select.destination-project-select").val()
+                pid: $(this).parents(".trigger-and-data-wrapper").find("select.destination-project-select").val(),
+                redcap_csrf_token: "<?php print $module->getCSRFToken() ?>"
             },
             success: function (data) {
                 let metadata = JSON.parse(data);
@@ -160,7 +163,10 @@
         $.ajax({
             url: "<?php print $module->getUrl("SubmitForm.php") ?>",
             type: "POST",
-            data: $("form").serialize(),
+            data: {
+                settings: $("form").serialize(),
+                redcap_csrf_token: "<?php print $module->getCSRFToken() ?>"
+            },
             success: function (data) {
                 let errors = JSON.parse(data);
 

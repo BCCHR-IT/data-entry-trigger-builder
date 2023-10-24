@@ -6,7 +6,7 @@
 
 $data_entry_trigger_builder = new BCCHR\DataEntryTriggerBuilder\DataEntryTriggerBuilder();
 
-$settings = $_POST;
+$settings = $_POST["settings"];
 
 foreach($settings["triggers"] as $index => $trigger_obj)
 {
