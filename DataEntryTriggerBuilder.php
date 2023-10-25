@@ -444,9 +444,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
         if ($project_id == $this->getProjectId())
         {
             // Get DET settings
-            $settings = json_decode($this->getProjectSetting("det_settings"), true);
-            
-            $triggers = $settings["triggers"];
+            $triggers = json_decode($this->getProjectSetting("det_settings"), true);
             
             // Get current record data
             $record_data = json_decode(REDCap::getData("json", $record, null, null, null, false, true), true);
