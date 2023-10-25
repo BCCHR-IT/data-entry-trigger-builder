@@ -20,7 +20,6 @@ if (!empty($_POST["json"])) {
 if ($settings == null)
 {
     $settings = json_decode($data_entry_trigger_builder->getProjectSetting("det_settings"), true);
-    $dest_fields = $data_entry_trigger_builder->retrieveProjectMetadata($settings["dest-project"]);
 }
 
 ?>
@@ -184,7 +183,7 @@ if ($settings == null)
                         </table>
                         <button type="button" id="add-trigger-btn" class="btn btn-primary btn-sm">Add Trigger</button>
                     </div>
-                    <?php if (!empty($settings)): foreach(array_values($settings["triggers"]) as $index => $trigger_obj): ?>
+                    <?php if (!empty($settings)): foreach(array_values($settings) as $index => $trigger_obj): ?>
                     <?php 
                         $index = htmlspecialchars($index, ENT_QUOTES); 
                         $trigger = htmlspecialchars($trigger_obj["trigger"], ENT_QUOTES); 

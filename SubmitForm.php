@@ -6,9 +6,9 @@
 
 $data_entry_trigger_builder = new BCCHR\DataEntryTriggerBuilder\DataEntryTriggerBuilder();
 
-$settings = $_POST["settings"];
+$settings = $_POST["triggers"];
 
-foreach($settings["triggers"] as $index => $trigger_obj)
+foreach($settings as $index => $trigger_obj)
 {
     $dest_project_pid = $trigger_obj["dest-project"];
 

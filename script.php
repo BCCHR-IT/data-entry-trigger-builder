@@ -163,10 +163,7 @@
         $.ajax({
             url: "<?php print $module->getUrl("SubmitForm.php") ?>",
             type: "POST",
-            data: {
-                settings: $("form").serialize(),
-                redcap_csrf_token: "<?php print $module->getCSRFToken() ?>"
-            },
+            data: $("form").serialize() + "&redcap_csrf_token=<?php print $module->getCSRFToken() ?>",
             success: function (data) {
                 let errors = JSON.parse(data);
 
