@@ -20,6 +20,10 @@ if (!empty($_POST["json"])) {
 if ($settings == null)
 {
     $settings = json_decode($data_entry_trigger_builder->getProjectSetting("det_settings"), true);
+    
+    if (array_key_exists("triggers", $settings)) {
+        $settings = $settings["triggers"];
+    }
 }
 
 ?>
