@@ -396,7 +396,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
             $instruments = array_values(array_unique(array_column($metadata, "form_name")));
             $RedcapProj = new Project($pid);
             $events = array_values($RedcapProj->getUniqueEventNames());
-            $isLongitudinal = $RedcapProj->longitudinal;
+            $isLongitudinal = $this->escape($RedcapProj->longitudinal);
             
             /**
              * We can pipe over any data except descriptive, file, and signature fields.
@@ -444,14 +444,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
         if ($project_id == $this->getProjectId())
         {
             // Get DET settings
-            $settings = json_decode($this->getProjectSetting("det_settings"), true);
-            
-            if (array_key_exists("triggers", $settings)) {
-                $triggers = $settings["triggers"];
-            }
-            else {
-                $triggers = $settings;
-            }
+            $triggers = json_decode($this->getProjectSetting("det_settings"), true);
             
             // Get current record data
             $record_data = json_decode(REDCap::getData("json", $record, null, null, null, false, true), true);
