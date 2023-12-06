@@ -36,6 +36,9 @@ if ($settings == null)
             p {
                 max-width: 100%;
             }
+            .jumbotron p {
+                font-size: 13px;
+            }
             .fa:hover {
                 color:grey;
             }
@@ -544,7 +547,10 @@ if ($settings == null)
                         </div>
                         <div class="modal-body">
                             <div class='row'>
-                                <div class="col-sm-12"><label>All fields of the chosen instrument must exist in the destination project. Move instrument data</label></div>
+                                <div class="col-sm-12"><label>All fields of the chosen instrument must be assigned to the chosen event in the destination project. Any fields that don't exist in the destination project will not move.</label></div>
+                            </div>
+                            <div class='row'>
+                                <div class="col-sm-12"><label>Move instrument data</label></div>
                             </div>
                             <div class="row">
                                 <?php if (REDCap::isLongitudinal()): ?>

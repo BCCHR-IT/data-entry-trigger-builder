@@ -444,7 +444,14 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
         if ($project_id == $this->getProjectId())
         {
             // Get DET settings
-            $triggers = json_decode($this->getProjectSetting("det_settings"), true);
+            $settings = json_decode($this->getProjectSetting("det_settings"), true);
+
+            if (array_key_exists("triggers", $settings)) {
+                $triggers = $settings["triggers"];
+            }
+            else {
+                $triggers = $settings;
+            }
             
             // Get current record data
             $record_data = json_decode(REDCap::getData("json", $record, null, null, null, false, true), true);
@@ -551,7 +558,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                     }
                     
                     /**
-                     * Move source instruments to destination instruments (Is a one-to-one relationship).
+                     * Move source instruments to destination instruments.
                      */
                     $trigger_source_instruments = $trigger_obj["sourceInstr"];
                     $trigger_source_instruments_events = $trigger_obj["sourceInstrEvents"];
@@ -579,6 +586,13 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                         
                         // Fields are returned in the order they are in the REDCap project
                         $source_instrument_fields = REDCap::getFieldNames($source_instrument);
+
+                        // Check for fields that don't exist in the destination project, and remove them
+                        $source_instrument_fields = array_filter($source_instrument_fields, function($v, $k) use ($dest_project) {
+                            $dest_fields = array_keys(REDCap::getDataDictionary($dest_project, "array"));
+                            return in_array($v, $dest_fields);
+                        }, ARRAY_FILTER_USE_BOTH);
+
                         $source_event = !empty($trigger_source_instruments_events[$i]) ? $trigger_source_instruments_events[$i] : null;
                         $source_instrument_data = json_decode(REDCap::getData("json", $record, $source_instrument_fields, $source_event), true);
                         
