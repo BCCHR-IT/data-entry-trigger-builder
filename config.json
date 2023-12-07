@@ -20,6 +20,7 @@
     },
     "framework-version": 14,
     "compatibility": {
-        "redcap-version-min": "13.7.11"
+        "redcap-version-min": "13.7.11",
+        "php-version-min": "7.4.21"
      }
 }
