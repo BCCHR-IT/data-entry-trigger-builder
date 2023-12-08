@@ -622,9 +622,9 @@ if ($settings == null)
                             </div>
                             <div class="row">
                                 <div class="col-sm-12">
-                                    <div style="background-color:lightgrey; border: 1px solid black; color:deeppink; padding: 5px">
+                                    <textarea style="background-color:lightgrey; border: 1px solid black; color:deeppink; padding: 5px; width:100%" rows="4" readonly>
                                         <?php print htmlspecialchars(json_encode($settings, JSON_PRETTY_PRINT), ENT_QUOTES); ?>
-                                    </div>
+                                    </textarea>
                                 </div>
                             </div>
                         </div>
