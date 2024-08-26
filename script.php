@@ -11,7 +11,7 @@
     let sourceEvents = [];
 
     <?php if (REDCap::isLongitudinal()): ?>
-    sourceEvents = [<?php foreach ($metadata["events"] as $event) { print "'$event',"; }?>];
+    sourceEvents = [<?php foreach ($metadata["events"] as $event) { print "'" . $module->escape($event) . "',"; }?>];
     <?php endif;?>
                 
     let sourceFields = [<?php foreach ($metadata["fields"] as $field) { print "'$field',"; } ?>];

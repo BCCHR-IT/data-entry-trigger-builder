@@ -21,7 +21,7 @@ if ($settings == null)
 {
     $settings = json_decode($data_entry_trigger_builder->getProjectSetting("det_settings"), true);
     
-    if (isset($settings) && array_key_exists("triggers", null)) {
+    if (isset($settings) && array_key_exists("triggers", $settings)) {
         $settings = $settings["triggers"];
     }
 }
