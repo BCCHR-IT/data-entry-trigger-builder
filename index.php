@@ -7,23 +7,46 @@ require_once "DataEntryTriggerBuilder.php";
  */
 require_once APP_PATH_DOCROOT . 'ProjectGeneral/header.php';
 
+function decode_json($json) {
+    $decoded_json = json_decode($json, true);
+
+    if (isset($decoded_json)) {
+        // Module only accepts an array of objects, or an array with a single key named "triggers" that contains array of objects
+        
+        if (!array_is_list($decoded_json)) {
+            $decoded_json = array_filter($decoded_json, function ($key) {
+                return $key == "triggers";
+            }, ARRAY_FILTER_USE_KEY);
+
+            if (!empty($decoded_json)) {
+                $decoded_json = $decoded_json["triggers"];
+            }
+        }
+
+        $isArrayOfArrays = array_filter($decoded_json, 'is_array') === $decoded_json;
+        if ($isArrayOfArrays) {
+            return $decoded_json;
+        }
+        else {
+            false;
+        }
+    }
+
+    return false;
+}
+
 $data_entry_trigger_builder = new BCCHR\DataEntryTriggerBuilder\DataEntryTriggerBuilder();
 if (!empty($_POST["json"])) {
-    $posted_json = $_POST["json"];
-    $settings = json_decode($posted_json, true);
-    if ($settings == null)
+    $settings = decode_json($_POST["json"]);
+    if (!$settings)
     {
-        $import_err_msg = "Invalid JSON! Please check your DET settings.";
+        $import_err_msg = "Invalid JSON! Please check your DET settings. Module only accepts an array of objects, or an array with a single key named \"triggers\" that contains array of objects";
     }
 }
 
 if ($settings == null)
 {
-    $settings = json_decode($data_entry_trigger_builder->getProjectSetting("det_settings"), true);
-    
-    if (isset($settings) && array_key_exists("triggers", $settings)) {
-        $settings = $settings["triggers"];
-    }
+    $settings = decode_json($data_entry_trigger_builder->getProjectSetting("det_settings"));
 }
 
 ?>
