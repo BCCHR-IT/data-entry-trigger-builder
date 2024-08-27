@@ -44,7 +44,7 @@ if (!empty($_POST["json"])) {
     }
 }
 
-if ($settings == null)
+if (!$settings)
 {
     $settings = decode_json($data_entry_trigger_builder->getProjectSetting("det_settings"));
 }
