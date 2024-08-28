@@ -446,11 +446,21 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
             // Get DET settings
             $settings = json_decode($this->getProjectSetting("det_settings"), true);
 
-            if (array_key_exists("triggers", $settings)) {
-                $triggers = $settings["triggers"];
+            if ($settings) 
+            {
+                if (array_key_exists("triggers", $settings)) {
+                    $triggers = $settings["triggers"];
+                }
+                else 
+                    $triggers = $settings;
+                }
+
+                if (array_filter($triggers, 'is_array') !== $triggers) {
+                    return;
+                }
             }
             else {
-                $triggers = $settings;
+                return;
             }
             
             // Get current record data
