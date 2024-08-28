@@ -451,7 +451,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                 if (array_key_exists("triggers", $settings)) {
                     $triggers = $settings["triggers"];
                 }
-                else 
+                else {
                     $triggers = $settings;
                 }
 
