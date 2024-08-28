@@ -456,10 +456,12 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                 }
 
                 if (array_filter($triggers, 'is_array') !== $triggers) {
+                    $this->log("DET Builder: Existing settings not in expected json format for module");
                     return;
                 }
             }
             else {
+                $this->log("DET Builder: Invalid json detected in existing settings");
                 return;
             }
             
