@@ -1,6 +1,12 @@
 <?php
 
+namespace BCCHR\DataEntryTriggerBuilder;
+
 require_once "DataEntryTriggerBuilder.php";
+
+use BCCHR\DataEntryTriggerBuilder\DataEntryTriggerBuilder;
+use REDCap;
+use Project;
 
 /**
  * Display REDCap header.
@@ -35,7 +41,7 @@ function decode_json($json) {
     return false;
 }
 
-$data_entry_trigger_builder = new BCCHR\DataEntryTriggerBuilder\DataEntryTriggerBuilder();
+$data_entry_trigger_builder = new DataEntryTriggerBuilder();
 if (!empty($_POST["json"])) {
     $settings = decode_json($_POST["json"]);
     if (!$settings)
