@@ -444,7 +444,13 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
         if ($project_id == $this->getProjectId())
         {
             // Get DET settings
-            $settings = json_decode($this->getProjectSetting("det_settings"), true);
+            $settings_json = $this->getProjectSetting("det_settings");
+
+            if ($settings_json == "null") {
+                return;
+            }
+
+            $settings = json_decode($settings_json, true);
 
             if ($settings) 
             {
