@@ -128,7 +128,7 @@ if (!$settings)
         <?php endif; ?>
         <div class="container jumbotron">
             <h2>Data Entry Trigger Builder</h2>
-            <p><b>LIMITATIONS*: This module will work will classical and longitudinal projects, but is currently incompatible with repeatable events.</b></p>
+            <p><b>LIMITATIONS*: This module will work will classical and longitudinal projects, but is currently incompatible with repeatable events and instruments.</b></p>
             <?php if (!empty($settings)): ?>
             <p><b>DET was last changed on <span class="saved"><?php print $data_entry_trigger_builder->getProjectSetting("saved_timestamp");?></span> by <span class="saved"><?php print $data_entry_trigger_builder->getProjectSetting("saved_by");?></span></b></p>
             <?php endif; ?>
@@ -340,6 +340,21 @@ if (!$settings)
                                 </div>
                             </div>
                         </div>
+                        <h6>Import Data Access Groups</h6>
+                        <p>Import data access groups (DAGs) every time data is saved? The setting can only import DAGs if they have a one-to-one relationship with the destination project. If you want to conditionally move DAGs, then use the <b>[redcap_data_access_group]</b> field under <u>Data Movement</u>.</p>
+                        <div class="row form-group">
+                        	<div class='col-sm-12'>
+                                <?php if ($trigger_obj["import-dags"] == "1"):?>
+                                <input type="radio" name="triggers[<?php print $index;?>][import-dags]" class="form-check-input" value="1" checked required><label class="form-check-label">Yes</label>
+                                <br>
+                                <input type="radio" name="triggers[<?php print $index;?>][import-dags]" class="form-check-input" value="0" required><label class="form-check-label">No</label>
+                                <?php else:?>
+                                <input type="radio" name="triggers[<?php print $index;?>][import-dags]" class="form-check-input" value="1" required><label class="form-check-label">Yes</label>
+                                <br>
+                                <input type="radio" name="triggers[<?php print $index;?>][import-dags]" class="form-check-input" value="0" checked required><label class="form-check-label">No</label>
+                                <?php endif; ?>
+                            </div>
+                        </div>
                         <h6>Data Movement</h6>
                         <p>Copy the following instruments/fields from source project to linked project when the trigger is met:</p>
                         <button type="button" data-bs-toggle="modal" data-bs-target="#add-field-modal"  class="btn btn-primary btn-xs add-field-btn">Add Field</button>
@@ -491,20 +506,6 @@ if (!$settings)
                                     <input type="radio" name="triggers[<?php print $index;?>][overwrite-data]" class="form-check-input" value="overwrite" required><label class="form-check-label">Yes</label>
                                     <br>
                                     <input type="radio" name="triggers[<?php print $index;?>][overwrite-data]" class="form-check-input" value="normal" checked required><label class="form-check-label">No</label>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-                            <div class='col-sm-6'>
-                                <label>Import data access groups (DAGs) every time data is saved? The module can only import DAGs if they have a one-to-one relationship with the destination project.</label>
-                                <div class="form-check col-sm-12">
-                                    <?php if ($trigger_obj["import-dags"] == "1"):?>
-                                    <input type="radio" name="triggers[<?php print $index;?>][import-dags]" class="form-check-input" value="1" checked required><label class="form-check-label">Yes</label>
-                                    <br>
-                                    <input type="radio" name="triggers[<?php print $index;?>][import-dags]" class="form-check-input" value="0" required><label class="form-check-label">No</label>
-                                    <?php else:?>
-                                    <input type="radio" name="triggers[<?php print $index;?>][import-dags]" class="form-check-input" value="1" required><label class="form-check-label">Yes</label>
-                                    <br>
-                                    <input type="radio" name="triggers[<?php print $index;?>][import-dags]" class="form-check-input" value="0" checked required><label class="form-check-label">No</label>
                                     <?php endif; ?>
                                 </div>
                             </div>

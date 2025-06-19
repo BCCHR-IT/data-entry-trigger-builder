@@ -205,6 +205,15 @@ function addTrigger()
                     "</div>" +
                 "</div>" +
             "</div>" +
+			"<h6>Import Data Access Groups</h6>" +
+			"<p>Import data access groups (DAGs) every time data is saved? The setting can only import DAGs if they have a one-to-one relationship with the destination project. If you want to conditionally move DAGs, then use the <b>[redcap_data_access_group]</b> field under <u>Data Movement</u>.</p>" +
+			"<div class='row form-group'>" +                        
+			    "<div class='col-sm-12'>" +
+		            "<input type='radio' name='triggers[" + trigNum + "][import-dags]' class='form-check-input' value='1' required><label class='form-check-label'>Yes</label>" +
+		            "<br>" +
+		            "<input type='radio' name='triggers[" + trigNum + "][import-dags]' class='form-check-input' value='0' required><label class='form-check-label'>No</label>" +
+		    	"</div>" +
+			"</div>" +
             "<h6>Data Movement</h6>" + 
             "<p>Copy the data below from source project to linked project when the trigger is met:</p>" +
             "<button type='button' data-bs-toggle='modal' data-bs-target='#add-field-modal' class='btn btn-primary btn-xs add-field-btn'>Add Field</button>" + 
@@ -263,14 +272,6 @@ function addTrigger()
                     "<input type='radio' name='triggers[" + trigNum + "][overwrite-data]' class='form-check-input' value='normal' required><label class='form-check-label'>No</label>" +
                 "</div>" + 
             "</div>" + 
-            "<div class='col-sm-6'>" +
-                "<label>Import data access groups (DAGs) every time data is saved? The module can only import DAGs if they have a one-to-one relationship with the destination project.</label>" +
-                "<div class='form-check col-sm-12'>" + 
-                    "<input type='radio' name='triggers[" + trigNum + "][import-dags]' class='form-check-input' value='1' required><label class='form-check-label'>Yes</label>" +
-                    "<br>" +
-                    "<input type='radio' name='triggers[" + trigNum + "][import-dags]' class='form-check-input' value='0' required><label class='form-check-label'>No</label>" +
-                "</div>" + 
-            "</div>" +
         "</div>" +
     "</div>";
     

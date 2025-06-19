@@ -133,6 +133,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
         $fields = array_keys($data_dictionary);
         
         $external_fields = array();
+        $external_fields[] = "redcap_data_access_group";
         $instruments = array_unique(array_column($data_dictionary, "form_name"));
         foreach ($instruments as $unique_name)
         {
@@ -429,6 +430,9 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
             {
                 $fields[] = $instrument . "_complete";
             }
+            
+            // Add redcap_data_access_group to fields
+            $fields[] = "redcap_data_access_group";
             
             return ["fields" => $fields, "events" => $events, "isLongitudinal" => $isLongitudinal, "instruments" => $instruments];
         }
