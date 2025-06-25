@@ -206,7 +206,8 @@ function addTrigger()
                 "</div>" +
             "</div>" +
 			"<h6>Import Data Access Groups</h6>" +
-			"<p>Import data access groups (DAGs) every time data is saved? The setting can only import DAGs if they have a one-to-one relationship with the destination project. If you want to conditionally move DAGs, then use the <b>[redcap_data_access_group]</b> field under <u>Data Movement</u>.</p>" +
+			"<p>Import data access groups (DAGs) every time data is saved? The setting can only import DAGs if they have a one-to-one relationship with the destination project. If you want to conditionally move DAGs, then use the <b>[redcap_data_access_group]</b> field under <u>Data Movement</u>, which is a field representation of a DAG, and select 'No' below.</p>" +
+            "<p>The <b>[redcap_data_access_group]</b> can move as any other field under <u>Data Movement</u>, however, please ensure whatever is piped from the source into the destination matches the <b>unique group name in the latter in both spelling and case</b>. If your destination project is longitudinal, use the first event.</p>" +
 			"<div class='row form-group'>" +                        
 			    "<div class='col-sm-12'>" +
 		            "<input type='radio' name='triggers[" + trigNum + "][import-dags]' class='form-check-input' value='1' required><label class='form-check-label'>Yes</label>" +

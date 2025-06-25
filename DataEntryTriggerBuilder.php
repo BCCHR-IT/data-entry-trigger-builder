@@ -575,7 +575,13 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                             $event_data = $dest_record_data[$dest_event];
                         }
                         
-                        $event_data[$dest_field] = $trigger_dest_values[$i];
+                        if ($dest_field == "redcap_data_access_group") {
+                            $value = lower($trigger_dest_values[$i]);
+                        }
+                        else {
+                            $value = $trigger_dest_values[$i];
+                        }
+                        $event_data[$dest_field] = $value;
                         $dest_record_data[$dest_event] = $event_data;
                     }
                     
