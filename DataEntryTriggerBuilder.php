@@ -438,6 +438,22 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
         }
         return FALSE;
     }
+
+    /**
+     * Retrieves a project's data access groups
+     * 
+     * @param String $pid   A project's id in REDCap
+     * @return Array       An array of unique Data Access Group names (based upon group name text) with group_id as array key and unique name as element
+     */
+    public function retrieveProjectGroups($pid)
+    {
+        $RedcapProj = new Project($pid);
+        $dags = $RedcapProj->getUniqueGroupNames();
+        if ($dags) {
+            return $dags;
+        }
+        return FALSE;
+    }
     
     /**
      * REDCap hook is called immediately after a record is saved. Will retrieve the DET settings,
@@ -491,6 +507,8 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                 else if ($valid)
                 {
                     $dest_record_data = [];
+
+                    $dest_dags = $this->retrieveProjectGroups($dest_project);
                     
                     $dest_project = $trigger_obj["dest-project"];
                     
@@ -544,7 +562,16 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                         }
                         
                         $source_field = $trigger_source_fields[$i];
-                        $event_data[$dest_field] = $data[$source_field];
+
+                        if ($dest_field == "redcap_data_access_group") {
+                            $unique_group_name = $dest_dags[$data[$source_field]];
+                            $value = $unique_group_name;
+                        }
+                        else {
+                            $value = $data[$source_field];
+                        }
+
+                        $event_data[$dest_field] = $value;
                         $dest_record_data[$dest_event] = $event_data;
                     }
                     
@@ -576,11 +603,13 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                         }
                         
                         if ($dest_field == "redcap_data_access_group") {
-                            $value = lower($trigger_dest_values[$i]);
+                            $unique_group_name = $dest_dags[$trigger_dest_values[$i]];
+                            $value = $unique_group_name;
                         }
                         else {
                             $value = $trigger_dest_values[$i];
                         }
+
                         $event_data[$dest_field] = $value;
                         $dest_record_data[$dest_event] = $event_data;
                     }
@@ -592,7 +621,17 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                     $trigger_source_instruments_events = $trigger_obj["sourceInstrEvents"];
                     $trigger_dest_instruments_events = $trigger_obj["destInstrEvents"];
 
-                    $dest_fields = array_keys(REDCap::getDataDictionary($dest_project, "array"));
+                    $dest_dd = REDCap::getDataDictionary($dest_project, "array");
+
+                    $dest_fields = array_keys($dest_dd);
+
+                    // Add form completion statuses as fields to consider in the destination project
+                    $dest_form_completion_fields = array_map(function($value) {
+                        return $value . "_complete";
+                    },
+                    array_unique(array_column(array_values($dest_dd), "form_name")));
+
+                    $dest_fields = array_merge($dest_fields, $dest_form_completion_fields);
                     
                     foreach($trigger_source_instruments as $i => $source_instrument)
                     {
@@ -616,6 +655,9 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                         
                         // Fields are returned in the order they are in the REDCap project
                         $source_instrument_fields = REDCap::getFieldNames($source_instrument);
+
+                        // Add completion status to move with instrument
+                        $source_instrument_fields[] = $source_instrument . "_complete";
 
                         // Check for fields that don't exist in the destination project, and remove them
                         $source_instrument_fields = array_filter($source_instrument_fields, function($v, $k) use ($dest_fields) {

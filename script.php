@@ -62,14 +62,16 @@
 
             //Call to retrieve destination project's fields and instruments and update autcomplete items
             $.ajax({
-                url: "<?php print $module->getUrl("getDestinationFields.php") ?>",
+                url: "<?php print $module->getUrl("getDestinationInfo.php") ?>",
                 type: "POST",
                 data: {
                     pid: $(this).find("select.destination-project-select").val(),
                     redcap_csrf_token: "<?php print $module->getCSRFToken() ?>"
                 },
                 success: function (data) {
-                    updateElemAutocompleteItems(triggerWrapper, data);
+                    let destData = JSON.parse(data);
+                    updateElemAutocompleteItems(triggerWrapper, destData.metadata);
+                    updateDestDagTable(triggerWrapper, destData.groups);
                 },
                 error: function (data, status, error) {
                     console.log("Returned with status " + status + " - " + error);
@@ -96,16 +98,18 @@
 
         let triggerWrapper = $(this).parents(".trigger-and-data-wrapper");
 
-        //Call to retrieve destination project's fields and instruments and update autcomplete items
+        //Call to retrieve destination project's fields and instruments, update autcomplete items, and update DAG table
         $.ajax({
-            url: "<?php print $module->getUrl("getDestinationFields.php") ?>",
+            url: "<?php print $module->getUrl("getDestinationInfo.php") ?>",
             type: "POST",
             data: {
                 pid: $(this).val(),
                 redcap_csrf_token: "<?php print $module->getCSRFToken() ?>"
             },
             success: function (data) {
-                updateElemAutocompleteItems(triggerWrapper, data);
+                let destData = JSON.parse(data);
+                updateElemAutocompleteItems(triggerWrapper, destData.metadata);
+                updateDestDagTable(triggerWrapper, destData.groups);
             },
             error: function (data, status, error) {
                 console.log("Returned with status " + status + " - " + error);
@@ -120,14 +124,15 @@
     $("body").on("click", ".add-field-btn, .add-instr-btn, .fa-pencil-alt", function () {
          //Call to retrieve destination project's fields and instruments and update autcomplete items
         $.ajax({
-            url: "<?php print $module->getUrl("getDestinationFields.php") ?>",
+            url: "<?php print $module->getUrl("getDestinationInfo.php") ?>",
             type: "POST",
             data: {
                 pid: $(this).parents(".trigger-and-data-wrapper").find("select.destination-project-select").val(),
                 redcap_csrf_token: "<?php print $module->getCSRFToken() ?>"
             },
             success: function (data) {
-                let metadata = JSON.parse(data);
+                let destData = JSON.parse(data);
+                let metadata = destData.metadata;
                 let isLongitudinal = metadata.isLongitudinal;
 
                 let destFields = metadata.fields;

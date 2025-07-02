@@ -108,6 +108,9 @@ if (!$settings)
                 border: 1px solid lightgrey;
                 padding: 10px;
             }
+            .dest-dag-table {
+                margin-bottom: 10px;
+            }
         </style>
         <script>
             var projectOptions = [
@@ -342,10 +345,7 @@ if (!$settings)
                         </div>
                         <h6>Import Data Access Groups</h6>
                         <p>
-                            Import data access groups (DAGs) every time data is saved? The setting can only import DAGs if they have a one-to-one relationship with the destination project. If you want to conditionally move DAGs, then use the <b>[redcap_data_access_group]</b> field under <u>Data Movement</u>, which is a field representation of a DAG, and select 'No' below.
-                        </p>
-                        <p>
-                            The <b>[redcap_data_access_group]</b> can move as any other field under <u>Data Movement</u>, however, please ensure whatever is piped from the source into the destination matches the <b>unique group name in the latter in both spelling and case</b>. If your destination project is longitudinal, use the first event.
+                            Import data access groups (DAGs) every time data is saved? The setting can only import DAGs if they have a one-to-one relationship with the destination project. If you want to conditionally move DAGs, then use the <b>[redcap_data_access_group]</b> field under <u>Data Movement</u>, and select 'No' below.
                         </p>
                         <div class="row form-group">
                         	<div class='col-sm-12'>
@@ -362,6 +362,20 @@ if (!$settings)
                         </div>
                         <h6>Data Movement</h6>
                         <p>Copy the following instruments/fields from source project to linked project when the trigger is met:</p>
+                        <p>
+                            The <b>[redcap_data_access_group]</b> is a special field that transfers data access groups between projects. It can be mapped as a regular field, however, if you want to manually set the destination project group, then you must use the unique group id belonging to a group in the destination project. Since the data access group applies to the entire record, it cannot be moved using 'Add Instrument'.
+                            Please see the unique group ids for the destination project below:
+                        </p>
+                        <p class="no-dags-found"><b>There are no data access groups in the destination project.</b></p>
+                        <table border="1" class="dest-dag-table">
+                            <thead>
+                                <tr>
+                                    <th>Unique Group Name</th>
+                                    <th>Unique Group ID</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
                         <button type="button" data-bs-toggle="modal" data-bs-target="#add-field-modal"  class="btn btn-primary btn-xs add-field-btn">Add Field</button>
                         <button type="button" data-bs-toggle="modal" data-bs-target="#add-instr-modal" class="btn btn-primary btn-xs add-instr-btn">Add Instrument</button>
                         <br/><br/>

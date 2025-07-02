@@ -206,8 +206,7 @@ function addTrigger()
                 "</div>" +
             "</div>" +
 			"<h6>Import Data Access Groups</h6>" +
-			"<p>Import data access groups (DAGs) every time data is saved? The setting can only import DAGs if they have a one-to-one relationship with the destination project. If you want to conditionally move DAGs, then use the <b>[redcap_data_access_group]</b> field under <u>Data Movement</u>, which is a field representation of a DAG, and select 'No' below.</p>" +
-            "<p>The <b>[redcap_data_access_group]</b> can move as any other field under <u>Data Movement</u>, however, please ensure whatever is piped from the source into the destination matches the <b>unique group name in the latter in both spelling and case</b>. If your destination project is longitudinal, use the first event.</p>" +
+			"<p>Import data access groups (DAGs) every time data is saved? The setting can only import DAGs if they have a one-to-one relationship with the destination project. If you want to conditionally move DAGs, then use the <b>[redcap_data_access_group]</b> field under <u>Data Movement</u>, and select 'No' below.</p>" +
 			"<div class='row form-group'>" +                        
 			    "<div class='col-sm-12'>" +
 		            "<input type='radio' name='triggers[" + trigNum + "][import-dags]' class='form-check-input' value='1' required><label class='form-check-label'>Yes</label>" +
@@ -217,6 +216,18 @@ function addTrigger()
 			"</div>" +
             "<h6>Data Movement</h6>" + 
             "<p>Copy the data below from source project to linked project when the trigger is met:</p>" +
+            "<p>The <b>[redcap_data_access_group]</b> is a special field that transfers data access groups between projects. It can be mapped as a regular field, however, if you want to manually set the destination project group, then you must use the unique group id belonging to a group in the destination project. Since the data access group applies to the entire record, it cannot be moved using 'Add Instrument'. Please see the unique group ids for the destination project below:</p>" +
+            "<p class='select-project-for-dags'><b>Please select a destination project, before you can see its data access groups.</b></p>" +
+            "<p class='no-dags-found' style='display:none'><b>There are no data access groups in the destionation project.</b></p>" + 
+            "<table class='dest-dag-table' style='display:none' border='1'>" +
+                "<thead>" +
+                    "<tr>" +
+                        "<th>Unique Group Name</th>" +
+                        "<th>Unique Group ID</th>" +
+                    "</tr>" +
+                "</thead>" +
+                "<tbody></tbody" +
+            "</table>" +
             "<button type='button' data-bs-toggle='modal' data-bs-target='#add-field-modal' class='btn btn-primary btn-xs add-field-btn'>Add Field</button>" + 
             "<button type='button' data-bs-toggle='modal' data-bs-target='#add-instr-modal' class='btn btn-primary btn-xs add-instr-btn'>Add Instrument</button>" +
             "<br/><br/>" + 
@@ -394,17 +405,23 @@ function validateInstrumentForm()
     return true;
 }
 
-function updateElemAutocompleteItems(elem, data)
+function updateElemAutocompleteItems(elem, metadata)
 {
-    let metadata = JSON.parse(data);
     let isLongitudinal = metadata.isLongitudinal;
+    let isModal = elem.closest("add-instr-modal") || elem.closet("add-field-modal");
 
     destFields = metadata.fields;
     destEvents = metadata.events;
     destInstruments = metadata.instruments;
 
+    // Update events
     if (isLongitudinal) {
-        elem.find(".dest-events-autocomplete").autocomplete({source: destEvents});
+        if (isModal) {
+            elem.find(".dest-events-autocomplete").autocomplete({source: destEvents, appendTo: isModal.attr("id")});
+        }
+        else {
+            elem.find(".dest-events-autocomplete").autocomplete({source: destEvents});
+        }
         elem.find(".dest-events-autocomplete").prop("required", true);
         elem.find(".dest-event-wrapper").show();
         $("#add-instr-label-event-div").show();
@@ -417,8 +434,17 @@ function updateElemAutocompleteItems(elem, data)
         $("#add-instr-label-event-div").hide();
         $("#dest-event-instrument, #dest-event-select").attr("data-is-longitudinal", "no");
     }
+
     elem.find(".surveyUrlEvent").prop("required", false); // This field should always be optional
-    elem.find(".dest-fields-autocomplete").autocomplete({source: destFields});
+    
+    // Update fields
+    if (isModal) {
+        elem.find(".dest-fields-autocomplete").autocomplete({source: destFields, appendTo: isModal.attr("id")});
+    }
+    else {
+        elem.find(".dest-fields-autocomplete").autocomplete({source: destFields});
+    }
+
     elem.find(".surveyUrl").autocomplete({source: destInstruments});
 }
 
@@ -436,4 +462,29 @@ function addTableErrors(index, errors, inputName)
         let msg =  errors[i];
         $(items[i]).after("<p class='error-msg'><i>" + msg + "</i></p>");
     }   
+}
+
+function updateDestDagTable(elem, groups)
+{
+    let selectProjectMsg = elem.find(".select-project-for-dags");
+    let dagTable = elem.find(".dest-dag-table");
+    let noDagsFound = elem.find(".no-dags-found");
+
+    selectProjectMsg.hide();
+
+    if (groups)
+    {
+        for(let i in groups) 
+        {
+            let group = groups[i];
+            dagTable.find("tbody").append("<tr><td>" + group + "</td>" + "<td>" + i + "</td></tr>");
+        }
+        noDagsFound.hide();
+        dagTable.show();
+    }
+    else 
+    {
+        noDagsFound.show();
+        dagTable.hide();
+    }
 }
