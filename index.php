@@ -361,11 +361,17 @@ if (!$settings)
                             </div>
                         </div>
                         <h6>Data Movement</h6>
-                        <p>Copy the following instruments/fields from source project to linked project when the trigger is met:</p>
+                        <p>Copy the following instruments/fields from source project to linked project when the trigger is met.</p>
+                        <h7><b>Special Use Case</b></h7>
                         <p>
-                            The <b>[redcap_data_access_group]</b> is a special field that transfers data access groups between projects. It can be mapped as a regular field, however, if you want to manually set the destination project group, then you must use the unique group id belonging to a group in the destination project. Since the data access group applies to the entire record, it cannot be moved using 'Add Instrument'.
-                            Please see the unique group ids for the destination project below:
+                            The <b>[redcap_data_access_group]</b> is a special field that can either transfer data access groups 1:1 between projects, or map to a regular REDCap variable (radiobutton or drop-down). If you want to manually set the DAG using a variable in the destination project, then you must use the unique group id of the DAG (example below).
                         </p>
+                        <p>Note: Since the data access group applies to the entire record, it cannot be moved using 'Add Instrument'. If your destination project is longitudinal, then use the first even when tranferring DAGs.</p>
+                        <h7><u>Examples</u></h7>
+                        <p>To map a regular REDCap field: [redcap_data_access_group] = [dag_radio]</p>
+                        <p>To manually set the data access group: [redcap_data_access_group] = 51</p>
+                        <h7><u>Destination Project Data Access Groups</u></h7>
+                        <p>Use the table below to find a unique group id from your destination project, if you don't already know it.</p>
                         <p class="no-dags-found"><b>There are no data access groups in the destination project.</b></p>
                         <table border="1" class="dest-dag-table">
                             <thead>

@@ -507,10 +507,10 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                 else if ($valid)
                 {
                     $dest_record_data = [];
-
-                    $dest_dags = $this->retrieveProjectGroups($dest_project);
                     
                     $dest_project = $trigger_obj["dest-project"];
+
+                    $dest_dags = $this->retrieveProjectGroups($dest_project);
                     
                     $overwrite_data = $trigger_obj["overwrite-data"];
                     $import_dags = $trigger_obj["import-dags"];
