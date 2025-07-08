@@ -25,12 +25,12 @@
      * 
      */
     $("body").on("click", ".add-field-btn, .add-instr-btn", function () {
-        let id = $(this).siblings("table").attr("id");
+        let id = $(this).siblings(".table").attr("id");
         $(".table-id").val(id);
     });
 
     $("body").on("click", ".fa-pencil-alt", function () {
-        let id = $(this).parents("table").attr("id");
+        let id = $(this).parents(".table").attr("id");
         $(".table-id").val(id);
     });
 
