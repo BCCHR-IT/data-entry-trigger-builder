@@ -1,58 +1,87 @@
-# Data Entry Trigger Builder Instructions
+# Data Entry Trigger Builder 
 
-1. Make sure the module has been enabled in your project. After, navigate to External Modules, in your REDCap sidebar. Only administrators can see the link.
+## Acknowledgement
 
-![Step1](imgs/step1.jpg)
+Some functionality within the module has been inspired by work done by Andy Martin (https://github.com/123andy), Jae Lee, and Ihab Zeedia at Stanford University. 
 
-2. Select your destination project. Your current project is automatically used as the source. If you’ve exported your DET settings from another project, you may import them, instead.
+## Important
 
-![Step2](imgs/step2.jpg)
+This modules is an updated version of the module developed at BC Children's Hospital Research Institute. When switching from the previous module (https://github.com/BCCHR-IT/data-entry-trigger-builder), you'll have to enter your previous settings again, by hand. This is because the settings are stored as JSON in REDCap, and the structure of the JSON object has changed with ours. The module will not function otherwise.
 
-3. Determine which fields you’ll use to link your source and destination projects. These fields will be used to link records between the projects, when at least one trigger condition is met.
+## Instructions
 
-![Step3](imgs/step3.jpg)
+1. Make sure the module has been enabled in your project. After, navigate to External Modules, in your REDCap sidebar. Only administrators with "Access to all projects and data with maximum user privileges" can see the link.
 
-4. Add a trigger to move data. Multiple conditions can be chained in one trigger using && (AND), or || (OR). See the table attached to the module,  for allowed qualifiers. 
+![CustomApplicationLink](imgs/customApplicationLink.jpg)
 
-![Step4](imgs/step4.jpg)
+2. Add a trigger to move data. Multiple conditions can be chained in one trigger using && (AND), or || (OR). See the table attached to the module,  for allowed qualifiers. If you’ve exported your DET settings from another project, you may import them, instead.
+
+![AddTrigger](imgs/addTrigger.png)
+
+The following form will appear. 
+
+![AddTriggerForm](imgs/addTriggerForm.png)
+
+Start by creating a trigger. Data movement will occur when your trigger is met.
+
+![CreateTrigger](imgs/createTrigger.png)
+
+3. Select your destination project. Your current project is automatically used as the source.
+
+![SelectDestination](imgs/selectDestination.png)
+
+4. Determine which fields you’ll use to link your source and destination projects. These fields will be used to link records between the projects, when at least one trigger condition is met.
+
+![RecordLinkage](imgs/recordLinkage.png)
+
+(OPTIONAL) Decide whether you want to append a static prefix, or postfix to the linking value.
+
+![PrefixPostfix](imgs/addPrefixPostfix.png)
 
 5. Add data to move when the condition is true.
 
-![Step5](imgs/step5.jpg)
+![DataMovement](imgs/dataMovement.png)
 
-5.
-    1. Add an instrument to move. This can only work if there’s a one-to-one relationship between the selected instrument and another instrument in the destination project. Meaning all fields in the source instrument, must exist in the destination instrument. 
-    2. Add a field to move. You can choose to pipe a field, or manually set a value to move. (i.e set completion status to ‘2’)
+Or create an empty record
+
+![CreateEmptyRecord](imgs/createEmptyRecords.png)
+
+Data Movement Options:
+
+- Add an instrument to move. All fields in the chosen instrument must exist in the destination project, for the chosen event.
+- Add a field to move. You can choose to pipe a field, or manually set a value to move. (i.e set completion status to ‘2’)
     
-![Step5b](imgs/step5b.jpg)
+![AddField](imgs/addField.jpg)
 
-6. The module will allow up to ten triggers that each move their own data.
+6. (OPTIONAL) Determine whether the module will pull the url for a survey into your source project, and where to save it.
 
-![Step6](imgs/step6.jpg)
+![GenerateSurveyUrl](imgs/generateSurveyURLs.png)
 
 7. Determine whether you want blank fields to overwrite data in the destination project.
 
-![Step7](imgs/step7.jpg)
+![OverwriteData](imgs/overwriteData.jpg)
 
 8. Determine whether you want to import DAGs to the destination project. This will only work if the DAGs are identical between projects. 
 
-![Step8](imgs/step8.jpg)
+![ImportDAGs](imgs/importDAGs.jpg)
 
-9. Save your DET. If it passes validation, then it will automatically run every time data is entered via a survey or data entry. Otherwise errors will be returned to you for correction. The DET will not save until your errors are corrected.
+9. The module will allow up to 10 triggers that each move their own data.
 
-10. Once your DET is created, refresh the page, then you can export the settings as a JSON string.
+10. Save your DET. If it passes validation, then it will automatically run every time data is entered via a survey or data entry. Otherwise errors will be returned to you for correction. The DET will not save until your errors are corrected.
 
-![Step9](imgs/step9.JPG)
+11. Once your DET is created, refresh the page, then you can export the settings as a JSON string.
 
-11. The module logs all DET activity. It will log successes, warnings, and errors. You may check there whenever you want to check on the status of your DET.
+![ExportSettings](imgs/exportSettings.JPG)
+
+12. The module logs all DET errors. You may check there whenever you want to check on the status of your DET.
 
 # Warnings
 
-1. Any changes made to the REDCap project, after the DET has been created, has the potential to break it. After you’ve updated your project, please make sure to update the DET in accordance with your changes.
+- Any changes made to the REDCap project, after the DET has been created, has the potential to break it. After you’ve updated your project, please make sure to update the DET in accordance with your changes.
+- Functionality developed at BCCHR to export your settings to a word document has been disabled, as it has not been made compatible with the new JSON structure.
+- Module now logs to the external module logs, rather than a project's regular logs.
 
 # Limitations
 
-1. Is not compatible with repeatable instruments.
-2. Can only be used within the same instance of REDCap. 
-3. Can have a maximum of 10 triggers, with unlimited data to pipe.
-4. Is not compatible with mult-arm projects at the moment.
+- Is not compatible with repeatable instruments.
+- Can have a maximum of 10 triggers, with unlimited data to pipe.
