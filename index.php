@@ -439,7 +439,7 @@ if (!$settings)
                                     $source = htmlspecialchars($source, ENT_QUOTES);
 
                                     print "<tr class='trigger-field-row'><td>";
-                                    if (!empty($setDestFieldsValue))
+                                    if ($setDestFieldsValue !== "")
                                     {
                                         print "'" . $setDestFieldsValue . "'";
                                         print "<input class='setDestFieldsValues' type='hidden' name='triggers[$index][setDestFieldsValues][]' value='" . $setDestFieldsValue . "'></td><td>";
