@@ -1,8 +1,23 @@
 <?php
 
-$data_entry_trigger_builder = new BCCHR\DataEntryTriggerBuilder\DataEntryTriggerBuilder();
+namespace BCCHR\DETBuilder;
+require_once "DETBuilder.php";
+// $data_entry_trigger_builder = new BCCHR\DataEntryTriggerBuilder\DataEntryTriggerBuilder();
+$data_entry_trigger_builder = new DETBuilder();
 
+if (isset($_GET['pid']) && is_integer($_GET['pid'])) {  // set the source project in the det object
+
+    $source_pid = $_GET['pid'];
+
+} else {  // default to zero
+
+    $source_pid = 0;
+
+}  // end else
+
+$data_entry_trigger_builder->source_project = $source_pid;
 $settings = $_POST;
+//print "<!-- in submitform.php the settings are: " . print_r($settings, true) . "-->\n";
 
 $dest_project_pid = $settings["dest-project"];
 if (!empty($settings["linkSourceEvent"]) && !$data_entry_trigger_builder->isValidEvent($settings["linkSourceEvent"]))

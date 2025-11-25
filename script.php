@@ -1,8 +1,13 @@
 <?php
     $metadata = $data_entry_trigger_builder->retrieveProjectMetadata($module->getProjectId());
+    // $metadata = json_decode($data_entry_trigger_builder->retrieveProjectMetadata($module->getProjectId()), true);
+    //print "<!-- in script.php metadata is an array? " . is_array($metadata) . "-->";
+    //print "<!-- in script.php metadata is: " . print_r($metadata, true) . "-->";
     $instrument_names = REDCap::getInstrumentNames();
 ?>
 <script>
+    window.redcap_csrf_token = <?= json_encode($module->getCSRFToken()) ?>;
+    var sourceIsLongitudinal = <?= REDCap::isLongitudinal() ? 'true' : 'false' ?>;
     /** 
      * Code to populate the populate
      * the autocomplete fields for the 
@@ -17,11 +22,11 @@
             }
             ?>
         ]
-        $(".source-events-autocomplete" ).autocomplete({source: sourceEvents});
+        $(".source-events-autocomplete" ).autocomplete({source: sourceEvents, appendTo: "#add-instr-modal"});
     <?php else: ?>
         var sourceEvents = [];
     <?php endif;?>
-                
+
     var sourceFields = [
         <?php
         foreach ($metadata["fields"] as $field)
@@ -30,7 +35,7 @@
         }
         ?>
     ]
-    $(".source-fields-autocomplete").autocomplete({source: sourceFields});
+    $(".source-fields-autocomplete").autocomplete({source: sourceFields, appendTo: "#add-field-modal"});
 
     var sourceInstr = [
         <?php
@@ -40,7 +45,7 @@
         }
         ?>
     ]
-    $(".source-instr-autocomplete").autocomplete({source: sourceInstr});
+    $(".source-instr-autocomplete").autocomplete({source: sourceInstr, appendTo: "#add-instr-modal"});
 
     /**
      * When user goes to add a field or instrument
@@ -49,12 +54,12 @@
      * 
      */
     $("body").on("click", ".add-field-btn, .add-instr-btn", function () {
-        var id = $(this).siblings("table").attr("id");
+        var id = $(this).closest(".trigger-and-data-wrapper").find("table").attr("id");
         $(".table-id").val(id);
     });
 
     $("body").on("click", ".fa-pencil-alt", function () {
-        var id = $(this).parents("table").attr("id");
+        var id = $(this).closest("table").attr("id");
         $(".table-id").val(id);
     });
 
@@ -86,12 +91,14 @@
             $.ajax({
                 url: "<?php print $module->getUrl("getDestinationFields.php") ?>",
                 type: "POST",
+                dataType: "json",
                 data: {
-                    pid: $("#destination-project-select").val()
+                    pid: $("#destination-project-select").val(),
+                    redcap_csrf_token: window.redcap_csrf_token
                 },
                 success: function (data) {
                     updateAutocompleteItems(data);
-                    $(".dest-fields-autocomplete").autocomplete({source: destFields});
+                    $(".dest-fields-autocomplete").autocomplete({source: destFields, appendTo: "#add-field-modal"});
                 },
                 error: function (data, status, error) {
                     console.log("Returned with status " + status + " - " + error);
@@ -111,8 +118,9 @@
         $.ajax({
             url: "<?php print $module->getUrl("getDestinationFields.php") ?>",
             type: "POST",
+            dataType: "json",
             data: {
-                pid: $(this).val()
+                pid: $(this).val(),
             },
             success: function (data) {
                 updateAutocompleteItems(data);
@@ -132,13 +140,20 @@
      */
     $("#det-form").submit(function (event) {
         event.preventDefault();
+        if ($('input[name="redcap_csrf_token"]').length === 0) {
+            $('<input type="hidden" name="redcap_csrf_token">')
+            .val(window.redcap_csrf_token)
+            .appendTo('#det-form');
+        }
         $.ajax({
-            url: "<?php print $module->getUrl("SubmitForm.php") ?>",
+            url: "<?php print $module->getUrl("SubmitForm.php");?>",
             type: "POST",
+            dataType: "json",
             data: $("form").serialize(),
             success: function (data) {
-                var errors = JSON.parse(data);
-
+                // var errors = JSON.parse(data);  // JORDAN LOOK HERE
+                var errors = data;
+                
                 $(document).find('.error-msg').remove();
                 $(document).find(".error").removeClass("error");
 
@@ -239,7 +254,9 @@
     $('.fa-exchange-alt').click(function () {
         $('#source-select').toggle();
         $('#field-value').val("");
-        $('#source-input').toggle();
+        // $('#source-input').toggle();
+        $('#source-select').toggleClass('d-none');
+        $('#source-input').toggleClass('d-none');
         $('#field-select').val("");
         $('#event-select').val("");
     });

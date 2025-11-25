@@ -1,13 +1,15 @@
 <?php
 
-require_once "DataEntryTriggerBuilder.php";
-
+//require_once "DataEntryTriggerBuilder.php";
+require_once "DETBuilder.php";
+require_once "vendor/autoload.php";
 /**
  * Display REDCap header.
  */
 require_once APP_PATH_DOCROOT . 'ProjectGeneral/header.php';
 
-$data_entry_trigger_builder = new BCCHR\DataEntryTriggerBuilder\DataEntryTriggerBuilder();
+//$data_entry_trigger_builder = new BCCHR\DataEntryTriggerBuilder\DataEntryTriggerBuilder();
+$data_entry_trigger_builder = new BCCHR\DETBuilder\DETBuilder();
 if (!empty($_POST["json"])) {
     $posted_json = $_POST["json"];
     $settings = json_decode($posted_json, true);
@@ -23,13 +25,21 @@ if ($settings == null)
     $dest_fields = $data_entry_trigger_builder->retrieveProjectMetadata($settings["dest-project"]);
 }
 
+$data_entry_trigger_builder->loadFieldTypes();  // get field types from the fields listed in the settings
+
 $Proj = new Project();
 ?>
 <html>
     <head>
         <!-- boostrap-select css and js-->
+        <!--<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.18/dist/css/bootstrap-select.min.css">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.18/dist/js/bootstrap-select.min.js"></script>
+        -->
+        <!-- 
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.15/dist/css/bootstrap-select.min.css">
         <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.15/dist/js/bootstrap-select.min.js"></script>
+        -->
+
         <style>
             p {
                 max-width: 100%;
@@ -70,7 +80,18 @@ $Proj = new Project();
             textarea {
                 resize: vertical;
             }
+            #add-field-modal .ui-autocomplete,
+            #add-instr-modal .ui-autocomplete {
+                position: absolute;
+                z-index: 1000 !important; 
+            }
         </style>
+        <!-- Expose CSRF token to JS for Framework v8 POSTs -->
+        <script>
+        window.redcap_csrf_token = window.redcap_csrf_token
+            || (window.ExternalModules && ExternalModules.CSRF_TOKEN)
+            || <?= json_encode($data_entry_trigger_builder->getCSRFToken()); ?>;
+        </script>
         <script src="<?php print $module->getUrl("functions.js");?>" type="text/javascript"></script>
     </head>
     <body>
@@ -115,9 +136,13 @@ $Proj = new Project();
             <hr/>
             <?php endif;?>
             <form id="det-form" method="post">
+                <input type="hidden" name="redcap_csrf_token" value="<?php print $data_entry_trigger_builder->getCSRFToken();?>">
                 <h5>Select a Linked Project</h5>
-                <div class="form-group">
-                    <select name="dest-project" id="destination-project-select" class="form-control selectpicker" data-live-search="true" required>
+                <!-- PATCHED 2025-05-23 by Dan Evans. Bootstrap 5 change. <div class="form-group"> -->
+                    <!-- here you are. Search and edit form elements to make them bs5 -->
+                    <div class='mb-3'>
+                    <!-- PATCHED 2024-08-21 by Dan Evans. Same issue as CRSURC-569. <select name="dest-project" id="destination-project-select" class="form-control selectpicker" data-live-search="true" required> -->
+                    <select name="dest-project" id="destination-project-select" class="form-select" data-live-search="true" required>
                         <option value="" disabled <?php if (empty($settings)) { print "selected"; }?>>Select a project</option>
                         <?php
                             $projects = $data_entry_trigger_builder->getProjects();
@@ -171,7 +196,8 @@ $Proj = new Project();
                             <div class='class-sm-12' id="link-source-text"><label>To linked project field</label></div>
                             <div class='row'>
                                 <div class='col-sm-6 dest-event-wrapper' <?php if(empty($settings["linkDestEvent"])) {print "style='display:none'";} ?>>
-                                    <input id='linkDestEvent' class='dest-events-autocomplete form-control' name='linkDestEvent' placeholder="Type to search for event" value="<?php print htmlspecialchars($settings["linkDestEvent"], ENT_QUOTES); ?>" required>
+                                    <!-- removed required attribute from this input for troubleshooting <input id='linkDestEvent' class='dest-events-autocomplete form-control' name='linkDestEvent' placeholder="Type to search for event" value="<?php print htmlspecialchars($settings["linkDestEvent"], ENT_QUOTES); ?>" required> -->
+                                    <input id='linkDestEvent' class='dest-events-autocomplete form-control' name='linkDestEvent' placeholder="Type to search for event" value="<?php print htmlspecialchars($settings["linkDestEvent"], ENT_QUOTES); ?>">
                                 </div>
                                 <div id="link-source-wrapper" class='col-sm-6'>
                                     <input id='linkDest' class='dest-fields-autocomplete form-control' name='linkDest' placeholder="Type to search for field" value="<?php print htmlspecialchars($settings["linkDest"], ENT_QUOTES); ?>" required>
@@ -290,6 +316,8 @@ $Proj = new Project();
                                 {
                                     $pipingSourceEvent = htmlspecialchars($pipingSourceEvents[$i], ENT_QUOTES);
                                     $source = htmlspecialchars($source, ENT_QUOTES);
+                                    $pipingDestEvent = htmlspecialchars($pipingDestEvents[$i], ENT_QUOTES);
+                                    $dest = htmlspecialchars($pipingDestFields[$i], ENT_QUOTES);
 
                                     print "<tr class='trigger-field-row'><td>";
                                     if (!empty($pipingSourceEvent))
@@ -301,11 +329,15 @@ $Proj = new Project();
                                     print "<input class='pipingSourceFields' type='hidden' name='pipingSourceFields[$index][]' value='" . $source . "'></td><td>";
                                     if (!empty($pipingDestEvents[$i]))
                                     {
-                                        print "[" . $pipingSourceEvent . "]";
-                                        print "<input class='pipingDestEvents' type='hidden' name='pipingDestEvents[$index][]' value='" . $pipingSourceEvent . "'>";
+                                        //print "[" . $pipingSourceEvent . "]";
+                                        print "[" . $pipingDestEvent . "]";
+                                        // print "<input class='pipingDestEvents' type='hidden' name='pipingDestEvents[$index][]' value='" . $pipingSourceEvent . "'>";
+                                        print "<input class='pipingDestEvents' type='hidden' name='pipingDestEvents[$index][]' value='" . $pipingDestEvent . "'>";
                                     }
-                                    print "[" . $pipingSourceEvent . "]";
-                                    print "<input class='pipingDestFields' type='hidden' name='pipingDestFields[$index][]' value='" . $pipingSourceEvent . "'>";
+                                    print "[" . $dest . "]";
+                                    //print "<input class='pipingDestFields' type='hidden' name='pipingDestFields[$index][]' value='" . $pipingSourceEvent . "'>";
+// here you are. Fixed display issue of saved destination fields, still not working properly
+                                    print "<input class='pipingDestFields' type='hidden' name='pipingDestFields[$index][]' value='" . $dest . "'>";
                                     print "</td><td><span class='fa fa-pencil-alt' onclick='fillPipingFieldForm(this)'></span></td>";
                                     print "<td><span class='fa fa-trash-alt delete-trigger-field'></span></td>";
                                     print "</tr>";
@@ -314,7 +346,9 @@ $Proj = new Project();
                                 $setDestEvents = $settings["setDestEvents"][$index];
                                 $setDestFields = $settings["setDestFields"][$index];
                                 $setDestFieldsValues = $settings["setDestFieldsValues"][$index];
-
+                                // REDCap::logEvent("DET builder: [debug] dest events", print_r($setDestEvents,true), null, $record, null, $project_id);
+                                // REDCap::logEvent("DET builder: [debug] dest fields", print_r($setDestFields,true), null, $record, null, $project_id);
+                                // REDCap::logEvent("DET builder: [debug] dest field values", print_r($setDestFieldsValues,true), null, $record, null, $project_id);
                                 foreach($setDestFields as $i => $source)
                                 {
                                     $setDestFieldsValue = htmlspecialchars($setDestFieldsValues[$i], ENT_QUOTES);
@@ -339,13 +373,16 @@ $Proj = new Project();
                                     print "</tr>";
                                 }
 
-                                $sourceInstr = $settings["sourceInstr"][$index];
+                                // $sourceInstr = $settings["sourceInstr"][$index];
+                                // $sourceInstrEvents = $settings["sourceInstrEvents"][$index];
+                                $sourceInstr       = $settings["sourceInstr"][$index];
                                 $sourceInstrEvents = $settings["sourceInstrEvents"][$index];
-
+                                $instrDestEvents   = isset($settings["instrDestEvents"][$index]) ? $settings["instrDestEvents"][$index] : [];
                                 foreach($sourceInstr as $i => $source)
                                 {
                                     $sourceInstrEvent = htmlspecialchars($sourceInstrEvents[$i], ENT_QUOTES);
-                                    $source = htmlspecialchars($source, ENT_QUOTES);
+                                    $source           = htmlspecialchars($source, ENT_QUOTES);
+                                    $instrDestEvent   = !empty($instrDestEvents[$i]) ? htmlspecialchars($instrDestEvents[$i], ENT_QUOTES) : '';
 
                                     print "<tr class='trigger-field-row'><td>";
                                     if (!empty($sourceInstrEvent))
@@ -354,9 +391,13 @@ $Proj = new Project();
                                         print "<input class='sourceInstrEvents' type='hidden' name='sourceInstrEvents[$index][]' value='" . $sourceInstrEvent . "'>";
                                     }
                                     print "[" . $source . "]";
-                                    print "<input class='sourceInstr' type='hidden' name='sourceInstr[$index][]' value='" . $source . "'></td><td>";
-                                    if (!empty($sourceInstrEvent))
-                                    {
+                                    print "<input class='sourceInstr' type='hidden' name='sourceInstr[$index][]' value='" . $source . "'>";
+                                    print "</td><td>";
+                                    // Use per-row dest event if present; otherwise mirror source event
+                                    if (!empty($instrDestEvent)) {
+                                        print "[" . $instrDestEvent . "]";
+                                        print "<input class='instrDestEvents' type='hidden' name='instrDestEvents[$index][]' value='" . $instrDestEvent . "'>";
+                                    } elseif (!empty($sourceInstrEvent)) {
                                         print "[" . $sourceInstrEvent . "]";
                                     }
                                     print "[" . $source . "]";
@@ -417,17 +458,26 @@ $Proj = new Project();
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5>Add Field</h5>
-                            <button type="button" class="close close-modal-btn" data-dismiss="modal" aria-label="Close">
+                            <!-- replace with bs5 
+                            <button type="button" class="close close-modal-btn" data-dismiss="modal" aria-label="Close"> 
                             <span aria-hidden="true">&times;</span>
                             </button>
+                            -->
+                            <button type="button" class="btn-close close-modal-btn" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
                             <input class="table-id" type="hidden">
                             <div class='row'>
                                 <div class="col-sm-4"><label>Copy from source</label></div>
-                                <div class="col-sm-1"><button style="border:none; background-color: transparent" title="Switch to enter custom value, or select field" class="fas fa-exchange-alt"></button></div>
-                            </div>
-                            <div id="source-input" class="row ui-front" style="display:none">
+                                    <div class="col-sm-1">
+                                        <!-- bs5 edit <button style="border:none; background-color: transparent" title="Switch to enter custom value, or select field" class="fas fa-exchange-alt"></button> -->
+                                        <button type="button" class="btn p-0" title="Switch to enter custom value, or select field">
+                                        <i class="fas fa-exchange-alt"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            <!-- bs5 update<div id="source-input" class="row ui-front" style="display:none"> -->
+                                <div id="source-input" class="row ui-front d-none">
                                 <div class="col-sm-6">
                                     <input id="field-value" class='form-control' placeholder="Type the value to tranfer">
                                 </div>
@@ -435,7 +485,8 @@ $Proj = new Project();
                             <div id="source-select" class="row">
                                 <?php if (REDCap::isLongitudinal()): ?>
                                 <div class='col-sm-6 ui-front'>
-                                    <input id="event-select" class="source-events-autocomplete form-control" placeholder="Type to search for event">
+                                <input class="source-events-autocomplete form-control" id="event-select" placeholder="Type to search for event">
+                                    <!-- bs5 upgrade <input id="event-select" class="source-events-autocomplete form-control" placeholder="Type to search for event"> -->
                                 </div>
                                 <?php endif;?>
                                 <div class='col-sm-6 ui-front'>
@@ -479,11 +530,18 @@ $Proj = new Project();
                             <div class="row">
                                 <?php if (REDCap::isLongitudinal()): ?>
                                 <div class='col-sm-6 ui-front'>
-                                    <input class='source-events-autocomplete form-control' id="instr-event-select" placeholder="Type to search for event">
+                                    <input class='source-events-autocomplete form-control' id="instr-event-select" placeholder="Type to search for Source event">
                                 </div>
                                 <?php endif;?>
                                 <div class='col-sm-6 ui-front'>
                                     <input class='source-instr-autocomplete form-control' id="instr-select" placeholder="Type to search for instrument">
+                                </div>
+                            </div>
+                            <!-- Destination event (only used when destination is longitudinal) -->
+                            <div class="row" style="margin-top:20px">
+                                <div class="col-sm-6 ui-front instr-dest-event-wrapper" style="display:none">
+                                    <input class="dest-events-autocomplete form-control" id="instr-dest-event-select"
+                                        placeholder="Type to search for Destination event">
                                 </div>
                             </div>
                         </div>
@@ -558,3 +616,4 @@ require_once "script.php";
  * Display REDCap footer.
  */
 require_once APP_PATH_DOCROOT . 'ProjectGeneral/footer.php';
+?>

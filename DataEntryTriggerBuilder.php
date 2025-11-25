@@ -19,8 +19,104 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
      * @param String $replacement   The replacement text.
      * @return String A string with the replaced text.
      */
-    private function replaceStrings($text, $replacement)
-    {
+
+    public $source_project = 0;
+    public $dest_project = 0;
+    public $source_field_types = array();
+    public $dest_field_types = array();
+    public $create_record_trigger = '';
+    public $link_source = 0;
+    public $link_source_event = '';
+    public $link_dest_event = '';
+    public $link_dest_field = '';
+    public $triggers = array();
+    public $piping_source_events = array();
+    public $piping_dest_events = array();
+    public $piping_source_fields = array();
+    public $piping_dest_fields = array();
+    public $set_dest_events = array();
+    public $set_dest_fields = array();
+    public $set_dest_fields_values = array();
+    public $source_instruments_events = array();
+    public $source_instruments = array();
+    public $overwrite_data = '';
+    public $import_dags = '';
+    public $record_data = '';
+
+    private function loadDETSettings() {
+        /*
+        ** loads the DET settings from the provided source
+        */
+        // Get DET settings
+        
+        $settings = json_decode($this->getProjectSetting("det_settings", $source_project), true);
+        REDCap::logEvent("DET Builder: [debug] det_settings read in loadDETSettings()", print_r($settings, true), null, $record, null, $project_id);
+        $dest_project = $settings["dest-project"];
+        $create_record_trigger = $settings["create-record-cond"];
+
+        $link_source_event = $settings["linkSourceEvent"];
+        $link_source = $settings["linkSource"];
+
+        $link_dest_event = $settings["linkDestEvent"];
+        $link_dest_field = $settings["linkDest"];
+
+        $triggers = $settings["triggers"];
+
+        $piping_source_events = $settings["pipingSourceEvents"];
+        REDCap::logEvent("DET Builder: [debug] source events", print_r($piping_source_events, true), null, $record, null, $project_id);
+        $piping_dest_events = $settings["pipingDestEvents"];
+
+        $piping_source_fields = $settings["pipingSourceFields"];
+        REDCap::logEvent("DET Builder: [debug] source fields", print_r($piping_source_fields, true), null, $record, null, $project_id);
+        $piping_dest_fields = $settings["pipingDestFields"];
+
+        $set_dest_events = $settings["setDestEvents"];
+        $set_dest_fields = $settings["setDestFields"];
+        $set_dest_fields_values = $settings["setDestFieldsValues"];
+
+        $source_instruments_events = $settings["sourceInstrEvents"];
+        $source_instruments = $settings["sourceInstr"];
+
+        $overwrite_data = $settings["overwrite-data"];
+        $import_dags = $settings["import-dags"];
+    
+    }  // end loadDETSettings()
+
+    public function loadFieldTypes() {
+        /*
+        ** parses the data dictionaries for the two projects and stores them. Stores field name, field_type
+        */
+        REDCap::logEvent("[debug] in detbuilder->loadFieldTypes", null, null, $record, null, $project_id);
+        $sdd = REDCap::getDataDictionary($source_project, 'json');
+        $source_dd = json_decode($sdd, true);
+
+        foreach ($source_dd as $one_source_dd_field) {  // load source project field types
+
+            $one_field = array();
+            $one_field['field_name'] = $one_source_dd_field['field_name'];
+            $one_field['field_type'] = $one_source_dd_field['field_type'];
+            array_push($this->source_field_types, $one_field);
+
+        }  // end foreach
+
+        $ddd = REDCap::getDataDictionary($dest_project, 'json');
+        $dest_dd = json_decode($sdd, true);
+
+        foreach ($dest_dd as $one_dest_dd_field) {  // load dest project field types
+
+            $one_field = array();
+            $one_field['field_name'] = $one_dest_dd_field['field_name'];
+            $one_field['field_type'] = $one_dest_dd_field['field_type'];
+            array_push($this->dest_field_types, $one_field);
+
+        }  // end foreach
+
+        REDCap::logEvent("DET Builder: [debug] field types", "source: " . print_r($source_field_types, true) . "<br />Dest: " . print_r($dest_field_types, true), null, $record, null, $project_id);
+
+    }  // end loadFieldTypes()
+    
+    private function replaceStrings($text, $replacement) {
+
         preg_match_all("/'/", $text, $quotes, PREG_OFFSET_CAPTURE);
         $quotes = $quotes[0];
         if (sizeof($quotes) % 2 === 0)
@@ -349,20 +445,22 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
      * 
      * @return Array    An array of rows pulled from the database, each containing a project's information.
      */
-    public function getProjects()
-    {
+    public function getProjects() {
+
         $query = $this->framework->createQuery();
         $query->add("select project_id, app_title from redcap_projects", []);
 
-        if ($query_result = $query->execute())
-        {
-            while($row = $query_result->fetch_assoc())
-            {
+        if ($query_result = $query->execute()) {
+
+            while($row = $query_result->fetch_assoc()) {
+
                 $projects[] = $row;
             }
         }
+
         return $projects;
-    }
+
+    }  // end getProjects()
 
     /**
      * Retrieves a project's fields
@@ -370,10 +468,10 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
      * @param String $pid   A project's id in REDCap.
      * @return String       A JSON encoded string that contains all the instruments and fields for a project. 
      */
-    public function retrieveProjectMetadata($pid)
-    {
-        if (!empty($pid))
-        {
+    public function retrieveProjectMetadata($pid) {
+
+        if (!empty($pid)) {
+
             $metadata = REDCap::getDataDictionary($pid, "array");
             $instruments = array_unique(array_column($metadata, "form_name"));
             $Proj = new Project($pid);
@@ -384,124 +482,153 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
              * 
              * NOTE: For calculation fields only the raw data can be imported/exported.
              */
-            foreach($metadata as $field_name => $data)
-            {
-                if ($data["field_type"] != "descriptive" && $data["field_type"] != "calc")
-                {
+            foreach($metadata as $field_name => $data) {
+
+                if ($data["field_type"] != "descriptive" && $data["field_type"] != "calc") {
+
                     $fields[] = $field_name;
+
                 }
-            }
+
+            }  // end foreach
 
             /**
              * Add form completion status fields to push
              */
-            foreach($instruments as $instrument)
-            {
+            foreach($instruments as $instrument) {
+
                 $fields[] = $instrument . "_complete";
+
             }
 
             return ["fields" => $fields, "events" => $events, "isLongitudinal" => $isLongitudinal];
-        }
+
+        }  // end if
+
         return FALSE;
-    }
+
+    }  // end retrieveProjectMetadata()
 
     /**
      * REDCap hook is called immediately after a record is saved. Will retrieve the DET settings,
      * & import data according to DET.
      */
-    public function redcap_save_record($project_id, $record, $instrument, $event_id, $group_id, $survey_hash, $response_id, $repeat_instance)
-    {
-        if ($project_id == $this->getProjectId())
-        {
+    public function redcap_save_record($project_id, $record, $instrument, $event_id, $group_id, $survey_hash, $response_id, $repeat_instance) {
+
+        if ($project_id == $this->getProjectId()) {
             // Get DET settings
-            $settings = json_decode($this->getProjectSetting("det_settings"), true);
-            
+            $this->loadDETSettings();
+            REDCap::logEvent("DET Builder: [debug] det_settings read from loadDETSettings", print_r($settings, true), null, $record, null, $project_id);
+            //$settings = json_decode($this->getProjectSetting("det_settings"), true);
+            //REDCap::logEvent("DET Builder: [debug] det_settings read from getProjectSetting", print_r($settings, true), null, $record, null, $project_id);
+
+            /*
             $dest_project = $settings["dest-project"];
             $create_record_trigger = $settings["create-record-cond"];
-
             $link_source_event = $settings["linkSourceEvent"];
             $link_source = $settings["linkSource"];
-
             $link_dest_event = $settings["linkDestEvent"];
             $link_dest_field = $settings["linkDest"];
-
             $triggers = $settings["triggers"];
-
             $piping_source_events = $settings["pipingSourceEvents"];
             $piping_dest_events = $settings["pipingDestEvents"];
-
             $piping_source_fields = $settings["pipingSourceFields"];
             $piping_dest_fields = $settings["pipingDestFields"];
-
             $set_dest_events = $settings["setDestEvents"];
             $set_dest_fields = $settings["setDestFields"];
             $set_dest_fields_values = $settings["setDestFieldsValues"];
-
             $source_instruments_events = $settings["sourceInstrEvents"];
             $source_instruments = $settings["sourceInstr"];
-
             $overwrite_data = $settings["overwrite-data"];
             $import_dags = $settings["import-dags"];
-            
+            */
+            REDCap::logEvent("DET Builder: [debug] source events", print_r($piping_source_events, true), null, $record, null, $project_id);
+            REDCap::logEvent("DET Builder: [debug] source fields", print_r($piping_source_fields, true), null, $record, null, $project_id);
             // Get current record data
             $record_data = json_decode(REDCap::getData("json", $record, null, null, null, false, $import_dags), true);
+
+            // REDCap::logEvent("DET Builder: [debug] source data", print_r($record_data, true), null, $record, null, $project_id);
 
             /**
              * Process each trigger, and, if true, prepare associated data to move.
              */
-            foreach($triggers as $index => $trigger)
-            {
+
+            REDCap::logEvent("DET Builder: [debug] triggers variable content: ", print_r($triggers, true), null, $record, null, $project_id);
+
+            foreach($triggers as $index => $trigger) {
+
                 $valid = REDCap::evaluateLogic($trigger, $project_id, $record); // REDCap class method to evaluate conditional logic.
-                if ($valid === null) // Null returned if logic is invalid. Else a boolean value.
-                {
+                REDCap::logEvent("DET Builder: [debug] parsing trigger id and text with validity", $index . " -> " . $trigger . " = " . $valid, null, $record, null, $project_id);
+                
+                if ($valid === null) {  // Null returned if logic is invalid. Else a boolean value.
+
                     REDCap::logEvent("DET: Trigger was either syntactically incorrect, or parameters were invalid (e.g., record or event does not exist). No data moved.", "Trigger: $trigger", null, $record, $event_id, $project_id);
-                }
-                else if ($valid)
-                {
+
+                } else if ($valid) {
+
                     $trigger_source_fields = $piping_source_fields[$index];
                     $trigger_source_events = $piping_source_events[$index];
-
                     $trigger_dest_fields = $piping_dest_fields[$index];
                     $trigger_dest_events = $piping_dest_events[$index];
-
+                    REDCap::logEvent("DET Builder: [debug] dest fields", print_r($piping_dest_fields, true), null, $record, null, $project_id);
+                    REDCap::logEvent("DET Builder: [debug] dest events", print_r($piping_dest_events, true), null, $record, null, $project_id);
+                    REDCap::logEvent("DET Builder: [debug] source event text:", print_r($trigger_source_events, true), null, $record, null, $project_id);
+                    REDCap::logEvent("DET Builder: [debug] source events empty?", empty($trigger_source_events), null, $record, null, $project_id);
+                    REDCap::logEvent("DET Builder: [debug] dest events empty?", empty($trigger_dest_events), null, $record, null, $project_id);
+                    REDCap::logEvent("DET Builder: [debug] trigger source events", print_r($trigger_source_events, true), null, $record, null, $project_id);
+                    REDCap::logEvent("DET Builder: [debug] trigger dest events", print_r($trigger_dest_events, true), null, $record, null, $project_id);
+                    REDCap::logEvent("DET Builder: [debug] trigger dest fields", print_r($trigger_dest_fields, true), null, $record, null, $project_id);
+                    
                     /**
                      * Move field data from source to destination
                      */
-                    foreach($trigger_dest_fields as $i => $dest_field)
-                    {
-                        if (!empty($trigger_source_events[$i]))
-                        {
+                    
+                    foreach($trigger_dest_fields as $i => $dest_field) {
+
+                        REDCap::logEvent("DET Builder: [debug] moving fields object", "$i => $dest_field", null, $record, null, $project_id);
+                        
+                        if (!empty($trigger_source_events[$i])) {
+
                             $source_event = $trigger_source_events[$i];
                             $key = array_search($source_event, array_column($record_data, "redcap_event_name"));
                             $data = $record_data[$key];
-                        }
-                        else
-                        {
+                            REDCap::logEvent("DET Builder: [debug] trigger source event and data", $source_event . " = " . $data, null, $record, null, $project_id);
+                        
+                        } else {
                             $data = $record_data[0]; // Takes data from first event
-                        }
-
-                        if (!empty($trigger_dest_events[$i]))
-                        {
-                            $dest_event = $trigger_dest_events[$i];
-                        }
-                        else
-                        {
-                            $dest_event = "event_1_arm_1"; // Assume classic project and use event_1_arm_1
+                            REDCap::logEvent("DET Builder: [debug] no defined trigger source event", null, null, $record, null, $project_id);
                         }
                         
-                        if (empty($dest_record_data[$dest_event])) // Create entry for event if it doesn't already exist.
-                        {
-                            $event_data = ["redcap_event_name" => $dest_event];
+                        // REDCap::logEvent("DET Builder: [debug] data from source project to save", print_r($data, true), null, $record, null, $project_id);
+                        
+                        if (!empty($trigger_dest_events[$i])) {
+                        
+                            $dest_event = $trigger_dest_events[$i];
+                        
+                        } else {
+                        
+                            //$dest_event = "event_1_arm_1"; // Assume classic project and use event_1_arm_1
+                            $dest_event = ""; // Assume classic project and use event_1_arm_1
                         }
-                        else
-                        {
+                        
+                        REDCap::logEvent("DET Builder: [debug] dest_record_data value 2",print_r($dest_record_data, true), null, $record, null, $project_id);
+                        
+                        if (empty($dest_record_data[$dest_event])) {  // Create entry for event if it doesn't already exist.
+
+                            $event_data = ["redcap_event_name" => $dest_event];
+                        
+                        } else {
+                        
                             $event_data = $dest_record_data[$dest_event];
+                            REDCap::logEvent("DET Builder: [debug] event data set", $dest_event, null, $record, null, $project_id);
                         }
 
                         $source_field = $trigger_source_fields[$i];
                         $event_data[$dest_field] = $data[$source_field];
+                        REDCap::logEvent("DET Builder: [debug] just set event_data $dest_field to be:", $data[$source_field], null, $record, null, $project_id);
                         $dest_record_data[$dest_event] = $event_data;
-                    }
+
+                    }  // end foreach
 
                     /**
                      * Set destination fields as custom value
@@ -509,24 +636,20 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                     $trigger_dest_fields = $set_dest_fields[$index];
                     $trigger_dest_values = $set_dest_fields_values[$index];
                     $trigger_dest_events = $set_dest_events[$index];
+                    REDCap::logEvent("DET Builder: [debug] trigger dest events set", $set_dest_events[$index], null, $record, null, $project_id);
 
-                    foreach($trigger_dest_fields as $i => $dest_field)
-                    {
-                        if (!empty($trigger_dest_events[$i]))
-                        {
+                    foreach($trigger_dest_fields as $i => $dest_field) {
+
+                        if (!empty($trigger_dest_events[$i])) {
+
                             $dest_event = $trigger_dest_events[$i];
-                        }
-                        else
-                        {
+                        } else {
                             $dest_event = "event_1_arm_1";
                         }
 
-                        if (empty($dest_record_data[$dest_event]))
-                        {
+                        if (empty($dest_record_data[$dest_event])) {
                             $event_data = ["redcap_event_name" => $dest_event];
-                        }
-                        else
-                        {
+                        } else {
                             $event_data = $dest_record_data[$dest_event];
                         }
 
@@ -540,8 +663,10 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                     $trigger_source_instruments = $source_instruments[$index];
                     $trigger_source_instruments_events = $source_instruments_events[$index];
 
-                    foreach($trigger_source_instruments as $i => $source_instrument)
-                    {
+                    foreach($trigger_source_instruments as $i => $source_instrument) {
+
+
+                        REDCap::logEvent("DET Builder: [debug] source instrument data", $i . "->" . $source_instrument, null, $record, null, $project_id);
                         if (!empty($trigger_source_instruments_events[$i]))
                         {
                             $event = $trigger_source_instruments_events[$i];
@@ -550,7 +675,6 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                         {
                             $event = "event_1_arm_1";
                         }
-
                         if (empty($dest_record_data[$event]))
                         {
                             $event_data = ["redcap_event_name" => $event];
@@ -564,14 +688,16 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                         $source_instrument_fields = REDCap::getFieldNames($source_instrument);
                         $source_instrument_data = json_decode(REDCap::getData("json", $record, $source_instrument_fields, $event), true);
 
-                        if (sizeof($source_instrument_data) > 0)
-                        {
+                        if (sizeof($source_instrument_data) > 0) {
+
                             $event_data = $event_data + $source_instrument_data[0];
                             $dest_record_data[$event] = $event_data;
                         }
                     }
                 }
             }
+
+            REDCap::logEvent("DET Builder: [debug] dest_record_data value 1:", print_r($dest_record_data, true), null, $record, null, $project_id);
 
             if (!empty($dest_record_data)) {
                 // Check if the linking id field is the same as the record id field.
@@ -602,7 +728,8 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                     }	
                     else	
                     {	
-                        $dest_record_data["event_1_arm_1"][$link_dest_field] = $link_dest_value;	
+                        //$dest_record_data["event_1_arm_1"][$link_dest_field] = $link_dest_value;	
+                        $dest_record_data[""][$link_dest_field] = $link_dest_value;
                     }
 
                     // Retrieve record id. Exit is there is no value for the linking field, as it should be filled and never change.
@@ -616,6 +743,8 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                         $filter_logic = "[$link_dest_field] = '$link_dest_value'";
                         $existing_record = REDCap::getData($dest_project, "json", null, $dest_record_id, $link_dest_event, null, false, false, false, $filter_logic);
                         $existing_record = json_decode($existing_record, true);
+
+                        // REDCap::logEvent("DET Builder: [debug] existing destination data", print_r($existing_record, true), null, $record, null, $project_id);
 
                         if (sizeof($existing_record) == 0)
                         {
@@ -633,39 +762,41 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                 }
                 
                 // Set record_id, and redcap_data_access_group if $import_dags is true
-                foreach ($dest_record_data as $i => $data)
-                {
+                foreach ($dest_record_data as $i => $data) {
+
                     $dest_record_data[$i][$dest_record_id] = $dest_record;
-                    if ($import_dags)
-                    {
+                    if ($import_dags) {
+
                         $dest_record_data[$i]["redcap_data_access_group"] = $record_data[0]["redcap_data_access_group"];
                     }
                 }
 
                 $dest_record_data = array_values($dest_record_data); // Don't need the keys to push, only the values.
             }
-            
-            if (!empty($dest_record_data))
-            {
+
+            if (!empty($dest_record_data)) {
                 // Save DET data in destination project;
+
+                // REDCap::logEvent("DET Builder: [debug] data being saved", print_r($dest_record_data, true), null, $record, null, $project_id);
                 $save_response = REDCap::saveData($dest_project, "json", json_encode($dest_record_data), $overwrite_data);
 
-                if (!empty($save_response["errors"]))
-                {
+                if (!empty($save_response["errors"])) {
+
                     REDCap::logEvent("DET: Errors", json_encode($save_response["errors"]), null, $record, $event_id, $project_id);
-                }
-                else
-                {
+
+                } else {
+
                     REDCap::logEvent("DET: Ran successfully", "Data was successfully imported from project $project_id to project $dest_project", null, $record, $event_id, $project_id);
+
                 }
 
-                if (!empty($save_response["warnings"]))
-                {
+                if (!empty($save_response["warnings"])) {
+                
                     REDCap::logEvent("DET: Ran sucessfully with Warnings", json_encode($save_response["warnings"]), null, $record, $event_id, $project_id);
                 }
 
-                if (!empty($save_response["ids"]))
-                {
+                if (!empty($save_response["ids"])) {
+                
                     REDCap::logEvent("DET: Modified/Saved the following records", json_encode($save_response["ids"]), null, null, null, $dest_project);
                 }
             }
@@ -675,8 +806,8 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
     /**
      * Function to create and download release notes from settings in the DET Builder.
      */
-    public function downloadReleaseNotes($settings) 
-    {
+    public function downloadReleaseNotes($settings) {
+
         $sourceProjectTitle = REDCap::getProjectTitle();
 
         $query = $this->framework->createQuery();
@@ -1088,7 +1219,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
         $section->addTextBreak();
         $section->addTitle("Support Information", 1);
         $section->addLine($lineStyle);
-        $section->addText("If you have any questions about this document or about the project, please contact at redcap@cfri.ca.", "generalFontStyle");
+        $section->addText("If you have any questions about this document or about the project, please contact at redcap@bcchr.ca", "generalFontStyle");
 
         // Saving the document as OOXML file...
         $filename = $this->getSystemSetting("temp-folder") . "/release_notes.docx";
@@ -1116,10 +1247,13 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
      */
     public function redcap_module_link_check_display($project_id, $link)
     {
-        if (SUPER_USER)
-        {
+        // if (SUPER_USER) line modified by Dan Evans, 2022-12-13 to make compatible with PHPv8.1
+        if (defined("SUPER_USER") && SUPER_USER) {
+        
             return $link;
+        
         }
+
         return null;
     }
 }

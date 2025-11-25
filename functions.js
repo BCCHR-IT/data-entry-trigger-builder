@@ -1,6 +1,7 @@
 var row = null;
 var destFields = [];
 var destEvents = [];
+var destIsLongitudinal = false;
 
 function createFieldRow()
 {
@@ -55,20 +56,49 @@ function createInstrRow()
     var index = id.substring(id.length - 1, id.length);
     var sourceEvent = '';
     var sourceEventElem = '';
-
-    if ($('#instr-event-select').val() && $('#instr-event-select').val() != '') {
-        var sourceEvent = '[' + $('#instr-event-select').val() + ']';
-        var sourceEventElem = "<input class='sourceInstrEvents' type='hidden' name='sourceInstrEvents[" + index + "][]' value='" + $('#instr-event-select').val() + "'/>";
+    if ($('#instr-event-select').val() && $('#instr-event-select').val() !== '') {
+        sourceEvent = '[' + $('#instr-event-select').val() + ']';
+        sourceEventElem =
+            "<input class='sourceInstrEvents' type='hidden' " +
+            "name='sourceInstrEvents[" + index + "][]' " +
+            "value='" + $('#instr-event-select').val() + "'/>";
     }
-    var sourceInstr = '[' + $('#instr-select').val() + ']';
-    var sourceInstrElem = "<input class='sourceInstr' type='hidden' name='sourceInstr[" + index + "][]' value='" + $('#instr-select').val() + "'/>";
 
+    var instrName = $('#instr-select').val();
+    var sourceInstr = '[' + instrName + ']';
+    var sourceInstrElem =
+        "<input class='sourceInstr' type='hidden' " +
+        "name='sourceInstr[" + index + "][]' " +
+        "value='" + instrName + "'/>";
+
+    var destEvent = '';
+    var destEventElem = '';
+    if ($('#instr-dest-event-select').length &&
+        $('#instr-dest-event-select').val() &&
+        $('#instr-dest-event-select').val() !== '') {
+
+        destEvent = '[' + $('#instr-dest-event-select').val() + ']';
+        destEventElem =
+            "<input class='instrDestEvents' type='hidden' " +
+            "name='instrDestEvents[" + index + "][]' " +
+            "value='" + $('#instr-dest-event-select').val() + "'/>";
+    }
+
+    // Display:
+    //   From: [source_event][instrument]
+    //   To:   [dest_event?][instrument]
     var html = "<tr class='trigger-field-row'>" +
-                    "<td>" + sourceEvent + sourceInstr + sourceEventElem + sourceInstrElem + "</td>" +
-                    "<td>" + sourceEvent + sourceInstr + "</td>" +
-                    "</td><td><span class='fa fa-pencil-alt' onclick='fillInstrForm(this)'></span></td>" +
-                    "<td><span class='fa fa-trash-alt delete-trigger-field'></span></td>" + 
-                "</tr>"
+        "<td>" +
+            sourceEvent + sourceInstr +
+            sourceEventElem + sourceInstrElem +
+        "</td>" +
+        "<td>" +
+            destEvent + '[' + instrName + ']' +
+            destEventElem +
+        "</td>" +
+        "<td><span class='fa fa-pencil-alt' onclick='fillInstrForm(this)'></span></td>" +
+        "<td><span class='fa fa-trash-alt delete-trigger-field'></span></td>" +
+        "</tr>";
 
     return html;
 }
@@ -127,8 +157,8 @@ function addTrigger()
                 "<p>" +
                     "Copy the following instruments/fields from source project to linked project when the above condition is true:" + 
                 "</p>" +
-                "<button type='button' data-toggle='modal' data-target='#add-field-modal' class='btn btn-primary btn-xs add-field-btn'>Add Field</button> " + 
-                "<button type='button' data-toggle='modal' data-target='#add-instr-modal' class='btn btn-primary btn-xs add-instr-btn'>Add Instrument</button>" +
+                "<button type='button' data-toggle='modal' data-target='#add-field-modal' data-bs-toggle='modal' data-bs-target='#add-field-modal' class='btn btn-primary btn-xs add-field-btn'>Add Field</button> " + 
+                "<button type='button' data-toggle='modal' data-target='#add-instr-modal' data-bs-toggle='modal' data-bs-target='#add-instr-modal' class='btn btn-primary btn-xs add-instr-btn'>Add Instrument</button>" +
                 "<br/><br/>" + 
                 "<table class='table' id='table-" + trigNum + "'>" +
                     "<thead>" + 
@@ -170,6 +200,7 @@ function clearFieldForm()
 function clearInstrForm()
 {
     $('#instr-event-select').val("");
+    $('#instr-dest-event-select').val("");
     $('#instr-select').val("");
 }
 
@@ -182,12 +213,12 @@ function fillPipingFieldForm(elem)
     $('#field-select').val(row.find(".pipingSourceFields").val());
     $('#dest-field-select').val(row.find(".pipingDestFields").val());
     
-    if (row.find(".pipingSourceEvents"))
+    if (row.find(".pipingSourceEvents").length)
     {
         $('#event-select').val(row.find(".pipingSourceEvents").val());
     }
 
-    if (row.find(".pipingDestEvents"))
+    if (row.find(".pipingDestEvents").length)
     {
         $('#dest-event-select').val(row.find(".pipingDestEvents").val());
     }
@@ -205,7 +236,7 @@ function fillFieldForm(elem)
     $('#field-value').val(row.find(".setDestFieldsValues").val());
     $('#dest-field-select').val(row.find(".setDestFields").val());
 
-    if (row.find(".setDestEvents"))
+    if (row.find(".setDestEvents").length)
     {
         $('#dest-event-select').val(row.find(".setDestEvents").val());
     }
@@ -216,13 +247,23 @@ function fillFieldForm(elem)
 
 function fillInstrForm(elem)
 {
-    row = $(elem).parent("td").parent("tr");
-    
-    $('#instr-select').val(row.find(".sourceInstr").val());
+    row = $(elem).closest("tr");
 
-    if (row.find(".sourceInstrEvents"))
-    {
-        $('#instr-event-select').val(row.find(".sourceInstrEvents").val()); 
+    // Instrument name
+    $('#instr-select').val(row.find(".sourceInstr").val() || '');
+
+    // Source event (if any)
+    if (row.find(".sourceInstrEvents").length) {
+        $('#instr-event-select').val(row.find(".sourceInstrEvents").val());
+    } else {
+        $('#instr-event-select').val('');
+    }
+
+    // DEST event
+    if (row.find(".instrDestEvents").length) {
+        $('#instr-dest-event-select').val(row.find(".instrDestEvents").val());
+    } else {
+        $('#instr-dest-event-select').val('');
     }
 
     $('#add-instr-btn').text("Update");
@@ -253,22 +294,27 @@ function validateInstrumentForm()
 
 function updateAutocompleteItems(data)
 {
-    var metadata = JSON.parse(data);
-    destFields = metadata.fields;
-    destEvents = metadata.events;
-    var isLongitudinal = metadata.isLongitudinal;
+    destFields = data.fields || [];
+    destEvents = data.events || [];
 
-    if (isLongitudinal) {
-        $(".dest-events-autocomplete").autocomplete({source: destEvents});
-        $(".dest-events-autocomplete").prop("required", true);
+    destIsLongitudinal = data.isLongitudinal === true;
+
+    $(".dest-fields-autocomplete").autocomplete({
+        source: destFields,
+    });
+
+    if (destIsLongitudinal) {
+        $(".dest-events-autocomplete").autocomplete({
+            source: destEvents,
+        });
         $(".dest-event-wrapper").show();
-    }
-    else {
+        $(".instr-dest-event-wrapper").show();
+    } else {
+        // Classic destination: clear/hide event-specific inputs
         $(".dest-events-autocomplete").val("");
-        $(".dest-events-autocomplete").prop("required", false);
         $(".dest-event-wrapper").hide();
+        $(".instr-dest-event-wrapper").hide();
     }
-    $(".dest-fields-autocomplete").autocomplete({source: destFields});
 }
 
 function addError(id, error)
