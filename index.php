@@ -156,7 +156,7 @@ if (!$settings)
             <?php endif;?>
             <form id="det-form" method="post" data-source-is-longitudinal="<?php REDCap::isLongitudinal() ? print "yes" : print "no"; ?>">
                 <div id="main-form">
-                    <h5>Triggers (Max. 10)</h5>
+                    <h5>Triggers (Max. 20)</h5>
                     <div id="trigger-instr" style="margin-bottom:20px">
                         <label>Push data from a source project to a linked project, when the following conditions are met:</label>
                         <ul>

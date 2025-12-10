@@ -300,7 +300,7 @@ function addTrigger()
         $(".destination-project-select").selectpicker();
 
     }
-    else if (triggers.length < 10)
+    else if (triggers.length < 20)
     {
         triggers.last().after(html);
         $(".destination-project-select").selectpicker();
