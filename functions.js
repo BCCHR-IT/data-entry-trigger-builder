@@ -307,7 +307,7 @@ function addTrigger()
     }
     else
     {
-        alert("You have reached the maximum number of allowed triggers (10)")
+        alert("You have reached the maximum number of allowed triggers (20)")
     }
 }
 
