@@ -17,24 +17,18 @@ require_once APP_PATH_DOCROOT . 'ProjectGeneral/header.php';
  *  Module accepts...
  *  - an array of objects
  *  - an array with a single key named "triggers" that contains array of objects
- *  - an array with two keys "title", which contains a string "triggers", which contains an array of objects.
  * 
- *  And returns an associative array with the following...
- *  - Title
- *  - Triggers
+ *  And returns an array of objects
 */
 function decode_json($json) {
     $decoded_json = json_decode($json, true);
 
     if (isset($decoded_json)) 
     {
-        $title = "";
         $triggers = [];
 
         if (!array_is_list($decoded_json)) 
         {
-            $title = array_key_exists("title", $decoded_json) ?  $decoded_json["title"] : "";
-            
             $decoded_json = array_filter($decoded_json, function ($key) {
                 return $key == "triggers";
             }, ARRAY_FILTER_USE_KEY);
@@ -52,10 +46,7 @@ function decode_json($json) {
             $triggers = $decoded_json;
         }
 
-        return [
-            "title" => $title,
-            "triggers" => $triggers
-        ];
+        return $triggers;
     }
 
     return false;
@@ -63,20 +54,16 @@ function decode_json($json) {
 
 $data_entry_trigger_builder = new DataEntryTriggerBuilder();
 if (!empty($_POST["json"])) {
-    $json = decode_json($_POST["json"]);
-    $title = $json["title"];
-    $settings = $json["triggers"];
+    $settings = decode_json($_POST["json"]);
     if (!$settings)
     {
-        $import_err_msg = "Invalid JSON! Please check your DET settings. Module only accepts an array of objects, or an array with a two keys: a key for \"title\", which contains a string, and a key \"triggers\" that contains array of objects";
+        $import_err_msg = "Invalid JSON! Please check your DET settings. Module only accepts an array of objects, or an array with a key \"triggers\" that contains array of objects";
     }
 }
 
 if (!$settings)
 {
-    $json = decode_json($data_entry_trigger_builder->getProjectSetting("det_settings"));
-    $title = $json["title"];
-    $settings = $json["triggers"];
+    $settings = decode_json($data_entry_trigger_builder->getProjectSetting("det_settings"));
 }
 
 ?>
@@ -245,22 +232,27 @@ if (!$settings)
                             </tbody>
                         </table>
                     </div>
-                    <h5>Title</h5>
-                    <textarea rows="1" name="title" class="form-control form-group" placeholder="Give your DET an optional title..."><?php print str_replace("\"", "'", $title); ?></textarea>
                     <?php if (!empty($settings)): foreach(array_values($settings) as $index => $trigger_obj): ?>
                     <?php 
                         $index = htmlspecialchars($index, ENT_QUOTES); 
                         $trigger = htmlspecialchars($trigger_obj["trigger"], ENT_QUOTES); 
+                        $title = htmlspecialchars($trigger_obj["title"], ENT_QUOTES); 
                     ?>
                     <div class="form-group trigger-and-data-wrapper">
                         <div class="det-trigger">
                             <div class="row">
                                 <div class="col-sm-2">
-                                    <label><h6>Trigger: #<?php print $index+1; ?></h6></label>
+                                    <label><h6>Title</h6></label>
                                 </div>
                                 <div class="col-sm-9"></div>
                                 <div class="col-sm-1" style="text-align: center;">
                                     <span class="fa fa-trash-alt delete-trigger-btn"></span>
+                                </div>
+                            </div>
+                            <textarea rows="1" name="triggers[<?php print $index;?>][title]" class="form-control form-group" placeholder="Give your trigger an optional title..."><?php print str_replace("\"", "'", $title); ?></textarea>
+                            <div class="row">
+                                <div class="col-sm-2">
+                                    <label><h6>Trigger: #<?php print $index+1; ?></h6></label>
                                 </div>
                             </div>
                             <textarea rows="1" name="triggers[<?php print $index;?>][trigger]" class="form-control det-trigger-input" required><?php print str_replace("\"", "'", $trigger); ?></textarea>
@@ -704,7 +696,7 @@ if (!$settings)
                             <div class="row">
                                 <div class="col-sm-12">
                                     <textarea style="background-color:lightgrey; border: 1px solid black; color:deeppink; padding: 5px; width:100%" rows="4" readonly>
-                                        <?php print htmlspecialchars(json_encode($json, JSON_PRETTY_PRINT), ENT_QUOTES); ?>
+                                        <?php print htmlspecialchars(json_encode($settings, JSON_PRETTY_PRINT), ENT_QUOTES); ?>
                                     </textarea>
                                 </div>
                             </div>

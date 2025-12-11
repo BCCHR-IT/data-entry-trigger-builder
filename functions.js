@@ -125,11 +125,17 @@ function addTrigger()
                 "<div class='det-trigger'>" +
                     "<div class='row'>" + 
                         "<div class='col-sm-2'>" +
-                            "<h6>Trigger: #" + (triggers.length+1) + "</h6>" +
+                            "<h6>Title</h6>" +
                         "</div>" +
                         "<div class='col-sm-9'></div>" +
                         "<div class='col-sm-1' style='text-align: center;'>" +
                             "<span class='fa fa-trash-alt delete-trigger-btn'></span>" +
+                        "</div>" +
+                    "</div>" +
+                    "<textarea rows='1' name=\"triggers[" + trigNum + "][title]\" class='form-control form-group' placeholder='Give your trigger an optional title...'></textarea>" +
+                    "<div class='row'>" + 
+                        "<div class='col-sm-2'>" +
+                            "<h6>Trigger: #" + (triggers.length+1) + "</h6>" +
                         "</div>" +
                     "</div>" +
                     "<textarea rows='1' name=\"triggers[" + trigNum + "][trigger]\" class='form-control det-trigger-input' required></textarea>" +
