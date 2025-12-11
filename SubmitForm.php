@@ -6,6 +6,7 @@
 
 $data_entry_trigger_builder = new BCCHR\DataEntryTriggerBuilder\DataEntryTriggerBuilder();
 
+$title = $_POST["title"];
 $settings = $_POST["triggers"];
 
 foreach($settings as $index => $trigger_obj)
@@ -137,7 +138,7 @@ if (!empty($errors))
 }
 else
 {
-    $data_entry_trigger_builder->setProjectSetting("det_settings", json_encode($settings));
+    $data_entry_trigger_builder->setProjectSetting("det_settings", json_encode(["title" => $title, "triggers" => $settings]));
     $data_entry_trigger_builder->setProjectSetting("saved_timestamp", date("Y-m-d H:i:s"));
     $data_entry_trigger_builder->setProjectSetting("saved_by", USERID);
     print json_encode(array("success" => true));

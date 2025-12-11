@@ -666,12 +666,13 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
 
                         if (!empty($source_instrument_fields)) {
                             $source_event = !empty($trigger_source_instruments_events[$i]) ? $trigger_source_instruments_events[$i] : null;
-                            $source_instrument_data = json_decode(REDCap::getData("json", $record, $source_instrument_fields, $source_event), true)[0];
+                            $source_instrument_data = json_decode(REDCap::getData("json", $record, $source_instrument_fields, $source_event), true);
                         }
                         
                         if (sizeof($source_instrument_data) > 0)
                         {
                             // Remove any REDcap repeat instance fields, as module is currently incompatible
+                            $source_instrument_data = $source_instrument_data[0];
                             unset($source_instrument_data["redcap_repeat_instrument"], $source_instrument_data["redcap_repeat_instance"]); 
                             $event_data = $event_data + $source_instrument_data;
                             $dest_record_data[$dest_event] = $event_data;

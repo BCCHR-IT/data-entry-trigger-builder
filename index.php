@@ -13,13 +13,28 @@ use Project;
  */
 require_once APP_PATH_DOCROOT . 'ProjectGeneral/header.php';
 
+/**
+ *  Module accepts...
+ *  - an array of objects
+ *  - an array with a single key named "triggers" that contains array of objects
+ *  - an array with two keys "title", which contains a string "triggers", which contains an array of objects.
+ * 
+ *  And returns an associative array with the following...
+ *  - Title
+ *  - Triggers
+*/
 function decode_json($json) {
     $decoded_json = json_decode($json, true);
 
-    if (isset($decoded_json)) {
-        // Module only accepts an array of objects, or an array with a single key named "triggers" that contains array of objects
-        
-        if (!array_is_list($decoded_json)) {
+    if (isset($decoded_json)) 
+    {
+        $title = "";
+        $triggers = [];
+
+        if (!array_is_list($decoded_json)) 
+        {
+            $title = array_key_exists("title", $decoded_json) ?  $decoded_json["title"] : "";
+            
             $decoded_json = array_filter($decoded_json, function ($key) {
                 return $key == "triggers";
             }, ARRAY_FILTER_USE_KEY);
@@ -30,12 +45,17 @@ function decode_json($json) {
         }
 
         $isArrayOfArrays = array_filter($decoded_json, 'is_array') === $decoded_json;
-        if ($isArrayOfArrays) {
-            return $decoded_json;
+        if (!$isArrayOfArrays) {
+            return false;
         }
         else {
-            false;
+            $triggers = $decoded_json;
         }
+
+        return [
+            "title" => $title,
+            "triggers" => $triggers
+        ];
     }
 
     return false;
@@ -43,16 +63,20 @@ function decode_json($json) {
 
 $data_entry_trigger_builder = new DataEntryTriggerBuilder();
 if (!empty($_POST["json"])) {
-    $settings = decode_json($_POST["json"]);
+    $json = decode_json($_POST["json"]);
+    $title = $json["title"];
+    $settings = $json["triggers"];
     if (!$settings)
     {
-        $import_err_msg = "Invalid JSON! Please check your DET settings. Module only accepts an array of objects, or an array with a single key named \"triggers\" that contains array of objects";
+        $import_err_msg = "Invalid JSON! Please check your DET settings. Module only accepts an array of objects, or an array with a two keys: a key for \"title\", which contains a string, and a key \"triggers\" that contains array of objects";
     }
 }
 
 if (!$settings)
 {
-    $settings = decode_json($data_entry_trigger_builder->getProjectSetting("det_settings"));
+    $json = decode_json($data_entry_trigger_builder->getProjectSetting("det_settings"));
+    $title = $json["title"];
+    $settings = $json["triggers"];
 }
 
 ?>
@@ -220,8 +244,9 @@ if (!$settings)
                                 </tr>
                             </tbody>
                         </table>
-                        <button type="button" id="add-trigger-btn" class="btn btn-primary btn-sm">Add Trigger</button>
                     </div>
+                    <h5>Title</h5>
+                    <textarea rows="1" name="title" class="form-control form-group" placeholder="Give your DET an optional title..."><?php print str_replace("\"", "'", $title); ?></textarea>
                     <?php if (!empty($settings)): foreach(array_values($settings) as $index => $trigger_obj): ?>
                     <?php 
                         $index = htmlspecialchars($index, ENT_QUOTES); 
@@ -537,6 +562,7 @@ if (!$settings)
                         </div>
                     </div>
                     <?php endforeach; endif;?>
+                    <button type="button" id="add-trigger-btn" class="btn btn-primary" style="margin-top:20px">Add Trigger</button>
                     <button id="create-det-btn" type="submit" class="btn btn-primary" style="margin-top:20px">Save DET</button>
                 </div>
             </form>
@@ -678,7 +704,7 @@ if (!$settings)
                             <div class="row">
                                 <div class="col-sm-12">
                                     <textarea style="background-color:lightgrey; border: 1px solid black; color:deeppink; padding: 5px; width:100%" rows="4" readonly>
-                                        <?php print htmlspecialchars(json_encode($settings, JSON_PRETTY_PRINT), ENT_QUOTES); ?>
+                                        <?php print htmlspecialchars(json_encode($json, JSON_PRETTY_PRINT), ENT_QUOTES); ?>
                                     </textarea>
                                 </div>
                             </div>
