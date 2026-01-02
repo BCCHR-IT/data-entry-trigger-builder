@@ -800,16 +800,33 @@ class DETBuilder extends \ExternalModules\AbstractExternalModule {
         file_put_contents($logFile, $output, FILE_APPEND);
     }
 
-
     // Return the array key for an event row ('' for classic)
     private function eventKey($isLongitudinal, $event) {
         return $isLongitudinal ? (string)$event : '';
     }
 
     // Ensure a row exists in $rowsByEvent and has link id (+ event for longitudinal)
-    private function ensureRow(array &$rowsByEvent, $key, $linkField, $record, $isLongitudinal, $event) {
+    private function ensureRow(
+        array &$rowsByEvent,
+        $key,
+        string $destPkField,
+        string $destRecordId,
+        string $linkDestField,
+        $linkValue,
+        bool $isLongitudinal,
+        string $event
+    ) {
         if (!isset($rowsByEvent[$key])) {
-            $rowsByEvent[$key] = [ $linkField => $record ];
+            // required for saveData(): destination PK must be present
+            $rowsByEvent[$key] = [
+                $destPkField => $destRecordId,
+            ];
+
+            // Keep/link the external linkage field
+            if ($linkDestField !== $destPkField && $linkValue !== null && $linkValue !== '') {
+                $rowsByEvent[$key][$linkDestField] = $linkValue;
+            }
+
             if ($isLongitudinal && $event !== '') {
                 $rowsByEvent[$key]['redcap_event_name'] = $event;
             }
@@ -901,6 +918,7 @@ class DETBuilder extends \ExternalModules\AbstractExternalModule {
 
                 if ($valid === false) {
                     // $this->debugToFile("Trigger[$index] invalid logic - skipping", $trigger);
+                    REDCap::logEvent("DET: Trigger was either syntactically incorrect, or parameters were invalid (e.g., record or event does not exist). No data moved.", "Trigger: $trigger", null, $record, $event_id, $project_id);
                     continue;
                 }
 
@@ -915,6 +933,55 @@ class DETBuilder extends \ExternalModules\AbstractExternalModule {
                     //     'link_dest_event' => $det->link_dest_event,
                     //     'link_dest_field' => $det->link_dest_field
                     // ]);
+
+                    $destPkField = (string) $ProjDest->table_pk;   // e.g. "record_id"
+
+                    // get the source link value (e.g. study_id) from the configured source event/row
+                    $srcLinkEvent = (string) ($det->link_source_event ?? '');
+                    $srcRowForLink = $det->source_rows_by_event[$srcLinkEvent]
+                        ?? $det->source_rows_by_event['']
+                        ?? $det->source_data;
+
+                    $linkValue = $srcRowForLink[$det->link_source_field] ?? null;
+
+                    // resolve/create destination record id
+                    $destRecordId = null;
+
+                    if ($det->link_dest_field === $destPkField) {
+                        // linking directly by PK
+                        $destRecordId = (string) $linkValue;
+                    } else {
+                        // lookup destination record by link field (e.g. study_id)
+                        if ($linkValue !== null && $linkValue !== '') {
+                            $safe = str_replace("'", "\\'", (string)$linkValue);
+                            $filterLogic = sprintf("[%s] = '%s'", $det->link_dest_field, $safe);
+
+                            $raw = json_decode(
+                                REDCap::getData(
+                                    $det->dest_project,
+                                    'json',
+                                    null,
+                                    [$destPkField, $det->link_dest_field],
+                                    null,
+                                    null,
+                                    false,
+                                    false,
+                                    false,
+                                    $filterLogic
+                                ),
+                                true
+                            ) ?: [];
+
+                            if (!empty($raw[0][$destPkField])) {
+                                $destRecordId = (string) $raw[0][$destPkField];
+                            }
+                        }
+
+                        // create new destination record if not found (auto-numbering must be ON)
+                        if ($destRecordId === null || $destRecordId === '') {
+                            $destRecordId = (string) REDCap::reserveNewRecordId($det->dest_project);
+                        }
+                    }
 
                     // 1) field → field pairs
                     if (!empty($det->piping_source_fields[$index])) {
@@ -957,7 +1024,17 @@ class DETBuilder extends \ExternalModules\AbstractExternalModule {
                                     ?? $det->source_rows_by_event['']
                                     ?? $det->source_data;
 
-                            $det->ensureRow($rowsByEvent, $key, $det->link_dest_field, $record, $isLongitudinal, $destEvent);
+                            $det->ensureRow(
+                                $rowsByEvent,
+                                $key,
+                                $destPkField,
+                                $destRecordId,
+                                $det->link_dest_field,
+                                $linkValue,
+                                $isLongitudinal,
+                                $destEvent
+                            );
+
                             $det->addFieldToRow(
                                 $rowsByEvent[$key],
                                 $srcField,
@@ -1003,7 +1080,17 @@ class DETBuilder extends \ExternalModules\AbstractExternalModule {
                             $key = $det->eventKey($isLongitudinal, $event);
 
 
-                            $det->ensureRow($rowsByEvent, $key, $det->link_dest_field, $record, $isLongitudinal, $event);
+                            $det->ensureRow(
+                                $rowsByEvent,
+                                $key,
+                                $destPkField,
+                                $destRecordId,
+                                $det->link_dest_field,
+                                $linkValue,
+                                $isLongitudinal,
+                                $destEvent
+                            );
+
                             $rowsByEvent[$key][$destField] = $val;
 
                             // $this->debugToFile("Trigger[$index] const[$j] staged", [
@@ -1071,7 +1158,17 @@ class DETBuilder extends \ExternalModules\AbstractExternalModule {
                                     ?? $det->source_rows_by_event['']
                                     ?? $det->source_data;
 
-                            $det->ensureRow($rowsByEvent, $key, $det->link_dest_field, $record, $isLongitudinal, $destEvent);
+                            $det->ensureRow(
+                                $rowsByEvent,
+                                $key,
+                                $destPkField,
+                                $destRecordId,
+                                $det->link_dest_field,
+                                $linkValue,
+                                $isLongitudinal,
+                                $destEvent
+                            );
+
                             $det->addInstrumentToRow(
                                 $rowsByEvent[$key],
                                 $instr,
@@ -1110,7 +1207,8 @@ class DETBuilder extends \ExternalModules\AbstractExternalModule {
                             'overwriteBehavior' => $det->overwrite_data,
                             'data'              => json_encode($payload),
                         ];
-                        // $this->debugToFile("Trigger[$index] saveData params", $save_params);
+                        $this->debugToFile("Trigger[$index] saveData params", $save_params);
+                        $this->debugToFile("Trigger[$index] payload first row", $payload[0] ?? []);
 
                         $result = REDCap::saveData($save_params);
 
@@ -1118,9 +1216,11 @@ class DETBuilder extends \ExternalModules\AbstractExternalModule {
 
                         if (!empty($result['errors'])) {
                             $this->debugToFile("Trigger[$index] ERROR(s)", (array)$result['errors']);
+                            REDCap::logEvent("DET: Errors", json_encode($save_response["errors"]), null, $record, $event_id, $project_id);
                         } else {
                             if (!empty($result['warnings'])) {
                                 $this->debugToFile("Trigger[$index] WARNING(s)", (array)$result['warnings']);
+                                REDCap::logEvent("DET: Ran sucessfully with Warnings", json_encode($save_response["warnings"]), null, $record, $event_id, $project_id);
                             }
                             $this->debugToFile(
                                 "Trigger[$index] saved OK",
@@ -1129,12 +1229,15 @@ class DETBuilder extends \ExternalModules\AbstractExternalModule {
                                     'item_count' => $result['item_count'] ?? null
                                 ]
                             );
+                            REDCap::logEvent("DET: Ran successfully", "Data was successfully imported from project $project_id to project $det->dest_project", null, $record, $event_id, $project_id);
                         }
                     } else {
                         $this->debugToFile("Trigger[$index] SKIP save - empty payload");
+                        REDCap::logEvent("DET: Trigger skipped, payload was empty (e.g., record or event does not exist). No data moved.", "Trigger: $trigger", null, $record, $event_id, $project_id);
                     }
                 } else {
                     $this->debugToFile("Trigger[$index] false - skipping", $trigger);
+                    REDCap::logEvent("DET: Trigger was either syntactically incorrect, or parameters were invalid (e.g., record or event does not exist). No data moved.", "Trigger: $trigger", null, $record, $event_id, $project_id);
                 }
             } // foreach triggers
         } // if project
