@@ -880,24 +880,6 @@ class DETBuilder extends \ExternalModules\AbstractExternalModule {
         if (isset($sourceData[$cf])) $row[$cf] = $sourceData[$cf];
     }
 
-    //test
-    private function normalizeToRedcapLogic(string $logic): string
-    {
-        // boolean operators
-        $logic = str_replace(['&&', '||'], [' and ', ' or '], $logic);
-
-        // comparisons
-        $logic = str_replace('!=', '<>', $logic);
-        $logic = preg_replace('/==/', '=', $logic);
-
-        // normalize double quotes to single quotes for string literals
-        $logic = preg_replace('/"([^"]*)"/', "'$1'", $logic);
-
-        return trim($logic);
-    }
-
-    // test
-
     public function redcap_save_record($project_id, $record, $instrument, $event_id, $group_id, $survey_hash, $response_id, $repeat_instance) {
 
         // $this->debugToFile('HOOK redcap_save_record() called', [
@@ -938,12 +920,6 @@ class DETBuilder extends \ExternalModules\AbstractExternalModule {
 
                 // $this->debugToFile("Trigger[$index] evaluateLogic result", var_export($valid, true));
 
-                // if ($valid === false) {
-                //     // $this->debugToFile("Trigger[$index] invalid logic - skipping", $trigger);
-                //     REDCap::logEvent("DET: Trigger was either syntactically incorrect, or parameters were invalid (e.g., record or event does not exist). No data moved.", "Trigger: $trigger", null, $record, $event_id, $project_id);
-                //     continue;
-                // }
-                // test
                 if ($valid === null) {
                     REDCap::logEvent("DET: Trigger was either syntactically incorrect, or parameters were invalid (e.g., record or event does not exist). No data moved.", "Trigger: $trigger", null, $record, $event_id, $project_id);
                     continue;
@@ -951,7 +927,6 @@ class DETBuilder extends \ExternalModules\AbstractExternalModule {
                 if ($valid === false) {
                     continue;
                 }
-                // test end
 
                 if ($valid) {
                     // Per-trigger staging without anonymous functions
