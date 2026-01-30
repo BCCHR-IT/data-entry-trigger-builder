@@ -833,7 +833,7 @@ class DETBuilder extends \ExternalModules\AbstractExternalModule {
         }
     }
 
-    // Add field checkbox + add the form _complete once if available
+    // Add field checkbox
     private function addFieldToRow(array &$row, $srcField, $destField, array $sourceData, array $sourceFieldTypes, array $sourceInstrumentNames) {
         if (($sourceFieldTypes[$srcField] ?? '') === 'checkbox') {
             foreach ($sourceData as $k => $v) {
@@ -844,21 +844,6 @@ class DETBuilder extends \ExternalModules\AbstractExternalModule {
         } else {
             if (array_key_exists($srcField, $sourceData)) {
                 $row[$destField] = $sourceData[$srcField];
-            }
-        }
-
-        // add that field's form completion once
-        
-        foreach ($sourceInstrumentNames as $form => $fields) {
-            if (in_array($srcField, $fields, true)) {
-                // destination must have the same form name
-                if (isset($this->dest_instrument_names[$form])) {
-                    $cf = $form . '_complete';
-                    if (isset($sourceData[$cf]) && !isset($row[$cf])) {
-                        $row[$cf] = $sourceData[$cf];
-                    }
-                }
-                break;
             }
         }
     }
