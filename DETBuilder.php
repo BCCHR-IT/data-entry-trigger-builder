@@ -803,6 +803,51 @@ class DETBuilder extends \ExternalModules\AbstractExternalModule {
     // Return the array key for an event row ('' for classic)
     private function eventKey($isLongitudinal, $event) {
         return $isLongitudinal ? (string)$event : '';
+        }
+        
+    //
+    private function resolveDestinationRecordId(\Project $projDest, $linkValue): ?string {
+        $destPkField = (string) $projDest->table_pk;
+        $isLongitudinal = (bool) $projDest->longitudinal;
+
+        if ($linkValue === null || $linkValue === '') {
+            return null;
+        }
+
+        // if link field is the destination pk, linkage is direct
+        if ($this->link_dest_field === $destPkField) {
+            return (string) $linkValue;
+        }
+
+        $safe = str_replace("'", "\\'", (string) $linkValue);
+        $filterLogic = sprintf("[%s] = '%s'", $this->link_dest_field, $safe);
+
+        $eventsToRead = null;
+        if ($isLongitudinal && !empty($this->link_dest_event)) {
+            $eventsToRead = [$this->link_dest_event];
+        }
+
+        $raw = json_decode(
+            REDCap::getData(
+                $this->dest_project,
+                'json',
+                null,
+                [$destPkField, $this->link_dest_field],
+                $eventsToRead,
+                null,
+                false,
+                false,
+                false,
+                $filterLogic
+            ),
+            true
+        ) ?: [];
+
+        if (!empty($raw[0][$destPkField])) {
+            return (string) $raw[0][$destPkField];
+        }
+
+        return null;
     }
 
     // Ensure a row exists in $rowsByEvent and has link id (+ event for longitudinal)
@@ -810,20 +855,30 @@ class DETBuilder extends \ExternalModules\AbstractExternalModule {
         array &$rowsByEvent,
         $key,
         string $destPkField,
-        string $destRecordId,
+        ?string $destRecordId,
         string $linkDestField,
         $linkValue,
         bool $isLongitudinal,
         string $event
     ) {
         if (!isset($rowsByEvent[$key])) {
-            // required for saveData(): destination PK must be present
-            $rowsByEvent[$key] = [
-                $destPkField => $destRecordId,
-            ];
+            $rowsByEvent[$key] = [];
 
-            // Keep/link the external linkage field
-            if ($linkDestField !== $destPkField && $linkValue !== null && $linkValue !== '') {
+            // Only set destination PK now if already known.
+            if ($destRecordId !== null && $destRecordId !== '') {
+                $rowsByEvent[$key][$destPkField] = $destRecordId;
+            }
+
+            $shouldWriteLinkField =
+                $linkDestField !== $destPkField &&
+                $linkValue !== null &&
+                $linkValue !== '' &&
+                (
+                    !$isLongitudinal ||
+                    $event === (string) $this->link_dest_event
+                );
+
+            if ($shouldWriteLinkField) {
                 $rowsByEvent[$key][$linkDestField] = $linkValue;
             }
 
@@ -834,11 +889,16 @@ class DETBuilder extends \ExternalModules\AbstractExternalModule {
     }
 
     // Add field checkbox
-    private function addFieldToRow(array &$row, $srcField, $destField, array $sourceData, array $sourceFieldTypes, array $sourceInstrumentNames) {
+    private function addFieldToRow(array &$row, $srcField, $destField, string $destPkField, array $sourceData, array $sourceFieldTypes, array $sourceInstrumentNames) {
+        // Never overwrite destination PK with copied data
+        if ($destField === $destPkField) {
+            return;
+        }
+
         if (($sourceFieldTypes[$srcField] ?? '') === 'checkbox') {
             foreach ($sourceData as $k => $v) {
-                if (strpos($k, $srcField.'___') === 0) {
-                    $row[$destField . substr($k, strlen($srcField))] = $v; // preserve ___code
+                if (strpos($k, $srcField . '___') === 0) {
+                    $row[$destField . substr($k, strlen($srcField))] = $v;
                 }
             }
         } else {
@@ -848,47 +908,59 @@ class DETBuilder extends \ExternalModules\AbstractExternalModule {
         }
     }
 
-    // Add an entire instrument (+ its _complete)
-    private function addInstrumentToRow(array &$row, $instrument, array $sourceData, array $sourceFieldTypes, array $sourceInstrumentNames) {
+    // Add an entire instrument (+ its _complete) to the row, except for the destination PK field
+    private function addInstrumentToRow(array &$row, $instrument, string $destPkField, array $sourceData, array $sourceFieldTypes, array $sourceInstrumentNames) {
         $fields = $sourceInstrumentNames[$instrument] ?? [];
         foreach ($fields as $f) {
+            if ($f === $destPkField) {
+                continue;
+            }
+
             $type = $sourceFieldTypes[$f] ?? '';
+
             if ($type === 'checkbox') {
                 foreach ($sourceData as $k => $v) {
-                    if (strpos($k, $f.'___') === 0) $row[$k] = $v;
+                    if (strpos($k, $f . '___') === 0) {
+                        $row[$k] = $v;
+                    }
                 }
             } else {
-                if (array_key_exists($f, $sourceData)) $row[$f] = $sourceData[$f];
+                if (array_key_exists($f, $sourceData)) {
+                    $row[$f] = $sourceData[$f];
+                }
             }
         }
+
         $cf = $instrument . '_complete';
-        if (isset($sourceData[$cf])) $row[$cf] = $sourceData[$cf];
+        if (isset($sourceData[$cf])) {
+            $row[$cf] = $sourceData[$cf];
+        }
     }
 
     public function redcap_save_record($project_id, $record, $instrument, $event_id, $group_id, $survey_hash, $response_id, $repeat_instance) {
 
-        // $this->debugToFile('HOOK redcap_save_record() called', [
-        //     'project_id' => $project_id,
-        //     'record' => $record,
-        //     'instrument' => $instrument,
-        //     'event_id' => $event_id,
-        //     'group_id' => $group_id,
-        //     'repeat_instance' => $repeat_instance
-        // ]);
+        $this->debugToFile('HOOK redcap_save_record() called', [
+            'project_id' => $project_id,
+            'record' => $record,
+            'instrument' => $instrument,
+            'event_id' => $event_id,
+            'group_id' => $group_id,
+            'repeat_instance' => $repeat_instance
+        ]);
 
         $det = new DETBuilder();  // make a new DETBuilder object and load the relevant data
         $det->initializeObject($project_id, $record);
 
-        // $this->debugToFile('DET snapshot', [
-        //     'dest_project'        => $det->dest_project,
-        //     'link_source_event'   => $det->link_source_event,
-        //     'link_source_field'   => $det->link_source_field,
-        //     'link_dest_event'     => $det->link_dest_event,
-        //     'link_dest_field'     => $det->link_dest_field,
-        //     'overwrite'           => $det->overwrite_data,
-        //     'import_dags'         => $det->import_dags,
-        //     'triggers_count'      => is_array($det->triggers) ? count($det->triggers) : 0
-        // ]);
+        $this->debugToFile('DET snapshot', [
+            'dest_project'        => $det->dest_project,
+            'link_source_event'   => $det->link_source_event,
+            'link_source_field'   => $det->link_source_field,
+            'link_dest_event'     => $det->link_dest_event,
+            'link_dest_field'     => $det->link_dest_field,
+            'overwrite'           => $det->overwrite_data,
+            'import_dags'         => $det->import_dags,
+            'triggers_count'      => is_array($det->triggers) ? count($det->triggers) : 0
+        ]);
 
         // $this->debugToFile('Source data keys', array_keys($det->source_data ?? []));
 
@@ -897,6 +969,21 @@ class DETBuilder extends \ExternalModules\AbstractExternalModule {
             //     'project_id' => $project_id,
             //     'getProjectId' => $this->getProjectId()
             // ]);
+
+            $ProjDest       = new \Project($det->dest_project);
+            $isLongitudinal = (bool) $ProjDest->longitudinal;
+            $destPkField    = (string) $ProjDest->table_pk;
+
+            // Resolve source link value once per save.
+            $srcLinkEvent = (string) ($det->link_source_event ?? '');
+            $srcRowForLink = $det->source_rows_by_event[$srcLinkEvent]
+                ?? $det->source_rows_by_event['']
+                ?? $det->source_data;
+
+            $linkValue = $srcRowForLink[$det->link_source_field] ?? null;
+
+            // Resolve destination record once per save.
+            $destRecordId = $det->resolveDestinationRecordId($ProjDest, $linkValue);
 
             foreach($det->triggers as $index => $trigger) {
                 // $this->debugToFile("Trigger[$index] evaluate", $trigger);
@@ -916,63 +1003,6 @@ class DETBuilder extends \ExternalModules\AbstractExternalModule {
                 if ($valid) {
                     // Per-trigger staging without anonymous functions
                     $rowsByEvent = []; // key => row array
-                    $ProjDest       = new \Project($det->dest_project);
-                    $isLongitudinal = (bool) $ProjDest->longitudinal;
-
-                    // $this->debugToFile("Trigger[$index] context", [
-                    //     'isLongitudinal' => $isLongitudinal,
-                    //     'link_dest_event' => $det->link_dest_event,
-                    //     'link_dest_field' => $det->link_dest_field
-                    // ]);
-
-                    $destPkField = (string) $ProjDest->table_pk;   // e.g. "record_id"
-
-                    // get the source link value (e.g. study_id) from the configured source event/row
-                    $srcLinkEvent = (string) ($det->link_source_event ?? '');
-                    $srcRowForLink = $det->source_rows_by_event[$srcLinkEvent]
-                        ?? $det->source_rows_by_event['']
-                        ?? $det->source_data;
-
-                    $linkValue = $srcRowForLink[$det->link_source_field] ?? null;
-
-                    // resolve/create destination record id
-                    $destRecordId = null;
-
-                    if ($det->link_dest_field === $destPkField) {
-                        // linking directly by PK
-                        $destRecordId = (string) $linkValue;
-                    } else {
-                        // lookup destination record by link field (e.g. study_id)
-                        if ($linkValue !== null && $linkValue !== '') {
-                            $safe = str_replace("'", "\\'", (string)$linkValue);
-                            $filterLogic = sprintf("[%s] = '%s'", $det->link_dest_field, $safe);
-
-                            $raw = json_decode(
-                                REDCap::getData(
-                                    $det->dest_project,
-                                    'json',
-                                    null,
-                                    [$destPkField, $det->link_dest_field],
-                                    null,
-                                    null,
-                                    false,
-                                    false,
-                                    false,
-                                    $filterLogic
-                                ),
-                                true
-                            ) ?: [];
-
-                            if (!empty($raw[0][$destPkField])) {
-                                $destRecordId = (string) $raw[0][$destPkField];
-                            }
-                        }
-
-                        // create new destination record if not found (auto-numbering must be ON)
-                        if ($destRecordId === null || $destRecordId === '') {
-                            $destRecordId = (string) REDCap::reserveNewRecordId($det->dest_project);
-                        }
-                    }
 
                     // 1) field → field pairs
                     if (!empty($det->piping_source_fields[$index])) {
@@ -1030,6 +1060,7 @@ class DETBuilder extends \ExternalModules\AbstractExternalModule {
                                 $rowsByEvent[$key],
                                 $srcField,
                                 $destField,
+                                $destPkField,
                                 $sourceRow,
                                 $det->source_field_types,
                                 $det->source_instrument_names
@@ -1070,7 +1101,6 @@ class DETBuilder extends \ExternalModules\AbstractExternalModule {
                             }
                             $key = $det->eventKey($isLongitudinal, $event);
 
-
                             $det->ensureRow(
                                 $rowsByEvent,
                                 $key,
@@ -1079,7 +1109,7 @@ class DETBuilder extends \ExternalModules\AbstractExternalModule {
                                 $det->link_dest_field,
                                 $linkValue,
                                 $isLongitudinal,
-                                $destEvent
+                                $event
                             );
 
                             $rowsByEvent[$key][$destField] = $val;
@@ -1163,6 +1193,7 @@ class DETBuilder extends \ExternalModules\AbstractExternalModule {
                             $det->addInstrumentToRow(
                                 $rowsByEvent[$key],
                                 $instr,
+                                $destPkField,
                                 $sourceRow,
                                 $det->source_field_types,
                                 $det->source_instrument_names
@@ -1183,7 +1214,8 @@ class DETBuilder extends \ExternalModules\AbstractExternalModule {
                     // 4) prune empty rows
                     $payload = [];
                     foreach ($rowsByEvent as $r) {
-                        $keys = array_diff(array_keys($r), [$det->link_dest_field, 'redcap_event_name']);
+                        $keys = array_diff(array_keys($r), [$destPkField, $det->link_dest_field, 'redcap_event_name']);
+
                         if (!empty($keys)) $payload[] = $r;
                     }
 
@@ -1191,6 +1223,21 @@ class DETBuilder extends \ExternalModules\AbstractExternalModule {
 
                     // 5) save once for this trigger
                     if (!empty($payload)) {
+                        if ($destRecordId === null || $destRecordId === '') {
+                            // $this->debugToFile('RESERVING NEW DEST RECORD', [
+                            //     'source_record' => $record,
+                            //     'link_value' => $linkValue,
+                            //     'trigger_index' => $index,
+                            // ]);
+
+                            $destRecordId = (string) REDCap::reserveNewRecordId($det->dest_project);
+                        }
+
+                        // Stamp the resolved/new destination PK onto every row right before save.
+                        foreach ($payload as &$row) {
+                            $row[$destPkField] = $destRecordId;
+                        }
+                        unset($row);
                         $save_params = [
                             'project_id'        => $det->dest_project,
                             'dataFormat'        => 'json',
@@ -1198,20 +1245,20 @@ class DETBuilder extends \ExternalModules\AbstractExternalModule {
                             'overwriteBehavior' => $det->overwrite_data,
                             'data'              => json_encode($payload),
                         ];
-                        $this->debugToFile("Trigger[$index] saveData params", $save_params);
-                        $this->debugToFile("Trigger[$index] payload first row", $payload[0] ?? []);
-
+                        // $this->debugToFile("Trigger[$index] saveData params", $save_params);
+                        // $this->debugToFile("Trigger[$index] payload first row", $payload[0] ?? []);
+                        
                         $result = REDCap::saveData($save_params);
 
                         // $this->debugToFile("Trigger[$index] saveData result", $result);
 
                         if (!empty($result['errors'])) {
                             $this->debugToFile("Trigger[$index] ERROR(s)", (array)$result['errors']);
-                            REDCap::logEvent("DET: Errors", json_encode($save_response["errors"]), null, $record, $event_id, $project_id);
+                            REDCap::logEvent("DET: Errors", json_encode($result["errors"]), null, $record, $event_id, $project_id);
                         } else {
                             if (!empty($result['warnings'])) {
                                 $this->debugToFile("Trigger[$index] WARNING(s)", (array)$result['warnings']);
-                                REDCap::logEvent("DET: Ran sucessfully with Warnings", json_encode($save_response["warnings"]), null, $record, $event_id, $project_id);
+                                REDCap::logEvent("DET: Ran sucessfully with Warnings", json_encode($result["warnings"]), null, $record, $event_id, $project_id);
                             }
                             $this->debugToFile(
                                 "Trigger[$index] saved OK",

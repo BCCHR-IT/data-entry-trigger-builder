@@ -80,10 +80,9 @@ $Proj = new Project();
             textarea {
                 resize: vertical;
             }
-            #add-field-modal .ui-autocomplete,
-            #add-instr-modal .ui-autocomplete {
+            .ui-autocomplete {
                 position: absolute;
-                z-index: 1000 !important; 
+                z-index: 20000 !important;
             }
         </style>
         <!-- Expose CSRF token to JS for Framework v8 POSTs -->

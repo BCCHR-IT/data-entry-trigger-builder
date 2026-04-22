@@ -14,38 +14,81 @@
      * source project
      */
     <?php if (REDCap::isLongitudinal()): ?>
-        var sourceEvents = [
-            <?php
-            foreach ($metadata["events"] as $event)
-            {
-                print "'$event',";
-            }
-            ?>
-        ]
-        $(".source-events-autocomplete" ).autocomplete({source: sourceEvents, appendTo: "#add-instr-modal"});
-    <?php else: ?>
-        var sourceEvents = [];
-    <?php endif;?>
-
-    var sourceFields = [
+    var sourceEvents = [
         <?php
-        foreach ($metadata["fields"] as $field)
+        foreach ($metadata["events"] as $event)
         {
-            print "'$field',";
+            print "'$event',";
         }
         ?>
-    ]
-    $(".source-fields-autocomplete").autocomplete({source: sourceFields, appendTo: "#add-field-modal"});
+    ];
 
-    var sourceInstr = [
-        <?php
-        foreach ($instrument_names as $unique_name => $label)
-        {
-            print "'$unique_name',";
-        }
-        ?>
-    ]
-    $(".source-instr-autocomplete").autocomplete({source: sourceInstr, appendTo: "#add-instr-modal"});
+    $("#linkSourceEvent").autocomplete({
+        source: sourceEvents,
+        minLength: 0
+    }).off("focus.detOpen").on("focus.detOpen", function () {
+        $(this).autocomplete("search", $(this).val());
+    });
+
+    $("#event-select").autocomplete({
+        source: sourceEvents,
+        minLength: 0,
+        appendTo: "#add-field-modal"
+    }).off("focus.detOpen").on("focus.detOpen", function () {
+        $(this).autocomplete("search", $(this).val());
+    });
+
+    $("#instr-event-select").autocomplete({
+        source: sourceEvents,
+        minLength: 0,
+        appendTo: "#add-instr-modal"
+    }).off("focus.detOpen").on("focus.detOpen", function () {
+        $(this).autocomplete("search", $(this).val());
+    });
+<?php else: ?>
+    var sourceEvents = [];
+<?php endif;?>
+
+var sourceFields = [
+    <?php
+    foreach ($metadata["fields"] as $field)
+    {
+        print "'$field',";
+    }
+    ?>
+];
+
+$("#linkSource").autocomplete({
+    source: sourceFields,
+    minLength: 0
+}).off("focus.detOpen").on("focus.detOpen", function () {
+    $(this).autocomplete("search", $(this).val());
+});
+
+$("#field-select").autocomplete({
+    source: sourceFields,
+    minLength: 0,
+    appendTo: "#add-field-modal"
+}).off("focus.detOpen").on("focus.detOpen", function () {
+    $(this).autocomplete("search", $(this).val());
+});
+
+var sourceInstr = [
+    <?php
+    foreach ($instrument_names as $unique_name => $label)
+    {
+        print "'$unique_name',";
+    }
+    ?>
+];
+
+$("#instr-select").autocomplete({
+    source: sourceInstr,
+    minLength: 0,
+    appendTo: "#add-instr-modal"
+}).off("focus.detOpen").on("focus.detOpen", function () {
+    $(this).autocomplete("search", $(this).val());
+});
 
     /**
      * When user goes to add a field or instrument
@@ -98,7 +141,7 @@
                 },
                 success: function (data) {
                     updateAutocompleteItems(data);
-                    $(".dest-fields-autocomplete").autocomplete({source: destFields, appendTo: "#add-field-modal"});
+                    $("#dest-field-select").autocomplete({source: destFields, appendTo: "#add-field-modal"});
                 },
                 error: function (data, status, error) {
                     console.log("Returned with status " + status + " - " + error);
