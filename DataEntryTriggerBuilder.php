@@ -13,7 +13,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
 {
     private $project_metadata;
     
-    private function retrieveMetadata($pid = null)
+    private function retrieveMetadata($pid = null, $include_file_types = false)
     {
         // Events
         $RedcapProj = new Project($pid);
@@ -52,7 +52,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
                 }
             }
             
-            if ($data["field_type"] != "descriptive" && $data["field_type"] != "signature" && $data["field_type"] != "file")
+            if ($data["field_type"] != "descriptive" && (($data["field_type"] != "signature" && $data["field_type"] != "file") || $include_file_types))
             {
                 $valid_fields[] = $field_name;
             }
@@ -73,7 +73,7 @@ class DataEntryTriggerBuilder extends \ExternalModules\AbstractExternalModule
         if ($this->project_metadata[$key]) {
             return;
         }
-        $this->project_metadata[$key] = $this->retrieveMetadata($pid);
+        $this->project_metadata[$key] = $this->retrieveMetadata($pid, true);
     }
     
     /**
